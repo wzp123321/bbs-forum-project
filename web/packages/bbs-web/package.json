@@ -8,11 +8,17 @@
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint src",
-    "fix": "eslint src --fix"
+    "fix": "eslint src --fix",
+    "stylelint": "stylelint \"src/**/*.(less|css)\" --fix"
   },
   "dependencies": {
     "@bbs/core": "workspace:^",
     "@bbs/utils": "workspace:^",
+    "postcss-less": "^6.0.0",
+    "stylelint": "^16.6.1",
+    "stylelint-config-prettier": "^9.0.5",
+    "stylelint-config-rational-order": "^0.1.2",
+    "stylelint-config-standard": "^36.0.0",
     "vue": "^3.4.21"
   },
   "devDependencies": {
@@ -26,6 +32,8 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-vue": "^9.26.0",
     "globals": "^15.5.0",
+    "less": "^4.2.0",
+    "less-loader": "^12.2.0",
     "prettier": "^3.3.2",
     "typescript": "^5.2.2",
     "typescript-eslint": "^7.13.0",
