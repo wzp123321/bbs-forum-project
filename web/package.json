@@ -9,7 +9,8 @@
 		"web:dev": "pnpm run --filter @bbs/web dev",
 		"admin:dev": "pnpm run --filter @bbs/admin dev",
 		"web:build": "pnpm run --filter @bbs/web build",
-		"admin:build": "pnpm run --filter @bbs/admin build"
+		"admin:build": "pnpm run --filter @bbs/admin build",
+		"prepare": "husky install"
 	},
 	"keywords": [],
 	"author": "",
@@ -26,7 +27,10 @@
 		"zp-common-utils": "^0.2.5"
 	},
 	"devDependencies": {
+		"@commitlint/cli": "^19.3.0",
+		"@commitlint/config-conventional": "^19.2.2",
 		"@types/node": "^20.14.2",
+		"husky": "^8.0.0",
 		"lodash": "^4.17.21"
 	}
 }
