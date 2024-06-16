@@ -1,0 +1,32 @@
+{
+	"name": "web",
+	"version": "1.0.0",
+	"description": "",
+	"private": true,
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"web:dev": "pnpm run --filter @bbs/web dev",
+		"admin:dev": "pnpm run --filter @bbs/admin dev",
+		"web:build": "pnpm run --filter @bbs/web build",
+		"admin:build": "pnpm run --filter @bbs/admin build"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"engines": {
+		"node": ">=16",
+		"pnpm": ">=7"
+	},
+	"dependencies": {
+		"axios": "^1.7.2",
+		"element-plus": "^2.7.5",
+		"pinia": "^2.1.7",
+		"vue-router": "^4.3.3",
+		"zp-common-utils": "^0.2.5"
+	},
+	"devDependencies": {
+		"@types/node": "^20.14.2",
+		"lodash": "^4.17.21"
+	}
+}
