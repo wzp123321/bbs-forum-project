@@ -40,6 +40,85 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
 
+  packages/bbs-admin:
+    dependencies:
+      '@bbs/core':
+        specifier: workspace:^
+        version: link:../../public/core
+      '@bbs/utils':
+        specifier: workspace:^
+        version: link:../../public/utils
+      postcss-less:
+        specifier: ^6.0.0
+        version: 6.0.0(postcss@7.0.39)
+      stylelint:
+        specifier: ^16.6.1
+        version: 16.6.1(typescript@5.4.5)
+      stylelint-config-prettier:
+        specifier: ^9.0.5
+        version: 9.0.5(stylelint@16.6.1(typescript@5.4.5))
+      stylelint-config-rational-order:
+        specifier: ^0.1.2
+        version: 0.1.2
+      stylelint-config-standard:
+        specifier: ^36.0.0
+        version: 36.0.0(stylelint@16.6.1(typescript@5.4.5))
+      vue:
+        specifier: ^3.4.21
+        version: 3.4.29(typescript@5.4.5)
+    devDependencies:
+      '@babel/eslint-parser':
+        specifier: ^7.19.1
+        version: 7.24.7(@babel/core@7.24.7)(eslint@9.5.0)
+      '@eslint/js':
+        specifier: ^9.5.0
+        version: 9.5.0
+      '@vitejs/plugin-vue':
+        specifier: ^5.0.4
+        version: 5.0.5(vite@5.3.1(@types/node@20.14.2)(less@4.2.0)(sugarss@2.0.0))(vue@3.4.29(typescript@5.4.5))
+      eslint:
+        specifier: ^9.5.0
+        version: 9.5.0
+      eslint-config-prettier:
+        specifier: ^8.10.0
+        version: 8.10.0(eslint@9.5.0)
+      eslint-plugin-import:
+        specifier: ^2.27.5
+        version: 2.29.1(@typescript-eslint/parser@7.13.0(eslint@9.5.0)(typescript@5.4.5))(eslint@9.5.0)
+      eslint-plugin-node:
+        specifier: ^11.1.0
+        version: 11.1.0(eslint@9.5.0)
+      eslint-plugin-prettier:
+        specifier: ^4.2.1
+        version: 4.2.1(eslint-config-prettier@8.10.0(eslint@9.5.0))(eslint@9.5.0)(prettier@3.3.2)
+      eslint-plugin-vue:
+        specifier: ^9.26.0
+        version: 9.26.0(eslint@9.5.0)
+      globals:
+        specifier: ^15.5.0
+        version: 15.5.0
+      less:
+        specifier: ^4.2.0
+        version: 4.2.0
+      less-loader:
+        specifier: ^12.2.0
+        version: 12.2.0(less@4.2.0)
+      prettier:
+        specifier: ^3.3.2
+        version: 3.3.2
+      typescript:
+        specifier: ^5.2.2
+        version: 5.4.5
+      typescript-eslint:
+        specifier: ^7.13.0
+        version: 7.13.0(eslint@9.5.0)(typescript@5.4.5)
+      vite:
+        specifier: ^5.2.0
+        version: 5.3.1(@types/node@20.14.2)(less@4.2.0)(sugarss@2.0.0)
+      vue-tsc:
+        specifier: ^2.0.6
+        version: 2.0.21(typescript@5.4.5)
+
   packages/bbs-web:
     dependencies:
       '@bbs/core':
@@ -6038,13 +6117,13 @@ snapshots:
     dependencies:
       htmlparser2: 3.10.1
       postcss: 7.0.39
-      postcss-syntax: 0.36.2(postcss-less@6.0.0(postcss@7.0.39))(postcss@7.0.39)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0)(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0)(postcss-scss@2.1.1)(postcss@7.0.39)
 
   postcss-jsx@0.36.4(postcss-syntax@0.36.2)(postcss@7.0.39):
     dependencies:
       '@babel/core': 7.24.7
       postcss: 7.0.39
-      postcss-syntax: 0.36.2(postcss-less@6.0.0(postcss@7.0.39))(postcss@7.0.39)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0)(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0)(postcss-scss@2.1.1)(postcss@7.0.39)
     transitivePeerDependencies:
       - supports-color
 
@@ -6059,7 +6138,7 @@ snapshots:
   postcss-markdown@0.36.0(postcss-syntax@0.36.2)(postcss@7.0.39):
     dependencies:
       postcss: 7.0.39
-      postcss-syntax: 0.36.2(postcss-less@6.0.0(postcss@7.0.39))(postcss@7.0.39)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0)(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0)(postcss-scss@2.1.1)(postcss@7.0.39)
       remark: 10.0.1
       unist-util-find-all-after: 1.0.5
 
@@ -6107,11 +6186,15 @@ snapshots:
       lodash: 4.17.21
       postcss: 7.0.39
 
-  postcss-syntax@0.36.2(postcss-less@6.0.0(postcss@7.0.39))(postcss@7.0.39):
+  postcss-syntax@0.36.2(postcss-html@0.36.0)(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0)(postcss-scss@2.1.1)(postcss@7.0.39):
     dependencies:
       postcss: 7.0.39
     optionalDependencies:
-      postcss-less: 6.0.0(postcss@7.0.39)
+      postcss-html: 0.36.0(postcss-syntax@0.36.2)(postcss@7.0.39)
+      postcss-jsx: 0.36.4(postcss-syntax@0.36.2)(postcss@7.0.39)
+      postcss-less: 3.1.4
+      postcss-markdown: 0.36.0(postcss-syntax@0.36.2)(postcss@7.0.39)
+      postcss-scss: 2.1.1
 
   postcss-value-parser@3.3.1: {}
 
@@ -6613,7 +6696,7 @@ snapshots:
       postcss-sass: 0.3.5
       postcss-scss: 2.1.1
       postcss-selector-parser: 3.1.2
-      postcss-syntax: 0.36.2(postcss-less@6.0.0(postcss@7.0.39))(postcss@7.0.39)
+      postcss-syntax: 0.36.2(postcss-html@0.36.0)(postcss-jsx@0.36.4)(postcss-less@3.1.4)(postcss-markdown@0.36.0)(postcss-scss@2.1.1)(postcss@7.0.39)
       postcss-value-parser: 3.3.1
       resolve-from: 4.0.0
       signal-exit: 3.0.7
