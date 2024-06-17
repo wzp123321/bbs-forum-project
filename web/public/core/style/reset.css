@@ -32,7 +32,10 @@ button,
 input,
 select,
 textarea {
-	font: 12px/1.5tahoma, arial, \5b8b\4f53;
+	font:
+		12px/1.5tahoma,
+		arial,
+		\5b8b\4f53;
 }
 
 h1,
@@ -103,4 +106,12 @@ textarea {
 table {
 	border-collapse: collapse;
 	border-spacing: 0;
+}
+
+body,
+html,
+#app {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
 }

@@ -9,12 +9,16 @@ export default [
   ...tseslint.configs.recommended,
   ...pluginVue.configs['flat/essential'],
   {
+    parserOptions: {
+      ecmaVersion: 2020,
+      sourceType: 'module',
+    },
     rules: {
       // eslint（https://eslint.bootcss.com/docs/rules/）
       'no-var': 'error', // 要求使用 let 或 const 而不是 var
       'no-multiple-empty-lines': ['warn', { max: 1 }], // 不允许多个空行
-      'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-      'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+      'no-console': import.meta.env.VITE_NODE_ENV === 'production' ? 'error' : 'off',
+      'no-debugger': import.meta.env.VITE_NODE_ENV === 'production' ? 'error' : 'off',
       'no-unexpected-multiline': 'error', // 禁止空余的多行
       'no-useless-escape': 'off', // 禁止不必要的转义字符
 

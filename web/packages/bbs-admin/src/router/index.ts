@@ -3,14 +3,32 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    redirect: '/demo',
+    name: 'main',
+    meta: {
+      title: '9527论坛',
+    },
+    component: () => import('../layout/index.vue'),
   },
   {
-    path: '/demo',
+    path: '/login',
+    name: 'login',
     meta: {
-      title: 'demo',
+      title: '登录',
     },
-    component: () => import('../pages/demo/demo.vue'),
+    component: () => import('../layout/login/login.vue'),
+  },
+  {
+    path: '/404',
+    name: '404',
+    meta: {
+      title: '404',
+    },
+    component: () => import('../layout/404/404.vue'),
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'default',
+    component: () => import('../layout/404/404.vue'),
   },
 ];
 

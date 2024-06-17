@@ -4,10 +4,11 @@ import vue from '@vitejs/plugin-vue';
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
+import requireTransform from 'vite-plugin-require-transform';
 import { resolve } from 'path';
 
 // https://vitejs.dev/config/
-export default ({ mode, command }: any) =>
+export default ({ mode }: any) =>
   defineConfig({
     // 开发或生产环境服务的公共基础路径
     base: './',
@@ -96,6 +97,9 @@ export default ({ mode, command }: any) =>
     },
     plugins: [
       vue(),
+      requireTransform({
+        fileRegex: /.ts$|.tsx$|.vue$/,
+      }),
       AutoImport({
         resolvers: [ElementPlusResolver()],
       }),
