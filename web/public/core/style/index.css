@@ -1,2 +1,20 @@
 @import './parameter.css';
 @import './reset.css';
+
+@font-face {
+	font-family: 'DINPro Medium';
+	font-style: normal;
+	font-weight: normal;
+	src:
+		local('DINPro Medium'),
+		url('../font/DINPro-Medium tr.woff') format('woff');
+}
+
+@font-face {
+	font-family: 'DINPro Bold';
+	font-style: normal;
+	font-weight: normal;
+	src:
+		local('DINPro Bold'),
+		url('../font/DINPro-Bold tr.woff') format('woff');
+}

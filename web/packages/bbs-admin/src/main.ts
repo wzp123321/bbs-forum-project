@@ -2,6 +2,8 @@ import { createApp } from 'vue';
 import App from './app.vue';
 // router
 import router from './router';
+// 样式
+import './assets/css/common.less';
 // 自定义指令
 import { registerInputFilter } from '@bbs/core';
 // 注册element-plus

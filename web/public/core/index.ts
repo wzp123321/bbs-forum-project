@@ -6,5 +6,7 @@ import { registerElementPlus } from './register';
 import { registerInputFilter, dragDirectiveRegister } from './directives';
 // 拦截器
 import './interceptor';
+// 类型
+export * from './model';
 
 export { registerElementPlus, registerInputFilter, dragDirectiveRegister };

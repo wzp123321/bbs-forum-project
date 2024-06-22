@@ -1,15 +1,6 @@
 import { ref } from 'vue';
 import { ElMessage } from 'element-plus';
-
-/**
- * 响应结果
- */
-interface CommonRes<T> {
-	code: number;
-	data: T;
-	message: string;
-	success: boolean;
-}
+import { CommonHttpRes } from '../model';
 
 export const useFileHandler = () => {
 	// 文件列表
@@ -40,13 +31,13 @@ export const useFileHandler = () => {
 	 * @returns
 	 */
 	const transferFileToUrl = (file: File) => {
-		let url = null;
+		let url: string = '';
 		if ((window as any).createObjectURL != undefined) {
 			url = (window as any).createObjectURL(file);
 		} else if (window.URL != undefined) {
-			url = window.URL.createObjectURL(file);
+			url = window.URL.createObjectURL(file) ?? '';
 		} else if (window.webkitURL != undefined) {
-			url = window.webkitURL.createObjectURL(file);
+			url = window.webkitURL.createObjectURL(file) ?? '';
 		}
 		return url;
 	};
@@ -101,7 +92,7 @@ export const useFileHandler = () => {
 
 				if (blob.type.includes('json')) {
 					reader.onloadend = (e) => {
-						const res: CommonRes<void> = JSON.parse(e.target?.result as string);
+						const res: CommonHttpRes<void> = JSON.parse(e.target?.result as string);
 						reject(res?.message ?? '未知原因');
 					};
 					reader.readAsText(blob);
@@ -147,7 +138,7 @@ export const useFileHandler = () => {
 	const mapFileChunks = (file: File) => {
 		const CHUNK_SIZE = 1024 * 1024 * 10; // 每个文件切片大小定为10MB .
 		const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
-		const chunks = [];
+		const chunks: { index: number; data: Blob }[] = [];
 		for (let index = 0; index < totalChunks; index++) {
 			const start = index * CHUNK_SIZE;
 			const end = Math.min(start + CHUNK_SIZE, file.size);
@@ -166,7 +157,6 @@ export const useFileHandler = () => {
 		handleFileChoose,
 		transferFileToUrl,
 		mapFileChunks,
-		mapFileMD5,
 		verifyUpload,
 		FBlobHandler,
 		FDownLoadHandler,

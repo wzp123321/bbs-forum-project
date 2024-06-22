@@ -1,3 +1,168 @@
 :root {
-	--bbs-color-default: rgb(255, 255, 255);
+	/* 间距 */
+	--bbs-space-4: 4px;
+	--bbs-space-8: 8px;
+	--bbs-space-12: 12px;
+	--bbs-space-16: 16px;
+	--bbs-space-20: 20px;
+	--bbs-space-24: 24px;
+	--bbs-space-32: 32px;
+	--bbs-space-40: 40px;
+	--bbs-space-48: 48px;
+	--bbs-space-64: 64px;
+	--bbs-space-80: 80px;
+	--bbs-space-96: 96px;
+	--bbs-space-160: 160px;
+	/* 圆角 */
+	--bbs-radius-s: var(--bbs-size-1);
+	--bbs-radius-m: var(--bbs-size-2);
+	--bbs-radius-l: var(--bbs-size-4);
+	--bbs-radius-xl: var(--bbs-size-8);
+	--bbs-radius-round: 9999;
+	/* 颜色 */
+	--bbs-color-white: #ffffff;
+	--bbs-color-black: #000000;
+	--bbs-color-primary: #0e6dfa;
+	--bbs-color-success: #21b534;
+	--bbs-color-warning: #fa8205;
+	--bbs-color-danger: #e60a15;
+	--bbs-color-error: #e60a15;
+	--bbs-color-error-light-3: #ee545b;
+	--bbs-color-error-light-5: #f3858a;
+	--bbs-color-error-light-7: #f8b6b9;
+	--bbs-color-error-light-8: #faced0;
+	--bbs-color-error-light-9: #fde7e8;
+	--bbs-color-error-dark-2: #b80811;
+	--bbs-color-info: #909399;
+	--bbs-bg-color: #ffffff;
+	--bbs-gray-color-1: #f7f7f7;
+	--bbs-gray-color-2: #f2f2f2;
+	--bbs-gray-color-3: #ededed;
+	--bbs-gray-color-4: #e8e8e8;
+	--bbs-gray-color-5: #dedede;
+	--bbs-gray-color-6: #b5b5b5;
+	--bbs-gray-color-7: #969696;
+	--bbs-gray-color-8: #828282;
+	--bbs-gray-color-9: #6e6e6e;
+	--bbs-gray-color-10: #636363;
+	--bbs-gray_brand-color-1: #f5f6f8;
+	--bbs-gray_brand-color-2: #eef0f3;
+	--bbs-gray_brand-color-3: #e7eaef;
+	--bbs-gray_brand-color-4: #dfe4eb;
+	--bbs-gray_brand-color-5: #d3d9e2;
+	--bbs-gray_brand-color-6: #aab2be;
+	--bbs-gray_brand-color-7: #8691a2;
+	--bbs-gray_brand-color-8: #747d8a;
+	--bbs-gray_brand-color-9: #626770;
+	--bbs-gray_brand-color-10: #585b60;
+	--bbs-danger-color-1: #fce6e7;
+	--bbs-danger-color-2: #faced0;
+	--bbs-danger-color-3: #f7b5b9;
+	--bbs-danger-color-4: #f59da1;
+	--bbs-danger-color-5: #f3848a;
+	--bbs-danger-color-6: #ee545b;
+	--bbs-danger-color-7: #e60a15;
+	--bbs-danger-color-8: #b80811;
+	--bbs-danger-color-9: #73050b;
+	--bbs-danger-color-10: #450306;
+	--bbs-warning-color-1: #fef2e6;
+	--bbs-warning-color-2: #fee6cd;
+	--bbs-warning-color-3: #fdd9b4;
+	--bbs-warning-color-4: #fdcd9b;
+	--bbs-warning-color-5: #fdc182;
+	--bbs-warning-color-6: #fca750;
+	--bbs-warning-color-7: #fa8205;
+	--bbs-warning-color-8: #c86804;
+	--bbs-warning-color-9: #7d4103;
+	--bbs-warning-color-10: #4b2702;
+	--bbs-success-color-1: #e8f7ea;
+	--bbs-success-color-2: #d3f0d6;
+	--bbs-success-color-3: #bce9c2;
+	--bbs-success-color-4: #a6e1ae;
+	--bbs-success-color-5: #90da99;
+	--bbs-success-color-6: #64cb71;
+	--bbs-success-color-7: #21b534;
+	--bbs-success-color-8: #1a912a;
+	--bbs-success-color-9: #105a1a;
+	--bbs-success-color-10: #0a3610;
+	--bbs-color-primary-light: #e6f0fe;
+	--bbs-color-primary-light-hover: #cfe2fe;
+	--bbs-color-primary-light-border: #b7d3fd;
+	--bbs-brand-color-4: #9fc5fd;
+	--bbs-color-primary-disabled: #86b6fd;
+	--bbs-color-primary-hover: #5699fc;
+	--bbs-disabled-bg-color: var(--bbs-bg-color-secondary);
+	--bbs-disabled-text-color: var(--bbs-text-color-placeholder);
+	/* 字体 */
+	--bbs-font-family-bold: 'DINPro Bold';
+	--bbs-font-family-medium: 'DINPro Medium';
+	/* 字体大小 */
+	--bbs-font-size-b12: 12px;
+	--bbs-font-size-b14: 14px;
+	--bbs-font-size-h16: 16px;
+	--bbs-font-size-h20: 20px;
+	--bbs-font-size-h24: 24px;
+	--bbs-font-size-oh32: 32px;
+	--bbs-font-size-oh40: 40px;
+	--bbs-font-size-oh48: 48px;
+	/* 字重 */
+	--bbs-font-weight-primary: 400;
+	--bbs-font-weight-selected: 700;
+
+	--bbs-bg-color-page: var(--bbs-gray_brand-color-1);
+	--bbs-bg-color-overlay: #ffffff;
+	--bbs-bg-color-secondary: var(--bbs-gray_brand-color-2);
+	--bbs-bg-color-tertiary: var(--bbs-gray_brand-color-3);
+	--bbs-bg-color-component: var(--bbs-gray_brand-color-5);
+	--bbs-bg-color-component-hover: var(--bbs-gray_brand-color-4);
+	--bbs-bg-color-component-active: var(--bbs-gray_brand-color-6);
+	--bbs-bg-color-component-disabled: var(--bbs-gray_brand-color-2);
+	--bbs-bg-color-blank: #ffffff;
+	--bbs-text-color-primary: rgba(0, 0, 0, 0.85);
+	--bbs-text-color-regular: var(--bbs-text-color-primary);
+	--bbs-text-color-secondary: rgba(0, 0, 0, 0.55);
+	--bbs-text-color-placeholder: rgba(0, 0, 0, 0.4);
+	--bbs-text-color-disabled: rgba(0, 0, 0, 0.25);
+	--bbs-border-color: var(--bbs-border-color-component);
+	--bbs-border-color-light: #e4e7ed;
+	--bbs-border-color-lighter: var(--bbs-border-color-divider-light);
+	--bbs-border-color-extra-light: #f2f6fc;
+	--bbs-border-color-dark: var(--bbs-border-color-component-hover);
+	--bbs-border-color-darker: var(--bbs-color-info);
+	--bbs-border-color-component: var(--bbs-gray-color-5);
+	--bbs-border-color-component-hover: var(--bbs-gray-color-6);
+	--bbs-border-color-component-light: var(--bbs-gray-color-4);
+	--bbs-border-color-divider: var(--bbs-gray-color-4);
+	--bbs-border-color-divider-light: var(--bbs-gray-color-3);
+	--bbs-fill-color: #f0f2f5;
+	--bbs-fill-color-light: var(--bbs-bg-color-secondary);
+	--bbs-fill-color-lighter: var(--bbs-bg-color-page);
+	--bbs-fill-color-extra-light: #fafcff;
+	--bbs-fill-color-dark: var(--bbs-bg-color-component);
+	--bbs-fill-color-darker: var(--bbs-bg-color-component-active);
+	--bbs-fill-color-blank: var(--bbs-bg-color-blank);
+	--bbs-box-shadow: 0px 2px 6px -3px rgba(0, 0, 0, 0.1), 0px 4px 12px rgba(0, 0, 0, 0.08),
+		0px 6px 18px 6px rgba(0, 0, 0, 0.06);
+	--bbs-box-shadow-light: 0px 2px 6px rgba(0, 0, 0, 0.12), 0px 4px 12px rgba(0, 0, 0, 0.1);
+	--bbs-box-shadow-lighter: 0px 2px 6px rgba(0, 0, 0, 0.14);
+	--bbs-box-shadow-dark: 0px 4px 12px -6px rgba(0, 0, 0, 0.08), 0px 6px 18px rgba(0, 0, 0, 0.06),
+		0px 8px 24px 12px rgba(0, 0, 0, 0.04);
+	--bbs-box-shadow-lighter-up: 0px -2px 6px rgba(0, 0, 0, 0.14);
+	--bbs-box-shadow-lighter-left: -2px 0px 6px rgba(0, 0, 0, 0.14);
+	--bbs-box-shadow-lighter-right: 2px 0px 6px rgba(0, 0, 0, 0.14);
+	--bbs-box-shadow-light-up: 0px -2px 6px rgba(0, 0, 0, 0.12), 0px -4px 12px rgba(0, 0, 0, 0.1);
+	--bbs-box-shadow-light-left: -2px 0px 6px rgba(0, 0, 0, 0.12), -4px 0px 12px rgba(0, 0, 0, 0.1);
+	--bbs-box-shadow-light-right: 2px 0px 6px rgba(0, 0, 0, 0.12), 4px 0px 12px rgba(0, 0, 0, 0.1);
+	--bbs-box-shadow-up: 0px -2px 6px -3px rgba(0, 0, 0, 0.1), 0px -4px 12px rgba(0, 0, 0, 0.08),
+		0px -6px 18px 6px rgba(0, 0, 0, 0.06);
+	--bbs-box-shadow-left: -2px 0px 6px -3px rgba(0, 0, 0, 0.1), -4px 0px 12px rgba(0, 0, 0, 0.08),
+		-6px 0px 18px 6px rgba(0, 0, 0, 0.06);
+	--bbs-box-shadow-right: 2px 0px 6px -3px rgba(0, 0, 0, 0.1), 4px 0px 12px rgba(0, 0, 0, 0.08),
+		6px 0px 18px 6px rgba(0, 0, 0, 0.06);
+	--bbs-box-shadow-dark-up: 0px -4px 12px -6px rgba(0, 0, 0, 0.08), 0px -6px 18px rgba(0, 0, 0, 0.06),
+		0px -8px 24px 12px rgba(0, 0, 0, 0.04);
+	--bbs-box-shadow-dark-left: -4px 0px 12px -6px rgba(0, 0, 0, 0.08), -6px 0px 18px rgba(0, 0, 0, 0.06),
+		-8px 0px 24px 12px rgba(0, 0, 0, 0.04);
+	--bbs-box-shadow-dark-right: 4px 0px 12px -6px rgba(0, 0, 0, 0.08), 6px 0px 18px rgba(0, 0, 0, 0.06),
+		8px 0px 24px 12px rgba(0, 0, 0, 0.04);
 }

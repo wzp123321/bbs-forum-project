@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import { systemRoutes } from './modules';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -7,7 +8,8 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: '9527论坛',
     },
-    component: () => import('../layout/index.vue'),
+    component: () => import('../views/layout/index.vue'),
+    children: [...systemRoutes],
   },
   {
     path: '/login',
@@ -15,7 +17,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: '登录',
     },
-    component: () => import('../layout/login/login.vue'),
+    component: () => import('../views/login/login.vue'),
   },
   {
     path: '/404',
@@ -23,12 +25,12 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: '404',
     },
-    component: () => import('../layout/404/404.vue'),
+    component: () => import('../views/404/404.vue'),
   },
   {
     path: '/:pathMatch(.*)*',
     name: 'default',
-    component: () => import('../layout/404/404.vue'),
+    component: () => import('../views/404/404.vue'),
   },
 ];
 

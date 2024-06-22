@@ -1,7 +1,7 @@
-const files: any = import.meta.glob('./**/*.vue');
+const files: any = import.meta.glob('../../components/**/*.vue');
 import { App } from 'vue';
 
-const install = (app: App<Element>) => {
+export const registerGlobalComponents = (app: App<Element>) => {
   if (files && Object.keys(files)) {
     Object.keys(files).forEach((item) => {
       const firstName = item.split('/');
@@ -10,5 +10,3 @@ const install = (app: App<Element>) => {
     });
   }
 };
-
-export default install;
