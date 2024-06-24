@@ -1,5 +1,5 @@
 import 'element-plus/dist/index.css';
-import { ElButton } from 'element-plus';
+import { ElButton, ElInput, ElDropdown, ElDropdownMenu, ElDropdownItem } from 'element-plus';
 import { App } from 'vue';
 
 /**
@@ -7,6 +7,6 @@ import { App } from 'vue';
  * @param app
  */
 export const registerElementPlus = (app: App) => {
-	const components = [ElButton];
-	components.forEach((component) => app.use(component));
+  const components = [ElButton, ElInput, ElDropdown, ElDropdownMenu, ElDropdownItem];
+  components.forEach((component) => app.use(component));
 };

@@ -8,9 +8,9 @@ export const menuList: CommonMenu[] = [
   {
     path: '',
     name: 'systemManage',
+    hasIcon: true,
     meta: {
       title: '系统管理',
-      icon: '',
     },
     children: systemRoutes,
   },

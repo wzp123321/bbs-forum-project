@@ -1,36 +1,38 @@
 {
-	"name": "web",
-	"version": "1.0.0",
-	"description": "",
-	"private": true,
-	"main": "index.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"web:dev": "pnpm run --filter @bbs/web dev",
-		"admin:dev": "pnpm run --filter @bbs/admin dev",
-		"web:build": "pnpm run --filter @bbs/web build",
-		"admin:build": "pnpm run --filter @bbs/admin build",
-		"prepare": "husky install"
-	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
-	"engines": {
-		"node": ">=16",
-		"pnpm": ">=7"
-	},
-	"dependencies": {
-		"axios": "^1.7.2",
-		"element-plus": "^2.7.5",
-		"pinia": "^2.1.7",
-		"vue-router": "^4.3.3",
-		"zp-common-utils": "^0.2.5"
-	},
-	"devDependencies": {
-		"@commitlint/cli": "^19.3.0",
-		"@commitlint/config-conventional": "^19.2.2",
-		"@types/node": "^20.14.2",
-		"husky": "^8.0.0",
-		"lodash": "^4.17.21"
-	}
+  "name": "web",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "web:dev": "pnpm run --filter @bbs/web dev",
+    "admin:dev": "pnpm run --filter @bbs/admin dev",
+    "web:build": "pnpm run --filter @bbs/web build",
+    "admin:build": "pnpm run --filter @bbs/admin build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=16",
+    "pnpm": ">=7"
+  },
+  "dependencies": {
+    "@arco-iconbox/vue-bbs-icon": "^0.0.2",
+    "axios": "^1.7.2",
+    "element-plus": "^2.7.5",
+    "pinia": "^2.1.7",
+    "vue-router": "^4.3.3",
+    "zp-common-utils": "^0.2.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.2",
+    "less": "^4.2.0",
+    "less-loader": "^12.2.0",
+    "lodash": "^4.17.21",
+    "unplugin-auto-import": "^0.17.6",
+    "unplugin-vue-components": "^0.27.0",
+    "vite-plugin-require-transform": "^1.0.21"
+  }
 }
