@@ -24,10 +24,7 @@
           </el-menu>
         </el-aside>
         <el-main>
-          <h5>{{ title }}</h5>
-          <section class="bbs-content">
-            <router-view></router-view>
-          </section>
+          <router-view></router-view>
         </el-main>
       </el-container>
     </el-container>
@@ -105,7 +102,8 @@ const title = computed(() => {
           background-color: rgba(255, 255, 255, 0.1);
         }
 
-        .el-sub-menu__title {
+        .el-sub-menu__title,
+        .el-menu-item {
           display: flex;
           align-items: center;
           gap: var(--bbs-space-8);
@@ -118,28 +116,11 @@ const title = computed(() => {
         flex-shrink: 0;
         flex-basis: auto;
         overflow: auto;
-        padding: var(--bbs-space-8) var(--bbs-space-20) var(--bbs-space-20);
+        padding: var(--bbs-space-20);
         background: var(--bbs-bg-color-page);
 
         display: flex;
         flex-direction: column;
-
-        > h5 {
-          font-size: var(--bbs-font-size-h14);
-          font-weight: var(--bbs-font-weight-primary);
-          line-height: 32px;
-          color: var(--bbs-text-color-primary);
-        }
-
-        .bbs-content {
-          flex: auto;
-          flex-shrink: 0;
-          background: var(--bbs-bg-color);
-          padding: var(--bbs-space-20);
-          overflow: auto;
-          box-sizing: border-box;
-          overflow-x: hidden;
-        }
       }
     }
   }

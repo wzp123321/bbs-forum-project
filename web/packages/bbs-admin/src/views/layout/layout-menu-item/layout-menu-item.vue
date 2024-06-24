@@ -2,24 +2,24 @@
   <div v-for="(item, index) in props.menuList" :key="'menu_' + index">
     <el-menu-item
       v-if="!item.children || item.children.length === 0"
-      :key="handleMenuKey(item.path)"
-      :index="item.path"
+      :key="item.name"
+      :index="item.name"
       :title="item.name"
       @click="onMenuLinkTo(item.path)"
     >
-      <component v-if="item.hasIcon" :is="mapMenuIcon(item.name)"></component>
+      <component v-if="item.meta.hasIcon" :is="mapMenuIcon(item.name)"></component>
       <span :title="item.meta.title">{{ item.meta.title }}</span>
     </el-menu-item>
     <!-- 子菜单偏移量 -->
     <el-sub-menu
-      :key="'subMenu_' + item.path"
+      :key="'subMenu_' + item.name"
       popupClassName="custom-submenu"
-      :popupOffset="[2, item.hasIcon ? 8 : 0]"
-      :index="item.path"
+      :popupOffset="[2, item.meta.hasIcon ? 8 : 0]"
+      :index="item.name"
       v-else
     >
       <template #title>
-        <component v-if="item.hasIcon" :is="mapMenuIcon(item.name)"></component>
+        <component v-if="item.meta.hasIcon" :is="mapMenuIcon(item.name)"></component>
         <span :title="item.meta.title">{{ item.meta.title }}</span>
       </template>
       <LayoutMenuItem :menuList="item.children"></LayoutMenuItem>
@@ -29,11 +29,12 @@
 <script lang="ts" setup>
 import { useRouter } from 'vue-router';
 import { CommonMenu } from '@/service/model';
-import { IconSystem } from '@arco-iconbox/vue-bbs-icon';
+import { IconSystem, IconUser } from '@arco-iconbox/vue-bbs-icon';
 defineOptions({
   name: 'LayoutMenuItem',
   components: {
     IconSystem,
+    IconUser,
   },
 });
 // props
@@ -55,6 +56,9 @@ const mapMenuIcon = (name: string) => {
     case 'systemManage':
       icon = IconSystem;
       break;
+    case 'userManage':
+      icon = IconUser;
+      break;
   }
   return icon;
 };
@@ -67,9 +71,5 @@ const onMenuLinkTo = (path: string) => {
   router.push({
     path,
   });
-};
-// 处理菜单item key
-const handleMenuKey = (url: string) => {
-  return !url || url.indexOf('?') === -1 ? url : url.split('?')[0];
 };
 </script>

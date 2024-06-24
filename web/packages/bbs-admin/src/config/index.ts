@@ -1,17 +1,18 @@
-import { systemRoutes } from '../router/modules';
-import { CommonMenu } from '../service/model';
+import { systemRoutes, userRoutes } from '../router/modules';
+import { RouteRecordRaw } from 'vue-router';
 
 /**
  * 菜单
  */
-export const menuList: CommonMenu[] = [
+export const menuList: RouteRecordRaw[] = [
   {
-    path: '',
+    path: 'system',
     name: 'systemManage',
-    hasIcon: true,
     meta: {
       title: '系统管理',
+      hasIcon: true,
     },
     children: systemRoutes,
   },
+  ...userRoutes,
 ];

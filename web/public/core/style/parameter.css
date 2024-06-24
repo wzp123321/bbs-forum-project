@@ -93,6 +93,28 @@
 	--bbs-color-primary-hover: #5699fc;
 	--bbs-disabled-bg-color: var(--bbs-bg-color-secondary);
 	--bbs-disabled-text-color: var(--bbs-text-color-placeholder);
+	--bbs-bg-color-page: var(--bbs-gray_brand-color-1);
+	--bbs-bg-color-overlay: #ffffff;
+	--bbs-bg-color-secondary: var(--bbs-gray_brand-color-2);
+	--bbs-bg-color-tertiary: var(--bbs-gray_brand-color-3);
+	--bbs-bg-color-component: var(--bbs-gray_brand-color-5);
+	--bbs-bg-color-component-hover: var(--bbs-gray_brand-color-4);
+	--bbs-bg-color-component-active: var(--bbs-gray_brand-color-6);
+	--bbs-bg-color-component-disabled: var(--bbs-gray_brand-color-2);
+	--bbs-bg-color-blank: #ffffff;
+	--bbs-text-color-primary: rgba(0, 0, 0, 0.85);
+	--bbs-text-color-regular: var(--bbs-text-color-primary);
+	--bbs-text-color-secondary: rgba(0, 0, 0, 0.55);
+	--bbs-text-color-placeholder: rgba(0, 0, 0, 0.4);
+	--bbs-text-color-disabled: rgba(0, 0, 0, 0.25);
+	--bbs-border-color: rgba(0, 0, 0, 0.1);
+	--bbs-fill-color: #f0f2f5;
+	--bbs-box-shadow: 0px 2px 6px -3px rgba(0, 0, 0, 0.1), 0px 4px 12px rgba(0, 0, 0, 0.08),
+		0px 6px 18px 6px rgba(0, 0, 0, 0.06);
+	--bbs-box-shadow-light: 0px 2px 6px rgba(0, 0, 0, 0.12), 0px 4px 12px rgba(0, 0, 0, 0.1);
+	--bbs-box-shadow-lighter: 0px 2px 6px rgba(0, 0, 0, 0.14);
+	--bbs-box-shadow-dark: 0px 4px 12px -6px rgba(0, 0, 0, 0.08), 0px 6px 18px rgba(0, 0, 0, 0.06),
+		0px 8px 24px 12px rgba(0, 0, 0, 0.04);
 	/* 字体 */
 	--bbs-font-family-bold: 'DINPro Bold';
 	--bbs-font-family-medium: 'DINPro Medium';
@@ -109,28 +131,6 @@
 	--bbs-font-weight-primary: 400;
 	--bbs-font-weight-selected: 700;
 
-	--bbs-bg-color-page: var(--bbs-gray_brand-color-1);
-	--bbs-bg-color-overlay: #ffffff;
-	--bbs-bg-color-secondary: var(--bbs-gray_brand-color-2);
-	--bbs-bg-color-tertiary: var(--bbs-gray_brand-color-3);
-	--bbs-bg-color-component: var(--bbs-gray_brand-color-5);
-	--bbs-bg-color-component-hover: var(--bbs-gray_brand-color-4);
-	--bbs-bg-color-component-active: var(--bbs-gray_brand-color-6);
-	--bbs-bg-color-component-disabled: var(--bbs-gray_brand-color-2);
-	--bbs-bg-color-blank: #ffffff;
-	--bbs-text-color-primary: rgba(0, 0, 0, 0.85);
-	--bbs-text-color-regular: var(--bbs-text-color-primary);
-	--bbs-text-color-secondary: rgba(0, 0, 0, 0.55);
-	--bbs-text-color-placeholder: rgba(0, 0, 0, 0.4);
-	--bbs-text-color-disabled: rgba(0, 0, 0, 0.25);
-	--bbs-border-color: var(--bbs-border-color-component);
-	--bbs-fill-color: #f0f2f5;
-	--bbs-box-shadow: 0px 2px 6px -3px rgba(0, 0, 0, 0.1), 0px 4px 12px rgba(0, 0, 0, 0.08),
-		0px 6px 18px 6px rgba(0, 0, 0, 0.06);
-	--bbs-box-shadow-light: 0px 2px 6px rgba(0, 0, 0, 0.12), 0px 4px 12px rgba(0, 0, 0, 0.1);
-	--bbs-box-shadow-lighter: 0px 2px 6px rgba(0, 0, 0, 0.14);
-	--bbs-box-shadow-dark: 0px 4px 12px -6px rgba(0, 0, 0, 0.08), 0px 6px 18px rgba(0, 0, 0, 0.06),
-		0px 8px 24px 12px rgba(0, 0, 0, 0.04);
-		/* 菜单 */
-		--bbs-menu-hover-bg-color: #E6F0FE
+	/* 菜单 */
+	--bbs-menu-hover-bg-color: #e6f0fe;
 }
