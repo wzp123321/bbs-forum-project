@@ -1,5 +1,16 @@
 import 'element-plus/dist/index.css';
-import { ElButton, ElInput, ElDropdown, ElDropdownMenu, ElDropdownItem } from 'element-plus';
+import {
+  ElConfigProvider,
+  ElButton,
+  ElInput,
+  ElDropdown,
+  ElDropdownMenu,
+  ElDropdownItem,
+  ElPagination,
+  ElTable,
+  ElTableColumn,
+  ElDrawer,
+} from 'element-plus';
 import { App } from 'vue';
 
 /**
@@ -7,6 +18,17 @@ import { App } from 'vue';
  * @param app
  */
 export const registerElementPlus = (app: App) => {
-  const components = [ElButton, ElInput, ElDropdown, ElDropdownMenu, ElDropdownItem];
+  const components = [
+    ElConfigProvider,
+    ElButton,
+    ElInput,
+    ElDropdown,
+    ElDropdownMenu,
+    ElDropdownItem,
+    ElPagination,
+    ElTable,
+    ElTableColumn,
+    ElDrawer,
+  ];
   components.forEach((component) => app.use(component));
 };

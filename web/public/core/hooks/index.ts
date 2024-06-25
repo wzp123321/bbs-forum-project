@@ -1,2 +1,3 @@
 export { useFileHandler } from './useFileHandler';
-export { useECharts } from './useECharts';
+export { usePagination } from './usePagination';
+export { useEChartRender } from './useEChartRender';

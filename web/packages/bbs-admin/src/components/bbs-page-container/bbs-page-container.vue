@@ -29,7 +29,7 @@ defineOptions({
   flex-direction: column;
 
   .bpc-header {
-    padding: var(--bbs-space-20);
+    padding-bottom: var(--bbs-space-20);
     border-bottom: 1px solid var(--bbs-border-color);
     flex-shrink: 0;
   }
@@ -37,6 +37,10 @@ defineOptions({
   .bpc-content {
     flex: auto;
     flex-shrink: 0;
+    padding: var(--bbs-space-20) 0;
+
+    display: flex;
+    flex-direction: column;
   }
 }
 </style>

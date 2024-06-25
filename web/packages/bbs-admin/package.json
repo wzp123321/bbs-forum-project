@@ -9,12 +9,10 @@
     "preview": "vite preview",
     "lint": "eslint src",
     "fix": "eslint src --fix",
-    "stylelint": "stylelint \"src/**/*.(less|css)\" --fix",
-    "commitlint": "commitlint --config commitlint.config.cjs -e -V"
+    "stylelint": "stylelint \"src/**/*.(less|css)\" --fix"
   },
   "dependencies": {
     "@bbs/core": "workspace:^",
-    "@bbs/utils": "workspace:^",
     "postcss-less": "^6.0.0",
     "stylelint": "^16.6.1",
     "stylelint-config-prettier": "^9.0.5",

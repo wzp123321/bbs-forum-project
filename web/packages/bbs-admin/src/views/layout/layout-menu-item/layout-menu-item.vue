@@ -1,30 +1,24 @@
 <template>
-  <div v-for="(item, index) in props.menuList" :key="'menu_' + index">
+  <template v-for="item in props.menuList" :key="item.index">
     <el-menu-item
-      v-if="!item.children || item.children.length === 0"
-      :key="item.name"
-      :index="item.name"
-      :title="item.name"
-      @click="onMenuLinkTo(item.path)"
+      v-if="!item.children || item?.children.length === 0"
+      :key="item?.index"
+      :index="item?.index"
+      :title="item?.name"
+      @click.native="onMenuLinkTo(item?.path)"
     >
-      <component v-if="item.meta.hasIcon" :is="mapMenuIcon(item.name)"></component>
-      <span :title="item.meta.title">{{ item.meta.title }}</span>
+      <component v-if="item?.hasIcon" :is="mapMenuIcon(item?.name)"></component>
+      <span :title="item?.meta?.title">{{ item?.meta?.title }}</span>
     </el-menu-item>
     <!-- 子菜单偏移量 -->
-    <el-sub-menu
-      :key="'subMenu_' + item.name"
-      popupClassName="custom-submenu"
-      :popupOffset="[2, item.meta.hasIcon ? 8 : 0]"
-      :index="item.name"
-      v-else
-    >
+    <el-sub-menu :key="item.index" :index="item.index" v-else>
       <template #title>
-        <component v-if="item.meta.hasIcon" :is="mapMenuIcon(item.name)"></component>
-        <span :title="item.meta.title">{{ item.meta.title }}</span>
+        <component v-if="item?.hasIcon" :is="mapMenuIcon(item?.name)"></component>
+        <span :title="item?.meta?.title">{{ item?.meta?.title }}</span>
       </template>
-      <LayoutMenuItem :menuList="item.children"></LayoutMenuItem>
+      <LayoutMenuItem :menuList="item?.children"></LayoutMenuItem>
     </el-sub-menu>
-  </div>
+  </template>
 </template>
 <script lang="ts" setup>
 import { useRouter } from 'vue-router';
@@ -44,7 +38,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   menuList: () => [],
 });
-
+// router
 const router = useRouter();
 /**
  * 菜单图标

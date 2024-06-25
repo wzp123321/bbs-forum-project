@@ -19,7 +19,7 @@
       </el-header>
       <el-container>
         <el-aside>
-          <el-menu class="bbs-menu">
+          <el-menu :default-active="defaultActive" class="bbs-menu">
             <layout-menu-item :menuList="menuList"></layout-menu-item>
           </el-menu>
         </el-aside>
@@ -32,21 +32,13 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
 import { menuList } from '@/config';
 import LayoutMenuItem from './layout-menu-item/layout-menu-item.vue';
 
 defineOptions({
   name: 'BbsAdmin',
 });
-const route = useRoute();
-/**
- * 标题
- */
-const title = computed(() => {
-  return route.meta.title;
-});
+const defaultActive = menuList?.[0]?.index;
 </script>
 
 <style lang="less" scoped>
@@ -97,6 +89,7 @@ const title = computed(() => {
       > .el-aside,
       > .el-aside :deep(.el-menu) {
         border-right: none;
+        width: 248px;
 
         .el-menu-item.is-active {
           background-color: rgba(255, 255, 255, 0.1);
@@ -112,10 +105,7 @@ const title = computed(() => {
 
       > .el-main {
         overflow: hidden;
-        flex: 1;
-        flex-shrink: 0;
-        flex-basis: auto;
-        overflow: auto;
+        flex: auto;
         padding: var(--bbs-space-20);
         background: var(--bbs-bg-color-page);
 

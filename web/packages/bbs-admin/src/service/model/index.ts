@@ -1,10 +1,14 @@
+import { Component } from 'vue';
+
 /**
  * 菜单
  */
 export interface CommonMenu {
   path: string;
-  name?: string;
+  name: string;
   hasIcon?: boolean;
-  meta: { title?: string };
+  index: string;
+  meta: { title: string };
   children?: CommonMenu[];
+  component?: Component;
 }

@@ -9,8 +9,7 @@
     "preview": "vite preview",
     "lint": "eslint src",
     "fix": "eslint src --fix",
-    "stylelint": "stylelint \"src/**/*.(less|css)\" --fix",
-    "commitlint": "commitlint --config commitlint.config.cjs -e -V"
+    "stylelint": "stylelint \"src/**/*.(less|css)\" --fix"
   },
   "dependencies": {
     "@bbs/core": "workspace:^",
