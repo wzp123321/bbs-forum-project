@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import { systemRoutes, userRoutes } from './modules';
+import { dictionaryRoutes, userRoutes } from './modules';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -9,7 +9,7 @@ const routes: RouteRecordRaw[] = [
       title: '9527论坛',
     },
     component: () => import('../views/layout/index.vue'),
-    children: [...systemRoutes, ...userRoutes],
+    children: [...dictionaryRoutes, ...userRoutes],
   },
   {
     path: '/login',

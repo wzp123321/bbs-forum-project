@@ -1,13 +1,13 @@
 import { RouteRecordRaw } from 'vue-router';
 
-export const systemRoutes: RouteRecordRaw[] = [
+export const dictionaryRoutes: RouteRecordRaw[] = [
   {
     path: '/dictionaryManage',
     name: 'dictionaryManage',
     meta: {
       title: '字典管理',
     },
-    component: () => import('../../pages/system/dictionary-manage/dictionary-manage.vue'),
+    component: () => import('../../pages/dictionary/dictionary-manage/dictionary-manage.vue'),
   },
   {
     path: '/dictionaryTypeManage',
@@ -15,6 +15,6 @@ export const systemRoutes: RouteRecordRaw[] = [
     meta: {
       title: '字典类型管理',
     },
-    component: () => import('../../pages/system/dictionary-manage/dictionary-manage.vue'),
+    component: () => import('../../pages/dictionary/dictionary-manage/dictionary-manage.vue'),
   },
 ];
