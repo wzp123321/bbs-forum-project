@@ -47,7 +47,7 @@ const router = useRouter();
 const mapMenuIcon = (name: string) => {
   let icon;
   switch (name) {
-    case 'systemManage':
+    case 'dictionary':
       icon = IconSystem;
       break;
     case 'userManage':

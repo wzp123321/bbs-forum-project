@@ -1,12 +1,9 @@
 <template>
   <bbs-page-container class="user-manage">
     <template #header>
-      <section class="um-btn">
-        <el-button>新增</el-button>
-      </section>
       <el-form :inline="true" :model="searchForm">
         <el-form-item>
-          <el-input v-model="searchForm.keyword" placeholder="请输入关键词" />
+          <el-input v-model="searchForm.keyword" v-inputFilter:text :maxlength="20" placeholder="请输入关键词" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="handleSearch">查询</el-button>
