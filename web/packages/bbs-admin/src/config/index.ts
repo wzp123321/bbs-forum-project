@@ -27,11 +27,11 @@ const convertMenu = (list: RouteRecordRaw[]): CommonMenu[] => {
 export const menuList: CommonMenu[] = [
   {
     path: 'dictionary',
-    name: 'dictionaryManage',
+    name: 'dictionary',
     hasIcon: true,
     index: randomNumber16(),
     meta: {
-      title: '系统管理',
+      title: '字典管理',
     },
     children: convertMenu(dictionaryRoutes),
   },
