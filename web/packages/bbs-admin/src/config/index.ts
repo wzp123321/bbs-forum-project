@@ -1,5 +1,5 @@
 import { CommonMenu } from '@/service/model';
-import { systemRoutes, userRoutes } from '../router/modules';
+import { dictionaryRoutes, userRoutes } from '../router/modules';
 import { RouteRecordRaw } from 'vue-router';
 import { randomNumber16 } from 'zp-common-utils';
 
@@ -26,14 +26,14 @@ const convertMenu = (list: RouteRecordRaw[]): CommonMenu[] => {
  */
 export const menuList: CommonMenu[] = [
   {
-    path: 'system',
-    name: 'systemManage',
+    path: 'dictionary',
+    name: 'dictionaryManage',
     hasIcon: true,
     index: randomNumber16(),
     meta: {
       title: '系统管理',
     },
-    children: convertMenu(systemRoutes),
+    children: convertMenu(dictionaryRoutes),
   },
   ...convertMenu(userRoutes),
 ];

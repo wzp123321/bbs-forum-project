@@ -8,6 +8,6 @@ export const userRoutes: RouteRecordRaw[] = [
       title: '用户管理',
       hasIcon: true,
     },
-    component: () => import('../../pages/user/user-manage/user-manage.vue'),
+    component: () => import('../../pages/user-manage/user-manage.vue'),
   },
 ];
