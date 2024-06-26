@@ -5,7 +5,7 @@
         <el-input v-model="searchForm.name" placeholder="名称" clearable />
       </el-form-item>
       <el-form-item label="类型：">
-        <el-select v-model="searchForm.type" placeholder="类型" style="width:220px" >
+        <el-select v-model="searchForm.type" placeholder="类型" style="width:220px">
           <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
@@ -53,9 +53,9 @@
           <el-switch v-model="dialogForm.status" active-text="激活" inactive-text="未激活" />
         </el-form-item>
         <el-form-item label="类型：">
-          <el-select v-model="dialogForm.type" placeholder="类型"  >
-          <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
-        </el-select>
+          <el-select v-model="dialogForm.type" placeholder="类型">
+            <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="描述：">
           <el-input v-model="dialogForm.describe" type="textarea" />
@@ -135,8 +135,13 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
   console.log(`current page: ${val}`)
 }
-
-const handleDialog = (type: string, row: object) => {
+interface RowData {
+  name: string;
+  status: boolean;
+  type: string,
+  describe: string,
+}
+const handleDialog = (type: string, row: RowData) => {
   dialogFlag.value = type
   dialogForm.name = row.name
   dialogForm.status = row.status
