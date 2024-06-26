@@ -127,7 +127,7 @@ const handleDelete = () => {
 </script>
 
 <style lang="less" scoped>
-.dictionary-manage {
+.dictionary-type-manage {
   height: 100%;
   padding: 20px;
   background: #fff;
