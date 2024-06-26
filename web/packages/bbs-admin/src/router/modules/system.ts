@@ -15,6 +15,6 @@ export const systemRoutes: RouteRecordRaw[] = [
     meta: {
       title: '字典类型管理',
     },
-    component: () => import('../../pages/system/dictionary-manage/dictionary-manage.vue'),
+    component: () => import('../../pages/system/dictionary-type-manage/dictionary-type-manage.vue'),
   },
 ];
