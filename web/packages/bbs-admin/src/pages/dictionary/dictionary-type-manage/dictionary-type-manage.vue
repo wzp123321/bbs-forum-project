@@ -5,102 +5,84 @@
         <el-input v-model="searchForm.name" placeholder="字典类型" clearable />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">查询</el-button>
-        <el-button type="primary" @click="handleDialog('Add', {
+        <el-button type="primary" @click="handleSearch">查询</el-button>
+        <el-button type="primary" @click="handleDialog({
+          id: '',
           name: ''
         })">新增</el-button>
       </el-form-item>
     </el-form>
     <el-divider />
-    <el-table :data="table.data" :border="true" style="width: 100%">
+    <el-table :data="tableData" :border="true" style="width: 100%">
       <el-table-column prop="id" label="ID" width="120" />
       <el-table-column prop="name" label="字典类型" />
       <el-table-column fixed="right" label="操作" min-width="120">
         <template #default="scope">
-          <el-button link type="primary" size="small" @click="handleDialog('Detail', scope.row)">
-            Detail
-          </el-button>
-          <el-button link type="primary" size="small" @click="handleDialog('Edit', scope.row)">Edit</el-button>
-          <el-button link type="primary" size="small" @click="handleDelete">Delete</el-button>
+          <el-button link type="primary" size="small" @click="handleDialog(scope.row)">编辑</el-button>
+          <el-button link type="primary" size="small" @click="handleDelete">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination v-model:current-page="table.currentPage" v-model:page-size="table.pageSize"
-      :page-sizes="[10, 20, 30, 40]" background layout="total, sizes, prev, pager, next, jumper" :total="table.total"
-      @size-change="handleSizeChange" @current-change="handleCurrentChange" />
-    <!-- 详情/编辑弹窗 -->
-    <el-dialog v-model="dialogVisible" :title="dialogFlag === 'Edit' ? '编辑弹窗' : '详情弹窗'" width="500" center>
-      <el-form label-position="top" label-width="auto" :model="dialogForm" style="max-width: 600px"
-        :disabled="dialogFlag === 'Detail'">
-        <el-form-item label="字典类型：">
-          <el-input v-model="dialogForm.name" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <div class="dialog-footer" v-if="dialogFlag === 'Edit'">
-          <el-button @click="dialogVisible = false">Cancel</el-button>
-          <el-button type="primary" @click="dialogVisible = false">
-            Confirm
-          </el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <el-pagination v-model:current-page="pageNum" v-model:page-size="pageSize" :page-sizes="pageSizes" background
+      layout="total, sizes, prev, pager, next, jumper" :total="total" @size-change="handleSizeChange"
+      @current-change="handleCurrentChange" />
   </div>
+  <!-- 新增/编辑弹窗 -->
+  <UmAddEditDrawer ref="UmAddEditDrawerRef" />
 </template>
 
 <script lang="ts" setup>
 import { reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
+import { UmAddEditDrawer } from "./components";
+import { TypeFrom, SearchForm, TableData } from './model'
 defineOptions({
   name: 'DictionaryTypeManage',
 });
 
-const searchForm = reactive({
+// 表格数据
+const tableData = ref<TableData[]>([
+  {
+    id: '1',
+    name: 'Tom',
+  },
+  {
+    id: '2',
+    name: 'Tom',
+  },
+  {
+    id: '3',
+    name: 'Tom',
+  }
+])
+// 分页
+const { pageNum, pageSize, total, setPageNum, setPageSize } = usePagination();
+// 修改条数
+const handleSizeChange = (value: number) => {
+  setPageSize(value);
+  handleSearch();
+};
+// 修改页码
+const handleCurrentChange = (value: number) => {
+  setPageNum(value);
+  handleSearch();
+};
+
+// 查询表单
+const searchForm = reactive<SearchForm>({
   name: '',
 })
-const table = reactive({
-  currentPage: 1,
-  pageSize: 10,
-  total: 100,
-  data: [
-    {
-      id: 1,
-      name: 'Tom',
-    },
-    {
-      id: 2,
-      name: 'Tom',
-    },
-    {
-      id: 3,
-      name: 'Tom',
-    }
-  ]
-})
-const dialogFlag = ref('Edit')
-const dialogVisible = ref(false)
-const dialogForm = reactive({
-  name: ''
-})
+// 查询
+const handleSearch = () => { };
 
-const onSubmit = () => {
-  console.log('submit!')
+const UmAddEditDrawerRef = ref<typeof UmAddEditDrawer>()
+// 打开抽屉
+const handleDialog = (row: TypeFrom) => {
+  if (!UmAddEditDrawerRef.value) return;
+  UmAddEditDrawerRef.value.handleOpen(row)
 }
-
-const handleSizeChange = (val: number) => {
-  console.log(`${val} items per page`)
-}
-
-const handleCurrentChange = (val: number) => {
-  console.log(`current page: ${val}`)
-}
-
-const handleDialog = (type: string, row: object) => {
-  dialogFlag.value = type
-  dialogForm.name = row.name
-  dialogVisible.value = true
-}
-
+// 删除
 const handleDelete = () => {
   ElMessageBox.confirm(
     '确定删除该数据?',
@@ -114,13 +96,13 @@ const handleDelete = () => {
     .then(() => {
       ElMessage({
         type: 'success',
-        message: 'Delete completed',
+        message: '删除 completed',
       })
     })
     .catch(() => {
       ElMessage({
         type: 'info',
-        message: 'Delete canceled',
+        message: '删除 canceled',
       })
     })
 }
