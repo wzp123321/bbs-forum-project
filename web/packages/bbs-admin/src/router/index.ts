@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import { dictionaryRoutes, userRoutes } from './modules';
+import { dictionaryRoutes, systemRoutes } from './modules';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -9,7 +9,28 @@ const routes: RouteRecordRaw[] = [
       title: '9527论坛',
     },
     component: () => import('../views/layout/index.vue'),
-    children: [...dictionaryRoutes, ...userRoutes],
+    children: [
+      {
+        path: '/homePage',
+        name: 'homePage',
+        meta: {
+          title: '仪表盘',
+          hasIcon: true,
+        },
+        component: () => import('../pages/home-page/home-page.vue'),
+      },
+      {
+        path: '/userManage',
+        name: 'userManage',
+        meta: {
+          title: '用户管理',
+          hasIcon: true,
+        },
+        component: () => import('../pages/user-manage/user-manage.vue'),
+      },
+      ...dictionaryRoutes,
+      ...systemRoutes,
+    ],
   },
   {
     path: '/login',

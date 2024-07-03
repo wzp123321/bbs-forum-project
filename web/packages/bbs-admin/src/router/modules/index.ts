@@ -1,2 +1,2 @@
 export { dictionaryRoutes } from './dictionary';
-export { userRoutes } from './user';
+export { systemRoutes } from './system';

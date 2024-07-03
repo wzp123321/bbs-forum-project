@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     BbsPageContainer: typeof import('./src/components/bbs-page-container/bbs-page-container.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
+    ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElConfigProvider: typeof import('element-plus/es')['ElConfigProvider']
     ElContainer: typeof import('element-plus/es')['ElContainer']

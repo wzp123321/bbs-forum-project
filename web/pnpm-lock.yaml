@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@arco-iconbox/vue-bbs-icon':
-        specifier: ^0.0.3
-        version: 0.0.3(vue@3.4.21(typescript@5.2.2))
+        specifier: ^0.0.4
+        version: 0.0.4
       axios:
         specifier: ^1.7.2
         version: 1.7.2
@@ -205,10 +205,8 @@ packages:
   '@antfu/utils@0.7.8':
     resolution: {integrity: sha512-rWQkqXRESdjXtc+7NRfK9lASQjpXJu1ayp7qi1d23zZorY+wBHVLHHoVcMsEnkqEBWTFqbztO7/QdJFzyEcLTg==}
 
-  '@arco-iconbox/vue-bbs-icon@0.0.3':
-    resolution: {integrity: sha512-2tEeg9+o4ycfD39rLS6JGoBIPvQpLbJ8zgxGPodhJhk+OqjjxaZqmoT4CaG76b31PdVMm2hH2iSTS3E6Hkpccw==}
-    peerDependencies:
-      vue: '>=3.0.0'
+  '@arco-iconbox/vue-bbs-icon@0.0.4':
+    resolution: {integrity: sha512-tTEXoi9LQruQ8ip4O8u4tGBYmZnD2GMFH8HPZzs+tZuBHYDsMTxpWNHxdgI0TPFEM+l+uWhRL4LfFugvNp4fLw==}
 
   '@babel/code-frame@7.24.7':
     resolution: {integrity: sha512-BcYH1CVJBO9tvyIZ2jVeXgSIMvGZ2FDRvDdOIVQyuklNKSsx+eppDEBq/g47Ayw+RqNFE+URvOShmf+f/qwAlA==}
@@ -3349,9 +3347,7 @@ snapshots:
 
   '@antfu/utils@0.7.8': {}
 
-  '@arco-iconbox/vue-bbs-icon@0.0.3(vue@3.4.21(typescript@5.2.2))':
-    dependencies:
-      vue: 3.4.21(typescript@5.2.2)
+  '@arco-iconbox/vue-bbs-icon@0.0.4': {}
 
   '@babel/code-frame@7.24.7':
     dependencies:
@@ -5770,10 +5766,6 @@ snapshots:
   postcss-less@6.0.0(postcss@7.0.39):
     dependencies:
       postcss: 7.0.39
-
-  postcss-less@6.0.0(postcss@8.4.38):
-    dependencies:
-      postcss: 8.4.38
 
   postcss-markdown@0.36.0(postcss-syntax@0.36.2)(postcss@7.0.39):
     dependencies:

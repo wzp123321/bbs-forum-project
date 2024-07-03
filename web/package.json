@@ -19,7 +19,7 @@
     "pnpm": ">=7"
   },
   "dependencies": {
-    "@arco-iconbox/vue-bbs-icon": "^0.0.3",
+    "@arco-iconbox/vue-bbs-icon": "^0.0.4",
     "axios": "^1.7.2",
     "element-plus": "^2.7.5",
     "pinia": "^2.1.7",

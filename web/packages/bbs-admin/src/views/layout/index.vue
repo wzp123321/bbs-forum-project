@@ -25,7 +25,9 @@
           </el-menu>
         </el-aside>
         <el-main>
-          <router-view></router-view>
+          <main class="bbs-main">
+            <router-view></router-view>
+          </main>
         </el-main>
       </el-container>
     </el-container>
@@ -112,6 +114,11 @@ const defaultActive = menuList?.[0]?.index;
 
         display: flex;
         flex-direction: column;
+
+        .bbs-main {
+          background: var(--bbs-bg-color);
+          height: 100%;
+        }
       }
     }
   }
