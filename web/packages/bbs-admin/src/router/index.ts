@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import { dictionaryRoutes, systemRoutes } from './modules';
+import { dictionaryRoutes, systemRoutes, postsRoutes } from './modules';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -30,6 +30,7 @@ const routes: RouteRecordRaw[] = [
       },
       ...dictionaryRoutes,
       ...systemRoutes,
+      ...postsRoutes
     ],
   },
   {

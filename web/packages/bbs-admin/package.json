@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@bbs/core": "workspace:^",
+    "@wangeditor/editor": "^5.1.23",
+    "@wangeditor/editor-for-vue": "^5.1.12",
     "postcss-less": "^6.0.0",
     "stylelint": "^16.6.1",
     "stylelint-config-prettier": "^9.0.5",
