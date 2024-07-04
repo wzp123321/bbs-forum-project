@@ -10,10 +10,13 @@ importers:
     dependencies:
       '@arco-iconbox/vue-bbs-icon':
         specifier: ^0.0.4
-        version: 0.0.4
+        version: 0.0.4(vue@3.4.21(typescript@5.2.2))
       axios:
         specifier: ^1.7.2
         version: 1.7.2
+      dayjs:
+        specifier: ^1.11.11
+        version: 1.11.11
       element-plus:
         specifier: ^2.7.5
         version: 2.7.5(vue@3.4.21(typescript@5.2.2))
@@ -207,6 +210,8 @@ packages:
 
   '@arco-iconbox/vue-bbs-icon@0.0.4':
     resolution: {integrity: sha512-tTEXoi9LQruQ8ip4O8u4tGBYmZnD2GMFH8HPZzs+tZuBHYDsMTxpWNHxdgI0TPFEM+l+uWhRL4LfFugvNp4fLw==}
+    peerDependencies:
+      vue: '>=3.0.0'
 
   '@babel/code-frame@7.24.7':
     resolution: {integrity: sha512-BcYH1CVJBO9tvyIZ2jVeXgSIMvGZ2FDRvDdOIVQyuklNKSsx+eppDEBq/g47Ayw+RqNFE+URvOShmf+f/qwAlA==}
@@ -3347,7 +3352,9 @@ snapshots:
 
   '@antfu/utils@0.7.8': {}
 
-  '@arco-iconbox/vue-bbs-icon@0.0.4': {}
+  '@arco-iconbox/vue-bbs-icon@0.0.4(vue@3.4.21(typescript@5.2.2))':
+    dependencies:
+      vue: 3.4.21(typescript@5.2.2)
 
   '@babel/code-frame@7.24.7':
     dependencies:

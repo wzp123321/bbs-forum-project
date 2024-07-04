@@ -116,7 +116,6 @@ const defaultActive = menuList?.[0]?.index;
         flex-direction: column;
 
         .bbs-main {
-          background: var(--bbs-bg-color);
           height: 100%;
         }
       }
