@@ -30,7 +30,7 @@ const routes: RouteRecordRaw[] = [
       },
       ...dictionaryRoutes,
       ...systemRoutes,
-      ...postsRoutes
+      ...postsRoutes,
     ],
   },
   {
@@ -40,6 +40,14 @@ const routes: RouteRecordRaw[] = [
       title: '登录',
     },
     component: () => import('../views/login/login.vue'),
+  },
+  {
+    path: '/demo',
+    name: 'demo',
+    meta: {
+      title: 'demo',
+    },
+    component: () => import('../pages/demo/demo.vue'),
   },
   {
     path: '/404',
