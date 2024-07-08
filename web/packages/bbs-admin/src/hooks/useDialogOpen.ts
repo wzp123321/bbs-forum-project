@@ -7,7 +7,6 @@ export const useDialogOpen = () => {
    * 打开
    */
   const handleOpen = () => {
-    console.log(112313231);
     visible.value = true;
   };
   /**
