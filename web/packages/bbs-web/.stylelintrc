@@ -1,0 +1,19 @@
+{
+  "extends": [
+    "stylelint-config-recommended-scss",
+    "stylelint-config-recommended-vue/scss"
+  ],
+  "plugins": ["stylelint-scss"],
+  "ignoreFiles": [
+    "** /*.js",
+    "**/*.jsx",
+    "** /*.tsx",
+    "**/*.ts",
+    "** /*.json",
+    "**/*.md",
+    "**/*.yaml",
+    "**/*.html",
+    "public/*"
+  ],
+  "rules": {}
+}

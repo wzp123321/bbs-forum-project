@@ -3,14 +3,10 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    redirect: '/demo',
-  },
-  {
-    path: '/demo',
     meta: {
-      title: 'demo',
+      title: 'BBS论坛',
     },
-    component: () => import('../pages/demo/demo.vue'),
+    component: () => import('../layouts/index.vue'),
   },
 ];
 

@@ -1,7 +1,13 @@
 /dist/*
-/html/*
-.local
+.env.*
 /node_modules/**
+vite-env.d.ts
+/.vscode/*
+src/.DS_Store
+
 **/*.svg
 **/*.sh
+
+
 /public/*
+vite-env.d.ts

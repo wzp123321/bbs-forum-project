@@ -1,0 +1,10 @@
+node_modules
+dist
+vite-env.d.ts
+src/router/types/*.d.ts
+*css
+*jpg
+*jpeg
+*png
+*gif
+*.d.ts

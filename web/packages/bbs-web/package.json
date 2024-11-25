@@ -5,37 +5,24 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "preview": "vite preview",
     "lint": "eslint src",
-    "fix": "eslint src --fix",
-    "stylelint": "stylelint \"src/**/*.(less|css)\" --fix"
+    "stylelint": "stylelint \"src/**/*.(less|css)\" --fix",
+    "gen": "node ./scripts/genCommitId.js",
+    "ts-check": "vue-tsc --noEmit",
+    "build:start": "vite build  --mode production",
+    "build": "npm-run-all gen ts-check build:start  --parallel",
+    "lint:html": "eslint \"src/**/*.{js,vue,ts,html}\"",
+    "lint:css": "stylelint \"src/**/*.{css,scss,vue,sass,html}\"",
+    "fix": "run-p \"lint:html -- --fix\" \"lint:css -- --fix\"",
+    "prettier-format": "prettier  \"src/**/**.{vue,ts,js,html}\" --write",
+    "prepare": "cd ../../../ && husky install .husky",
+    "preview": "vite preview --port 8090"
   },
   "dependencies": {
     "@bbs/core": "workspace:^",
-    "@bbs/utils": "workspace:^",
-    "postcss-less": "^6.0.0",
-    "stylelint": "^16.6.1",
-    "stylelint-config-prettier": "^9.0.5",
-    "stylelint-config-rational-order": "^0.1.2",
-    "stylelint-config-standard": "^36.0.0",
-    "vue": "^3.4.21"
+    "@bbs/utils": "workspace:^"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.19.1",
-    "@eslint/js": "^9.5.0",
-    "@vitejs/plugin-vue": "^5.0.4",
-    "eslint": "^9.5.0",
-    "eslint-config-prettier": "^8.10.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-vue": "^9.26.0",
-    "globals": "^15.5.0",
-    "prettier": "^3.3.2",
-    "typescript": "^5.2.2",
-    "typescript-eslint": "^7.13.0",
-    "vite": "^5.2.0",
-    "vue-tsc": "^2.0.6"
+   
   }
 }
