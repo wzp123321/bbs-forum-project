@@ -2,19 +2,21 @@ import { RouteRecordRaw } from 'vue-router';
 
 export const systemRoutes: RouteRecordRaw[] = [
   {
-    path: '/dictionaryManage',
-    name: 'dictionaryManage',
+    path: '/feedbackManage',
+    name: 'feedbackManage',
     meta: {
-      title: '字典管理',
+      title: '反馈管理',
+      hasIcon: true,
     },
-    component: () => import('../../pages/system/dictionary-manage/dictionary-manage.vue'),
+    component: () => import('../../pages/system-manage/feedback-manage/feedback-manage.vue'),
   },
   {
-    path: '/dictionaryTypeManage',
-    name: 'dictionaryTypeManage',
+    path: '/tagManage',
+    name: 'tagManage',
     meta: {
-      title: '字典类型管理',
+      title: 'Tag管理',
+      hasIcon: true,
     },
-    component: () => import('../../pages/system/dictionary-manage/dictionary-manage.vue'),
+    component: () => import('../../pages/system-manage/tag-manage/tag-manage.vue'),
   },
 ];

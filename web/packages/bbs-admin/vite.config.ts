@@ -6,7 +6,7 @@ import Components from 'unplugin-vue-components/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import requireTransform from 'vite-plugin-require-transform';
 import { resolve } from 'path';
-
+import progress from 'vite-plugin-progress';
 // https://vitejs.dev/config/
 export default ({ mode }: any) =>
   defineConfig({
@@ -106,5 +106,6 @@ export default ({ mode }: any) =>
       Components({
         resolvers: [ElementPlusResolver()],
       }),
+      progress(),
     ],
   });

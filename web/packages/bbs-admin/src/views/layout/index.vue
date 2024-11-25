@@ -11,6 +11,7 @@
             </div>
             <template #dropdown>
               <el-dropdown-menu>
+                <el-dropdown-item>前往论坛</el-dropdown-item>
                 <el-dropdown-item>退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -24,7 +25,9 @@
           </el-menu>
         </el-aside>
         <el-main>
-          <router-view></router-view>
+          <main class="bbs-main">
+            <router-view></router-view>
+          </main>
         </el-main>
       </el-container>
     </el-container>
@@ -111,6 +114,10 @@ const defaultActive = menuList?.[0]?.index;
 
         display: flex;
         flex-direction: column;
+
+        .bbs-main {
+          height: 100%;
+        }
       }
     }
   }

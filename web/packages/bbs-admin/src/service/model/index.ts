@@ -6,7 +6,7 @@ import { Component } from 'vue';
 export interface CommonMenu {
   path: string;
   name: string;
-  hasIcon?: boolean;
+  icon?: string;
   index: string;
   meta: { title: string };
   children?: CommonMenu[];

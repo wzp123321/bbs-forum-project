@@ -19,9 +19,8 @@
     "preview": "vite preview --port 8090"
   },
   "dependencies": {
-    "@bbs/core": "workspace:^"
-  },
-  "devDependencies": {
-   
+    "@bbs/core": "workspace:^",
+    "@bbs/utils": "workspace:^",
+    "@wangeditor/editor": "^5.1.23"
   }
 }

@@ -16,7 +16,7 @@ const addEventByType = (el: HTMLInputElement, binding: DirectiveBinding<any>) =>
 		time = new Date().getTime();
 		if ((e.target as any).composing) return;
 		// 调用 el._assign 方法更新数据
-		target.value = filter(el, binding);
+		target.value = filter(target, binding);
 		target.dispatchEvent(new Event('input'));
 	});
 };

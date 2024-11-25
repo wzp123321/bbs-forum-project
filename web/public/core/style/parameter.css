@@ -14,10 +14,10 @@
 	--bbs-space-96: 96px;
 	--bbs-space-160: 160px;
 	/* 圆角 */
-	--bbs-radius-s: var(--bbs-size-1);
-	--bbs-radius-m: var(--bbs-size-2);
-	--bbs-radius-l: var(--bbs-size-4);
-	--bbs-radius-xl: var(--bbs-size-8);
+	--bbs-radius-s: 4px;
+	--bbs-radius-m: 8px;
+	--bbs-radius-l: 12;
+	--bbs-radius-xl: 16;
 	--bbs-radius-round: 9999;
 	/* 颜色 */
 	--bbs-color-white: #ffffff;
