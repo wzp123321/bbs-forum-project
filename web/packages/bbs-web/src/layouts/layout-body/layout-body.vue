@@ -1,5 +1,5 @@
 <template>
-  <div class="layout-body">layout-body</div>
+  <el-main class="layout-body"></el-main>
 </template>
 <script lang="ts" setup>
 defineOptions({
