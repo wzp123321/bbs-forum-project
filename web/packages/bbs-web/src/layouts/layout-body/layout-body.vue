@@ -1,5 +1,7 @@
 <template>
-  <el-main class="layout-body"></el-main>
+  <el-main class="layout-body">
+    <router-view></router-view>
+  </el-main>
 </template>
 <script lang="ts" setup>
 defineOptions({
