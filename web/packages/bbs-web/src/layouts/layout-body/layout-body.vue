@@ -1,6 +1,9 @@
 <template>
   <el-main class="layout-body">
-    <router-view></router-view>
+    <div class="lb-container">
+
+      <router-view></router-view>
+    </div>
   </el-main>
 </template>
 <script lang="ts" setup>
@@ -10,5 +13,10 @@ defineOptions({
 </script>
 <style lang="less" scoped>
 .layout-body {
+  >.lb-container {
+    width: 1200px;
+    margin: 0 auto;
+    height: 100%;
+  }
 }
 </style>

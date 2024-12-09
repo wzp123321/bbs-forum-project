@@ -7,6 +7,29 @@ const routes: RouteRecordRaw[] = [
       title: 'BBS论坛',
     },
     component: () => import('../layouts/index.vue'),
+    children: [
+      {
+        path: '/',
+        meta: {
+          title: '首页',
+        },
+        component: () => import('../pages/home/index.vue'),
+      },
+      {
+        path: '/topics',
+        meta: {
+          title: '话题',
+        },
+        component: () => import('../pages/topics/index.vue'),
+      },
+      {
+        path: '/tags',
+        meta: {
+          title: '话题',
+        },
+        component: () => import('../pages/tags/index.vue'),
+      },
+    ],
   },
 ];
 

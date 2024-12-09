@@ -1,25 +1,25 @@
 export const headerLeftMenuList = [
   {
     title: '首页',
-    path: '',
+    path: '/',
     icon: '',
     children: [],
   },
   {
     title: '话题',
-    path: '',
+    path: '/topics',
     icon: '',
     children: [],
   },
   {
     title: '标签',
-    path: '',
+    path: '/tags',
     icon: '',
     children: [],
   },
   {
     title: '关于',
-    path: '',
+    path: '/about',
     icon: '',
     children: [],
   },
@@ -52,22 +52,17 @@ export const headerRightMenuList = [
     children: [
       {
         title: '写文章',
-        path: '',
+        path: '/write',
         icon: '',
         children: [],
       },
       {
         title: '发话题',
-        path: '',
+        path: '/send',
         icon: '',
         children: [],
       },
     ],
   },
-  {
-    title: '管理平台',
-    path: '',
-    icon: '',
-    children: [],
-  },
+  
 ];
