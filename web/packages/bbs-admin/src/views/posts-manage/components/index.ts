@@ -1,4 +1,3 @@
+import PmAddEditDrawer from './um-add-edit-drawer.vue';
 
-import UmDetailsDrawer from './um-details-drawer.vue';
-
-export { UmDetailsDrawer };
+export { PmAddEditDrawer };

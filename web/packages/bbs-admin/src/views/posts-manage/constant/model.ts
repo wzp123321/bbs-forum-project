@@ -1,17 +1,20 @@
-// 查询表单
+// 帖子搜索表单
 export interface SearchForm {
-  name: string;
-  type: number;
-  title: string;
-  status: number;
+  keyword: string;
+  categoryId?: number;
+  tagId?: number;
+  status?: number;
 }
-// 表格
-export interface TableData {
-  id: string;
-  name: string;
+
+// 帖子表单
+export interface RowFrom {
+  id?: number;
   title: string;
   content: string;
+  contentType: number;
+  categoryId?: number;
+  tagIds: number[];
   status: number;
-  type: number;
-  purview: string;
+  isTop: number;
+  isEssence: number;
 }

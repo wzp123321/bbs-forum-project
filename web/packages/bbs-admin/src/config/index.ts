@@ -44,6 +44,16 @@ export const menuList: CommonMenu[] = [
     },
   },
   {
+    path: 'category',
+    name: 'category',
+    icon: 'IconDictionary',
+    index: randomNumber16(),
+    meta: {
+      title: '板块管理',
+    },
+    children: convertMenu(categoryRoutes),
+  },
+  {
     path: 'dictionary',
     name: 'dictionary',
     icon: 'IconDictionary',

@@ -1,0 +1,137 @@
+<template>
+  <div class="category-manage">
+    <el-form :inline="true" :model="searchForm" @submit.prevent="handleSearch">
+      <el-form-item label="名称">
+        <el-input v-model="searchForm.keyword" placeholder="请输入板块名称" clearable @keyup.enter="handleSearch" />
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="handleSearch">搜索</el-button>
+        <el-button @click="handleReset">重置</el-button>
+        <el-button type="success" @click="handleAdd">新增板块</el-button>
+      </el-form-item>
+    </el-form>
+
+    <el-table v-loading="loading" :data="dataSource" border stripe style="width: 100%">
+      <el-table-column prop="id" label="ID" width="80" />
+      <el-table-column prop="name" label="板块名称" min-width="160" />
+      <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
+      <el-table-column prop="sort" label="排序" width="80" />
+      <el-table-column label="状态" width="100">
+        <template #default="{ row }">
+          <el-tag :type="row.status === 1 ? 'success' : 'info'">
+            {{ row.status === 1 ? '启用' : '停用' }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="createTime" label="创建时间" width="170" />
+      <el-table-column label="操作" width="160" fixed="right">
+        <template #default="{ row }">
+          <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
+          <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <el-pagination
+      class="cm-pagination"
+      :current-page="pageNum"
+      :page-size="pageSize"
+      :page-sizes="pageSizes"
+      :total="total"
+      layout="total, sizes, prev, pager, next, jumper"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    />
+
+    <CmAddEditDrawer ref="drawerRef" @saved="fetchList" />
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { reactive, ref } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
+import { categoryApi } from '@/utils';
+import type { CategoryVO } from '@/apis/category';
+import { SearchForm } from './constant/model';
+import { CmAddEditDrawer } from './components';
+
+defineOptions({ name: 'CategoryManage' });
+
+const { pageNum, pageSize, total, setPageNum, setPageSize } = usePagination();
+const dataSource = ref<CategoryVO[]>([]);
+const loading = ref(false);
+const searchForm = reactive<SearchForm>({ keyword: '' });
+const drawerRef = ref<InstanceType<typeof CmAddEditDrawer>>();
+
+const fetchList = async () => {
+  loading.value = true;
+  try {
+    const res = await categoryApi.pageCategories({
+      pageNum: pageNum.value,
+      pageSize: pageSize.value,
+      keyword: searchForm.keyword || undefined,
+    });
+    dataSource.value = res.list;
+    total.value = res.total;
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleSizeChange = (value: number) => {
+  setPageSize(value);
+  fetchList();
+};
+
+const handleCurrentChange = (value: number) => {
+  setPageNum(value);
+  fetchList();
+};
+
+const handleSearch = () => {
+  setPageNum(1);
+  fetchList();
+};
+
+const handleReset = () => {
+  searchForm.keyword = '';
+  handleSearch();
+};
+
+const handleAdd = () => {
+  drawerRef.value?.handleOpen();
+};
+
+const handleEdit = (row: CategoryVO) => {
+  drawerRef.value?.handleOpen(row);
+};
+
+const handleDelete = async (row: CategoryVO) => {
+  try {
+    await ElMessageBox.confirm(`确认删除板块 ${row.name} ?`, '提示', {
+      type: 'warning',
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+    });
+  } catch {
+    return;
+  }
+  await categoryApi.deleteCategory(row.id);
+  ElMessage.success('删除成功');
+  fetchList();
+};
+
+fetchList();
+</script>
+
+<style lang="less" scoped>
+.category-manage {
+  padding: var(--bbs-space-16);
+
+  .cm-pagination {
+    margin-top: var(--bbs-space-16);
+    justify-content: flex-end;
+  }
+}
+</style>

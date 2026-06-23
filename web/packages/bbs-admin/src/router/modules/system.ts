@@ -8,7 +8,7 @@ export const systemRoutes: RouteRecordRaw[] = [
       title: '反馈管理',
       hasIcon: true,
     },
-    component: () => import('../../views/system-manage/feedback-manage/index.vue'),
+    component: import('../../views/system-manage/feedback-manage/index.vue'),
   },
   {
     path: '/tagManage',
@@ -17,6 +17,6 @@ export const systemRoutes: RouteRecordRaw[] = [
       title: 'Tag管理',
       hasIcon: true,
     },
-    component: () => import('../../views/system-manage/tag-manage/index.vue'),
+    component: import('../../views/tag-manage/index.vue'),
   },
 ];

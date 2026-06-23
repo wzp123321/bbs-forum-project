@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import { dictionaryRoutes, systemRoutes, postsRoutes } from './modules';
+import { dictionaryRoutes, systemRoutes, postsRoutes, categoryRoutes } from './modules';
 import { tokenStore } from '@/utils';
 
 /** 不需要登录即可访问的页面 */
@@ -33,6 +33,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('../views/user-manage/index.vue'),
       },
       ...dictionaryRoutes,
+      ...categoryRoutes,
       ...systemRoutes,
       ...postsRoutes,
     ],
