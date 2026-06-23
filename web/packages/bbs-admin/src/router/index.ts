@@ -1,5 +1,9 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { dictionaryRoutes, systemRoutes, postsRoutes } from './modules';
+import { tokenStore } from '@/utils';
+
+/** 不需要登录即可访问的页面 */
+const WHITE_LIST = ['/login', '/404', '/demo'];
 
 const routes: RouteRecordRaw[] = [
   {
@@ -17,7 +21,7 @@ const routes: RouteRecordRaw[] = [
           title: '仪表盘',
           hasIcon: true,
         },
-        component: () => import('../pages/home-page/home-page.vue'),
+        component: () => import('../views/home/index.vue'),
       },
       {
         path: '/userManage',
@@ -26,7 +30,7 @@ const routes: RouteRecordRaw[] = [
           title: '用户管理',
           hasIcon: true,
         },
-        component: () => import('../pages/user-manage/user-manage.vue'),
+        component: () => import('../views/user-manage/index.vue'),
       },
       ...dictionaryRoutes,
       ...systemRoutes,
@@ -47,7 +51,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       title: 'demo',
     },
-    component: () => import('../pages/demo/demo.vue'),
+    component: () => import('../views/demo/index.vue'),
   },
   {
     path: '/404',
@@ -70,7 +74,21 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  document.title = (to.meta?.name as string) ?? '9527论坛';
+  document.title = (to.meta?.title as string) ?? '9527论坛';
+  const token = tokenStore.get();
+  if (WHITE_LIST.includes(to.path)) {
+    // 已登录访问登录页 → 跳首页
+    if (to.path === '/login' && token) {
+      next('/');
+      return;
+    }
+    next();
+    return;
+  }
+  if (!token) {
+    next({ path: '/login', query: { redirect: to.fullPath } });
+    return;
+  }
   next();
 });
 

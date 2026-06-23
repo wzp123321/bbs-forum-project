@@ -7,7 +7,7 @@ export const dictionaryRoutes: RouteRecordRaw[] = [
     meta: {
       title: '字典管理',
     },
-    component: () => import('../../pages/dictionary/dictionary-manage/dictionary-manage.vue'),
+    component: () => import('../../views/dictionary/dictionary-manage/index.vue'),
   },
   {
     path: '/dictionaryTypeManage',
@@ -15,6 +15,6 @@ export const dictionaryRoutes: RouteRecordRaw[] = [
     meta: {
       title: '字典类型管理',
     },
-    component: () => import('../../pages/dictionary/dictionary-type-manage/dictionary-type-manage.vue'),
+    component: () => import('../../views/dictionary/dictionary-type-manage/index.vue'),
   },
 ];

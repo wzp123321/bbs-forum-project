@@ -10,6 +10,8 @@ import { registerInputFilter } from '@bbs/core';
 import { registerElementPlus } from '../../../public/core';
 // pinia
 import pinia from './pinia';
+// 加载 axios 实例 + 拦截器
+import './utils/request';
 
 const app = createApp(App);
 registerInputFilter(app);

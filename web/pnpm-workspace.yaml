@@ -3,3 +3,7 @@ packages:
   - 'packages/*'
   # 放置公共代码
   - 'public/**'
+allowBuilds:
+  es5-ext: false
+  esbuild: false
+  vue-demi: false

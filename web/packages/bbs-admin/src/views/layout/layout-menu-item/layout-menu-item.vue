@@ -22,7 +22,7 @@
 </template>
 <script lang="ts" setup>
 import { useRouter } from 'vue-router';
-import { CommonMenu } from '@/service/model';
+import { CommonMenu } from '@/utils/types';
 import { IconSystem, IconUser, IconDictionary, IconHome } from '@arco-iconbox/vue-bbs-icon';
 defineOptions({
   name: 'LayoutMenuItem',

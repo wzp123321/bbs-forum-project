@@ -21,6 +21,7 @@
   "dependencies": {
     "@arco-iconbox/vue-bbs-icon": "^0.0.4",
     "@wangeditor/editor": "^5.1.23",
+    "asmcrypto.js": "^2.3.2",
     "axios": "^1.7.2",
     "element-plus": "^2.7.5",
     "pinia": "^2.1.7",

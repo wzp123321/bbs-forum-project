@@ -8,14 +8,25 @@ import lombok.Getter;
 public enum ResponseCode {
 
     SUCCESS(200, "成功"),
-    ERROR(500, "失败");
+    ERROR(500, "失败"),
+
+    // ========== 通用 4xx ==========
+    PARAM_ERROR(400, "参数错误"),
+    UNAUTHORIZED(401, "未登录或登录已失效"),
+    FORBIDDEN(403, "无权限访问"),
+    NOT_FOUND(404, "资源不存在"),
+
+    // ========== 用户模块 1xxx ==========
+    USER_NOT_FOUND(1001, "用户不存在"),
+    BAD_CREDENTIALS(1002, "账号或密码错误"),
+    USER_DISABLED(1003, "账号已被禁用");
 
     /**
      * 响应码
      */
     private final Integer code;
     /**
-     * 相应信息
+     * 响应信息
      */
     private final String message;
 }

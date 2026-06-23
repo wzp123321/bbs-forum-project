@@ -7,6 +7,6 @@ export const postsRoutes: RouteRecordRaw[] = [
     meta: {
       title: '帖子管理',
     },
-    component: () => import('../../pages/posts-manage/posts-manage.vue'),
+    component: () => import('../../views/posts-manage/index.vue'),
   }
 ];

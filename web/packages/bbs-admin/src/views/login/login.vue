@@ -8,13 +8,19 @@
           <h5>BBS管理后台</h5>
         </el-form-item>
         <el-form-item>
-          <el-input v-model="loginForm.username" placeholder="用户名" />
+          <el-input v-model="loginForm.account" placeholder="用户名 / 邮箱 / 手机号" />
         </el-form-item>
         <el-form-item>
-          <el-input v-model="loginForm.password" placeholder="密码" type="password" />
+          <el-input
+            v-model="loginForm.password"
+            placeholder="密码"
+            type="password"
+            show-password
+            @keyup.enter="handleSubmit"
+          />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSubmit">登录</el-button>
+          <el-button type="primary" :loading="loading" @click="handleSubmit">登录</el-button>
         </el-form-item>
       </el-form>
     </section>
@@ -22,54 +28,48 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive } from 'vue';
-import { LoginForm } from './model';
+import { reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { encrypt } from 'zp-common-utils';
+import { authApi, tokenStore, USER_ID_KEY, USER_NAME_KEY } from '@/utils';
 
 defineOptions({ name: 'BbsLogin' });
 
-// 登录
+interface LoginForm {
+  account: string;
+  password: string;
+}
+
+const router = useRouter();
+const loading = ref(false);
+
 const loginForm = reactive<LoginForm>({
-  username: '',
+  account: '',
   password: '',
 });
-/**
- * 登录
- */
-const handleSubmit = () => {
-  if (verifyForm()) {
-    console.log(mapLoginParams());
-  }
-};
-/**
- * 登录入参
- * @returns {LoginForm}
- */
-const mapLoginParams = (): LoginForm => {
-  const { username, password } = loginForm;
-  return {
-    username,
-    password: encrypt(password),
-  };
-};
-/**
- * 校验表单
- */
-const verifyForm = () => {
-  let isValid = true;
-  let messages = [];
-  if (!loginForm.username) {
-    messages.push('请输入用户名');
+
+const handleSubmit = async () => {
+  if (!loginForm.account) {
+    ElMessage.error('请输入账号');
+    return;
   }
   if (!loginForm.password) {
-    messages.push('请输入密码');
+    ElMessage.error('请输入密码');
+    return;
   }
-  if (messages.length > 0) {
-    ElMessage.error(messages[0]);
-    isValid = false;
+  loading.value = true;
+  try {
+    const data = await authApi.login({ account: loginForm.account, password: loginForm.password });
+    tokenStore.set(data.token);
+    sessionStorage.setItem(USER_ID_KEY, data.userId);
+    sessionStorage.setItem(USER_NAME_KEY, data.nickName || data.userName);
+    ElMessage.success('登录成功');
+    router.push('/');
+  } catch (e) {
+    // 业务错误已由 axios 拦截器统一弹窗,这里只负责结束 loading
+  } finally {
+    loading.value = false;
   }
-  return isValid;
 };
 </script>
 

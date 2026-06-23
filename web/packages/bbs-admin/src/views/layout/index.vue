@@ -7,12 +7,12 @@
           <el-dropdown>
             <div class="ba-user-info">
               <img src="../../assets/images/common/common-avatar.png" alt="avatar" />
-              <h6>admin</h6>
+              <h6>{{ userName || 'admin' }}</h6>
             </div>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item>前往论坛</el-dropdown-item>
-                <el-dropdown-item>退出登录</el-dropdown-item>
+                <el-dropdown-item @click="handleLogout">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -35,13 +35,29 @@
 </template>
 
 <script lang="ts" setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { menuList } from '@/config';
+import { authApi, tokenStore, USER_NAME_KEY } from '@/utils';
 import LayoutMenuItem from './layout-menu-item/layout-menu-item.vue';
 
 defineOptions({
   name: 'BbsAdmin',
 });
+const router = useRouter();
 const defaultActive = menuList?.[0]?.index;
+const userName = ref(sessionStorage.getItem(USER_NAME_KEY) || '');
+
+const handleLogout = async () => {
+  try {
+    await authApi.logout();
+  } catch (e) {
+    // 忽略服务端错误,本地清掉即可
+  } finally {
+    tokenStore.clear();
+    router.push('/login');
+  }
+};
 </script>
 
 <style lang="less" scoped>
