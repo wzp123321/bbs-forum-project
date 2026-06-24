@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import { dictionaryRoutes, systemRoutes, postsRoutes, categoryRoutes } from './modules';
+import { dictionaryRoutes, systemRoutes, postsRoutes, categoryRoutes, commentRoutes } from './modules';
 import { tokenStore } from '@/utils';
 
 /** 不需要登录即可访问的页面 */

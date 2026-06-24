@@ -38,7 +38,22 @@
         </el-menu>
 
         <!-- 用户 -->
-        <el-button v-if="!userName">登录</el-button>
+        <template v-if="!userName">
+          <el-button type="primary" link @click="goLogin">登录</el-button>
+          <el-button type="primary" @click="goRegister">注册</el-button>
+        </template>
+        <el-dropdown v-else trigger="click" @command="handleUserCmd">
+          <span class="lh-user">
+            <el-avatar :size="28" icon="UserFilled" />
+            <span class="lh-user-name">{{ userName }}</span>
+          </span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="publish">发布帖子</el-dropdown-item>
+              <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </section>
     </div>
   </el-header>
@@ -46,8 +61,11 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { ElMessageBox, ElMessage } from 'element-plus';
 import { headerLeftMenuList, headerRightMenuList } from './model';
 import { useUserInfo } from '@/hooks';
+import { authApi } from '@/apis/auth';
+import { tokenStore, userStore } from '@/utils';
 
 defineOptions({
   name: 'LayoutHeader',
@@ -68,6 +86,37 @@ const handleSelect = (path: string) => {
 const searchLabel = ref('');
 
 const { userName, initUserByStorage } = useUserInfo();
+
+const goLogin = () => router.push({ path: '/login', query: { redirect: route.fullPath } });
+const goRegister = () => router.push({ path: '/register', query: { redirect: route.fullPath } });
+
+const handleUserCmd = async (cmd: string) => {
+  if (cmd === 'publish') {
+    router.push('/post/publish');
+    return;
+  }
+  if (cmd === 'logout') {
+    try {
+      await ElMessageBox.confirm('确认退出登录?', '提示', {
+        type: 'warning',
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      });
+    } catch {
+      return;
+    }
+    try {
+      await authApi.logout();
+    } catch {
+      // 即使后端失败也继续清理本地
+    }
+    tokenStore.clear();
+    userStore.clear();
+    userName.value = '';
+    ElMessage.success('已退出登录');
+    router.replace('/');
+  }
+};
 
 onMounted(() => {
   searchLabel.value = '';
