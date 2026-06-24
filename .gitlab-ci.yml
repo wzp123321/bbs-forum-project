@@ -1,0 +1,39 @@
+# GitLab CI (如需启用请取消注释并 push 到 GitLab)
+
+# stages:
+#   - build
+#   - deploy
+
+# variables:
+#   MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+
+# cache:
+#   key: ${CI_COMMIT_REF_SLUG}
+#   paths:
+#     - .m2/repository
+#     - web/node_modules
+
+# build:backend:
+#   stage: build
+#   image: maven:3.9-eclipse-temurin-17
+#   script:
+#     - cd server/bbs-admin
+#     - mvn -B -DskipTests package
+#   artifacts:
+#     paths:
+#       - server/bbs-admin/target/*.jar
+
+# build:frontend:
+#   stage: build
+#   image: node:20
+#   before_script:
+#     - corepack enable && corepack prepare pnpm@9 --activate
+#   script:
+#     - cd web
+#     - pnpm install --frozen-lockfile
+#     - pnpm web:build
+#     - pnpm admin:build
+#   artifacts:
+#     paths:
+#       - web/packages/bbs-web/dist
+#       - web/packages/bbs-admin/dist

@@ -1,0 +1,78 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 60rpx;
+}
+
+.searchBar {
+  background: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  display: flex;
+  align-items: center;
+}
+
+.searchInput {
+  flex: 1;
+  height: 72rpx;
+  background: $color-bg-page;
+  border-radius: $radius-button;
+  padding: 0 $spacing-md;
+  display: flex;
+  align-items: center;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  margin-right: $spacing-sm;
+}
+
+.cancelBtn {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  white-space: nowrap;
+}
+
+.history {
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  margin: $spacing-md $page-padding;
+  padding: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.sectionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.clearBtn {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.tagItem {
+  padding: 10rpx 24rpx;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  background: $color-bg-page;
+  border-radius: $radius-button;
+  white-space: nowrap;
+}
+
+.list {
+  margin-top: $spacing-md;
+}

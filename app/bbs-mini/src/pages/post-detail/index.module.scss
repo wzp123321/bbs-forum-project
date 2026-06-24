@@ -1,0 +1,252 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding-bottom: 200rpx;
+  background: $color-bg-page;
+}
+
+.body {
+  background: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  margin-bottom: $spacing-md;
+}
+
+.title {
+  display: block;
+  font-size: 44rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  line-height: $line-height-tight;
+  margin-bottom: $spacing-md;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  padding-bottom: $spacing-md;
+  border-bottom: 1rpx solid $color-divider;
+  margin-bottom: $spacing-md;
+}
+
+.avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: $radius-round;
+  margin-right: $spacing-sm;
+  background: $color-bg-hover;
+}
+
+.author {
+  flex: 1;
+}
+
+.authorName {
+  display: block;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.authorMeta {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.followBtn {
+  padding: 8rpx 24rpx;
+  font-size: $font-size-sm;
+  color: $color-primary;
+  background: rgba(22, 93, 255, 0.1);
+  border-radius: $radius-button;
+  border: 1rpx solid $color-primary;
+  white-space: nowrap;
+}
+
+.content {
+  display: block;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: $line-height-loose;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.cover {
+  width: 100%;
+  border-radius: $radius-sm;
+  margin-top: $spacing-md;
+  background: $color-bg-hover;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: $spacing-md;
+}
+
+.tag {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  margin-right: $spacing-sm;
+  padding: 4rpx 12rpx;
+  background: rgba(22, 93, 255, 0.08);
+  border-radius: $radius-xs;
+}
+
+.commentSection {
+  background: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-md;
+  color: $color-text-primary;
+}
+
+.commentItem {
+  display: flex;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.commentItem:last-child {
+  border-bottom: none;
+}
+
+.commentAvatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: $radius-round;
+  margin-right: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.commentBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.commentLine1 {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4rpx;
+}
+
+.commentAuthor {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  margin-right: $spacing-sm;
+}
+
+.commentTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.commentText {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  line-height: $line-height-normal;
+  margin-bottom: $spacing-xs;
+}
+
+.replyTo {
+  color: $color-primary;
+  margin-right: 4rpx;
+}
+
+.commentAction {
+  display: flex;
+  align-items: center;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.commentLike {
+  margin-right: $spacing-md;
+  padding: 4rpx 12rpx;
+  background: $color-bg-page;
+  border-radius: $radius-button;
+}
+
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: $color-bg-card;
+  border-top: 1rpx solid $color-divider;
+  padding: $spacing-sm $page-padding;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.actionBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-right: $spacing-md;
+  padding: 4rpx 8rpx;
+}
+
+.actionBtnActive {
+  color: $color-error;
+}
+
+.commentInput {
+  flex: 1;
+  height: 72rpx;
+  background: $color-bg-page;
+  border-radius: $radius-button;
+  padding: 0 $spacing-md;
+  display: flex;
+  align-items: center;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.sendBtn {
+  margin-left: $spacing-sm;
+  height: 72rpx;
+  padding: 0 32rpx;
+  line-height: 72rpx;
+  background: $color-primary;
+  color: #fff;
+  font-size: $font-size-sm;
+  border-radius: $radius-button;
+}
+
+.statRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: $spacing-md 0;
+  margin: $spacing-md 0;
+  background: $color-bg-page;
+  border-radius: $radius-sm;
+}
+
+.statBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}

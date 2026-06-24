@@ -16,7 +16,9 @@ import com.bbs.bbsadmin.mapper.PostMapper;
 import com.bbs.bbsadmin.mapper.UserInfoMapper;
 import com.bbs.bbsadmin.response.ResponseCode;
 import com.bbs.bbsadmin.security.AuthContext;
+import com.bbs.bbsadmin.security.Authz;
 import com.bbs.bbsadmin.security.SensitiveWordFilter;
+import com.bbs.bbsadmin.security.XssSanitizer;
 import com.bbs.bbsadmin.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,6 +43,15 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
 
     @Autowired
     private UserInfoMapper userInfoMapper;
+
+    @Autowired
+    private SensitiveWordFilter sensitiveWordFilter;
+
+    @Autowired
+    private XssSanitizer xssSanitizer;
+
+    @Autowired
+    private Authz authz;
 
     @Override
     public IPage<CommentVO> pageQueryVO(CommentPageQuery query) {
@@ -104,7 +115,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         c.setUserId(AuthContext.userId());
         c.setParentId(dto.getParentId() == null ? 0L : dto.getParentId());
         c.setReplyToUserId(dto.getReplyToUserId());
-        c.setContent(dto.getContent());
+        c.setContent(xssSanitizer.clean(dto.getContent()));
         c.setStatus(dto.getStatus() == null ? 1 : dto.getStatus());
         c.setLikeCount(0);
         c.setCreateBy(AuthContext.userId());
@@ -129,7 +140,7 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         }
         Comment c = new Comment();
         c.setId(id);
-        c.setContent(dto.getContent());
+        c.setContent(xssSanitizer.clean(dto.getContent()));
         c.setStatus(dto.getStatus());
         c.setUpdateBy(AuthContext.userId());
         c.setUpdateTime(LocalDateTime.now());
@@ -143,6 +154,8 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         if (exist == null) {
             throw new BizException(ResponseCode.NOT_FOUND, "评论不存在");
         }
+        // 越权检查: 仅评论者本人或管理员可删除
+        authz.assertOwnerOrAdmin(exist.getUserId());
         boolean ok = baseMapper.deleteById(id) > 0;
         if (ok) {
             Post post = postMapper.selectById(exist.getPostId());

@@ -14,6 +14,11 @@ public interface CategoryService extends IService<Category> {
     IPage<Category> pageQuery(PageQuery query);
 
     /**
+     * 查询启用中的板块(按 sort 升序),用于下拉
+     */
+    java.util.List<Category> listEnabled();
+
+    /**
      * 新增
      * @return 新板块ID
      */

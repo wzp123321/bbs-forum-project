@@ -10,6 +10,8 @@ public interface TagService extends IService<Tag> {
 
     IPage<Tag> pageQuery(PageQuery query);
 
+    java.util.List<Tag> listEnabled();
+
     Long create(TagSaveDTO dto);
 
     boolean update(Long id, TagSaveDTO dto);

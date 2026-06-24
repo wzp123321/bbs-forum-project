@@ -1,0 +1,141 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin: 0 $page-padding $spacing-md;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+}
+
+.cardActive {
+  opacity: 0.9;
+  transform: scale(0.99);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+}
+
+.avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: $radius-round;
+  background: $color-bg-hover;
+  margin-right: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.headerInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.headerLine {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4rpx;
+}
+
+.nickname {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  @include text-ellipsis;
+  max-width: 280rpx;
+}
+
+.categoryTag {
+  margin-left: $spacing-sm;
+  padding: 2rpx 12rpx;
+  font-size: $font-size-xs;
+  color: $color-primary;
+  background: rgba(22, 93, 255, 0.1);
+  border-radius: $radius-xs;
+  white-space: nowrap;
+}
+
+.essenceTag {
+  margin-left: 8rpx;
+  padding: 2rpx 10rpx;
+  font-size: $font-size-xs;
+  color: #fff;
+  background: linear-gradient(135deg, $color-warning, #ff9d3d);
+  border-radius: $radius-xs;
+  white-space: nowrap;
+}
+
+.time {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.body {
+  margin-bottom: $spacing-sm;
+}
+
+.title {
+  display: block;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  line-height: $line-height-tight;
+  margin-bottom: $spacing-xs;
+  @include text-ellipsis-multi(2);
+}
+
+.summary {
+  display: block;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: $line-height-normal;
+  margin-bottom: $spacing-sm;
+  @include text-ellipsis-multi(2);
+}
+
+.coverWrap {
+  width: 100%;
+  height: 320rpx;
+  border-radius: $radius-sm;
+  overflow: hidden;
+  background: $color-bg-hover;
+}
+
+.cover {
+  width: 100%;
+  height: 100%;
+}
+
+.tags {
+  margin-top: $spacing-sm;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.tagItem {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  margin-right: $spacing-sm;
+  white-space: nowrap;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  padding-top: $spacing-sm;
+  border-top: 1rpx solid $color-divider;
+}
+
+.stat {
+  margin-right: $spacing-md;
+  white-space: nowrap;
+}
+
+.statLiked {
+  color: $color-error;
+}

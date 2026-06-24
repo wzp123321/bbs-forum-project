@@ -1,0 +1,35 @@
+// ============================================
+// 多端兼容性样式 (Compatibility)
+// ============================================
+
+// 1. 全局盒模型：统一为 border-box，避免多端 padding 计算差异
+page,
+view,
+scroll-view,
+swiper,
+swiper-item,
+text,
+image,
+button,
+input,
+textarea,
+form,
+label,
+navigator {
+  box-sizing: border-box;
+}
+
+// 2. H5 TabBar 修复：解决 Taro H5 模式下底部导航栏显示异常 (小程序原生 TabBar 不受影响)
+.weui-tabbar__icon:empty,
+.weui-tabbar__icon:not(:has(img)) {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.weui-tabbar__label,
+[class*='tabbar'] [class*='label'],
+[class*='tabbar'] [class*='text'] {
+  font-size: 30px !important;
+  line-height: 1.4 !important;
+}

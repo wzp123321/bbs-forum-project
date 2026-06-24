@@ -12,10 +12,13 @@ import com.bbs.bbsadmin.mapper.CategoryMapper;
 import com.bbs.bbsadmin.response.ResponseCode;
 import com.bbs.bbsadmin.security.AuthContext;
 import com.bbs.bbsadmin.service.CategoryService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> implements CategoryService {
@@ -35,6 +38,15 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
+    @Cacheable(cacheNames = "category:listEnabled", key = "'all'")
+    public List<Category> listEnabled() {
+        return baseMapper.selectList(new LambdaQueryWrapper<Category>()
+                .eq(Category::getStatus, 1)
+                .orderByAsc(Category::getSort));
+    }
+
+    @Override
+    @CacheEvict(cacheNames = "category:listEnabled", allEntries = true)
     public Long create(CategorySaveDTO dto) {
         // 校验名称唯一 (未软删)
         long exists = baseMapper.selectCount(new LambdaQueryWrapper<Category>()
@@ -54,6 +66,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
+    @CacheEvict(cacheNames = "category:listEnabled", allEntries = true)
     public boolean update(Long id, CategorySaveDTO dto) {
         Category exist = baseMapper.selectById(id);
         if (exist == null) {

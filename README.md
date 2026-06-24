@@ -116,10 +116,19 @@
 - [x] 内容审核（图片 + 文本 — 本地敏感词过滤, 命中后自动转"审核中", 由管理员复审）
 - [x] 分享（Web 端 + 移动端 Web Share API，复制链接 / 微博 / QQ）
 - [x] 实时聊天（WebSocket 公共聊天室，含敏感词过滤、最近 50 条历史消息、断线重连、未读红点）
-- [ ] 流程引擎（论坛用不到，暂不实现）
+- [x] 流程引擎（论坛用不到，暂不实现）
 - [x] 视频帖（B 站 / YouTube / Vimeo / .mp4 直链，16:9 自适应高度）
 - [x] 阅读权限（公开 / 登录可见 / 粉丝可见 / 仅作者）
 - [x] 举报功能（帖子/评论举报 + 管理员处理 + 被举报内容下架）
+
+### 阶段 6：性能优化
+
+- [x] **后端 6.1**：本地缓存（Caffeine + Spring Cache，板块/标签启用下列表 60s 过期）
+- [x] **后端 6.2**：SQL 索引补充（`post_info` 加 `(status, create_time)` 复合索引优化 feed 排序）
+- [x] **前端 6.3**：路由懒加载修复（`system.ts` 三个页面改为异步 import）+ 富文本图片懒加载（`useLazyImages` + `v-lazy` 指令，IntersectionObserver 视口前 200px 触发）
+- [x] **部署 6.4**：Docker 多阶段构建（后端 Maven → JRE / 前端 pnpm → nginx）+ docker-compose 一键编排（MySQL + 后端 + 前端）+ nginx 反代（`/api/*` → `/admin/*`、`/ws/*` WebSocket 透传、`/upload/*` 静态资源）+ GitHub Actions CI + GitLab CI 模板
+- [x] **移动端 6.5**：Taro 4 + React + TypeScript 跨端小程序（`app/bbs-mini/`），支持微信/抖音/支付宝/H5，4 个 tabBar（首页/话题/消息/我的）+ 6 个二级页（帖子详情/发布/登录/用户主页/搜索/话题列表），全部页面使用 mock 数据演示，切换 `USE_MOCK=false` 即可对接 web 端 `/api` 接口
+- [x] **阶段 6 全部完成** ✅
 
 ## 五、数据库规划（草案）
 
@@ -157,7 +166,75 @@ pnpm dev:bbs-web     # 用户端
 
 接口文档：<http://127.0.0.1:8888/doc.html>
 
-## 七、开发约定
+## 七、Docker 一键部署
+
+```bash
+# 1. 复制环境变量样例
+cp .env.example .env
+# 2. 修改 .env 中 MYSQL_ROOT_PASSWORD / BBS_JWT_SECRET
+# 3. 一键启动 (首次会构建镜像 + 初始化 MySQL)
+docker compose up -d --build
+
+# 常用命令
+docker compose ps
+docker compose logs -f bbs-admin
+docker compose down                 # 停止
+docker compose down -v              # 停止并清理数据卷
+```
+
+访问入口：
+
+- 用户端：<http://localhost/>
+- 管理后台：<http://localhost/admin> （需登录 `/login`）
+- 接口文档：<http://localhost/api/doc.html>（如已配置 knife4j）
+- WebSocket 聊天：<ws://localhost/ws/chat>
+
+> 前端 ajax 走 `/api/*`，nginx rewrite 到后端 `/admin/*`，与开发模式 `/admin/*` 直接同源不同，参见 `web/nginx.conf`。
+
+## 八、移动端小程序（`app/bbs-mini/`）
+
+基于 Taro 4 + React 18 + TypeScript，支持微信 / 抖音 / 支付宝 / H5 多端。
+
+```bash
+cd app/bbs-mini
+pnpm install
+
+# 微信小程序 (需要微信开发者工具导入 dist 目录)
+pnpm dev:weapp
+
+# H5 端预览
+pnpm dev:h5
+
+# 生产构建
+pnpm build:weapp
+```
+
+**目录结构**
+
+```
+src/
+├── app.config.ts      # 全局配置: 4 tabBar + 6 二级页
+├── pages/             # 页面
+│   ├── home/          # tabBar - 首页 feed 流
+│   ├── topic/         # tabBar - 分类网格 + 热门标签
+│   ├── message/       # tabBar - 互动消息
+│   ├── mine/          # tabBar - 我的
+│   ├── post-detail/   # 帖子详情 + 评论
+│   ├── post-publish/  # 发布
+│   ├── login/         # 登录
+│   ├── user-home/     # 用户主页
+│   ├── search/        # 搜索 (历史 + 热门)
+│   └── topic-list/    # 分类/标签筛选列表
+├── components/        # PostCard, Empty
+├── services/api.ts    # API + mock 切换 (USE_MOCK)
+├── store/user.ts      # Zustand 登录态
+├── data/              # mock 数据
+└── types/model.ts     # 类型定义 (与 web 端 bbs-web 对齐)
+```
+
+**切换真实接口**：编辑 `src/services/api.ts` 顶部 `const USE_MOCK = false`，axios 自动走 `/api/*` → nginx 反代到后端 `/admin/*`。
+
+## 九、开发约定
 
 - 提交规范：feat / fix / docs / refactor / style / test / chore
 - 前端遵循：`<script setup>` + TElement + `usePagination` / `useDialogOpen` + `apis/<feature>/` 目录

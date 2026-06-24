@@ -95,6 +95,7 @@ CREATE TABLE `bbs_post` (
     KEY `idx_post_user`     (`user_id`),
     KEY `idx_post_category` (`category_id`),
     KEY `idx_post_status`   (`status`, `is_top`, `top_time`),
+    KEY `idx_post_feed`     (`status`, `create_time`)     COMMENT 'feed 流按时间排序',
     KEY `idx_post_create`   (`create_time`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='帖子表';
 

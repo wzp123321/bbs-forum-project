@@ -8,6 +8,8 @@ import com.bbs.bbsadmin.response.R;
 import com.bbs.bbsadmin.response.ResponseCode;
 import com.bbs.bbsadmin.security.AuthContext;
 import com.bbs.bbsadmin.security.JwtUtil;
+import com.bbs.bbsadmin.security.LoginLock;
+import com.bbs.bbsadmin.security.annotation.RateLimit;
 import com.bbs.bbsadmin.security.annotation.RequireAuth;
 import com.bbs.bbsadmin.service.UserInfoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,12 +37,21 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private LoginLock loginLock;
+
     @Operation(summary = "登录")
+    @RateLimit(key = "login", capacity = 10, refillTokens = 10, refillSeconds = 60, message = "登录尝试过于频繁")
     @PostMapping("/login")
     public R<LoginVO> login(@Valid @RequestBody LoginDTO dto) {
+        // 1) 锁定检查 (优先于一切业务, 避免泄露账号是否存在)
+        loginLock.check(dto.getAccount());
+
         UserInfo user = userInfoService.findByAccount(dto.getAccount());
         if (user == null) {
-            throw new BizException(ResponseCode.USER_NOT_FOUND);
+            // 同样计入失败 (防止账号枚举)
+            loginLock.onFailure(dto.getAccount());
+            throw new BizException(ResponseCode.BAD_CREDENTIALS);
         }
         // 兼容老数据: 明文密码 (没有 BCrypt 前缀) 也允许登录一次,登录后自动升级为 BCrypt
         String stored = user.getPassword();
@@ -54,8 +65,12 @@ public class AuthController {
             }
         }
         if (!matched) {
+            loginLock.onFailure(dto.getAccount());
             throw new BizException(ResponseCode.BAD_CREDENTIALS);
         }
+
+        // 2) 成功清零
+        loginLock.clear(dto.getAccount());
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("userName", user.getUserName());

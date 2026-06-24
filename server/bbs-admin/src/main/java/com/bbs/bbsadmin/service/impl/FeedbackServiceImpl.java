@@ -15,6 +15,8 @@ import com.bbs.bbsadmin.mapper.FeedbackMapper;
 import com.bbs.bbsadmin.mapper.UserInfoMapper;
 import com.bbs.bbsadmin.response.ResponseCode;
 import com.bbs.bbsadmin.security.AuthContext;
+import com.bbs.bbsadmin.security.Authz;
+import com.bbs.bbsadmin.security.XssSanitizer;
 import com.bbs.bbsadmin.service.FeedbackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,12 @@ public class FeedbackServiceImpl extends ServiceImpl<FeedbackMapper, Feedback> i
 
     @Autowired
     private UserInfoMapper userInfoMapper;
+
+    @Autowired
+    private XssSanitizer xssSanitizer;
+
+    @Autowired
+    private Authz authz;
 
     @Override
     public IPage<FeedbackVO> pageQueryVO(FeedbackPageQuery query) {
@@ -81,7 +89,7 @@ public class FeedbackServiceImpl extends ServiceImpl<FeedbackMapper, Feedback> i
         Feedback f = new Feedback();
         f.setUserId(AuthContext.userId());
         f.setType(dto.getType());
-        f.setContent(dto.getContent());
+        f.setContent(xssSanitizer.clean(dto.getContent()));
         f.setStatus(0);
         f.setCreateBy(AuthContext.userId());
         f.setCreateTime(LocalDateTime.now());
@@ -91,6 +99,8 @@ public class FeedbackServiceImpl extends ServiceImpl<FeedbackMapper, Feedback> i
 
     @Override
     public boolean reply(Long id, FeedbackReplyDTO dto) {
+        // 越权: 仅管理员可回复反馈
+        authz.assertAdmin();
         Feedback exist = baseMapper.selectById(id);
         if (exist == null) {
             throw new BizException(ResponseCode.NOT_FOUND, "反馈不存在");
@@ -108,6 +118,12 @@ public class FeedbackServiceImpl extends ServiceImpl<FeedbackMapper, Feedback> i
 
     @Override
     public boolean delete(Long id) {
+        Feedback exist = baseMapper.selectById(id);
+        if (exist == null) {
+            return true;
+        }
+        // 越权: 仅提交者或管理员可删除
+        authz.assertOwnerOrAdmin(exist.getUserId());
         return baseMapper.deleteById(id) > 0;
     }
 

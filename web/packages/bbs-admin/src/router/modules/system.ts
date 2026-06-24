@@ -26,6 +26,6 @@ export const systemRoutes: RouteRecordRaw[] = [
       title: 'Tag管理',
       hasIcon: true,
     },
-    component: import('../../views/tag-manage/index.vue'),
+    component: () => import('../../views/tag-manage/index.vue'),
   },
 ];

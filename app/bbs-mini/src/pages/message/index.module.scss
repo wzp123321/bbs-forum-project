@@ -1,0 +1,152 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: $spacing-md 0 60rpx;
+}
+
+.quickBar {
+  display: flex;
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-md 0;
+  margin: 0 $page-padding $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.quickItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.quickIcon {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  color: #fff;
+  margin-bottom: $spacing-xs;
+}
+
+.quickIconLike { background: linear-gradient(135deg, #ff6b6b, #ff9d3d); }
+.quickIconComment { background: linear-gradient(135deg, $color-primary, $color-primary-light); }
+.quickIconFollow { background: linear-gradient(135deg, #4ecdc4, #44a3aa); }
+.quickIconSystem { background: linear-gradient(135deg, $color-warning, #ffb84d); }
+
+.quickLabel {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.badge {
+  position: absolute;
+  top: -4rpx;
+  right: 24rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  padding: 0 8rpx;
+  background: $color-error;
+  color: #fff;
+  font-size: 20rpx;
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.section {
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  margin: 0 $page-padding $spacing-md;
+  box-shadow: $shadow-card;
+  overflow: hidden;
+}
+
+.sectionTitle {
+  padding: $spacing-md;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.messageList {
+  padding: 0 $page-padding;
+}
+
+.messageItem {
+  display: flex;
+  align-items: flex-start;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.messageItem:last-child {
+  border-bottom: none;
+}
+
+.messageAvatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: $radius-round;
+  background: $color-bg-hover;
+  margin-right: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.messageIcon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  color: #fff;
+  margin-right: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.messageBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.messageLine1 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4rpx;
+}
+
+.messageFrom {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.messageTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.messageContent {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  @include text-ellipsis-multi(2);
+}
+
+.unread {
+  width: 16rpx;
+  height: 16rpx;
+  background: $color-error;
+  border-radius: $radius-round;
+  margin-left: $spacing-sm;
+  flex-shrink: 0;
+}

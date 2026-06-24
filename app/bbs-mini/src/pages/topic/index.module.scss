@@ -1,0 +1,92 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: $page-padding 0 60rpx;
+}
+
+.section {
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin: 0 $page-padding $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionMore {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  font-weight: $font-weight-normal;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+}
+
+.gridItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-sm 0;
+  border-radius: $radius-sm;
+  transition: all $transition-base;
+}
+
+.gridItem:active {
+  background: $color-bg-hover;
+  transform: scale(0.96);
+}
+
+.gridIcon {
+  width: 80rpx;
+  height: 80rpx;
+  background: linear-gradient(135deg, rgba(22, 93, 255, 0.1), rgba(64, 128, 255, 0.15));
+  border-radius: $radius-round;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  margin-bottom: $spacing-xs;
+}
+
+.gridName {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+}
+
+.gridCount {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.tagCloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.tagItem {
+  padding: 12rpx 24rpx;
+  font-size: $font-size-sm;
+  color: $color-primary;
+  background: rgba(22, 93, 255, 0.08);
+  border-radius: $radius-button;
+  white-space: nowrap;
+}
+
+.tagItem:active {
+  background: rgba(22, 93, 255, 0.16);
+}

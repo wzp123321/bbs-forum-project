@@ -20,7 +20,9 @@ import com.bbs.bbsadmin.mapper.TagMapper;
 import com.bbs.bbsadmin.mapper.UserInfoMapper;
 import com.bbs.bbsadmin.response.ResponseCode;
 import com.bbs.bbsadmin.security.AuthContext;
+import com.bbs.bbsadmin.security.Authz;
 import com.bbs.bbsadmin.security.SensitiveWordFilter;
+import com.bbs.bbsadmin.security.XssSanitizer;
 import com.bbs.bbsadmin.service.AttachmentService;
 import com.bbs.bbsadmin.service.FollowRecordService;
 import com.bbs.bbsadmin.service.PostService;
@@ -57,6 +59,12 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
 
     @Autowired
     private SensitiveWordFilter sensitiveWordFilter;
+
+    @Autowired
+    private XssSanitizer xssSanitizer;
+
+    @Autowired
+    private Authz authz;
 
     @Autowired
     private FollowRecordService followRecordService;
@@ -194,12 +202,14 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         if (exist == null) {
             throw new BizException(ResponseCode.NOT_FOUND, "帖子不存在");
         }
+        // 越权检查: 仅作者本人或管理员可编辑
+        authz.assertOwnerOrAdmin(exist.getUserId());
         validateCategory(dto.getCategoryId());
         Post p = new Post();
         p.setId(id);
         p.setCategoryId(dto.getCategoryId());
-        p.setTitle(dto.getTitle());
-        p.setContent(dto.getContent());
+        p.setTitle(xssSanitizer.clean(dto.getTitle()));
+        p.setContent(xssSanitizer.clean(dto.getContent()));
         p.setContentType(dto.getContentType());
         p.setReadPerm(dto.getReadPerm());
         p.setStatus(dto.getStatus());

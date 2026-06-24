@@ -15,6 +15,9 @@ public enum ResponseCode {
     UNAUTHORIZED(401, "未登录或登录已失效"),
     FORBIDDEN(403, "无权限访问"),
     NOT_FOUND(404, "资源不存在"),
+    TOO_MANY_REQUESTS(429, "请求过于频繁,请稍后再试"),
+    SENSITIVE_WORD(422, "内容包含敏感词"),
+    LOCKED(423, "账号已被临时锁定"),
 
     // ========== 用户模块 1xxx ==========
     USER_NOT_FOUND(1001, "用户不存在"),

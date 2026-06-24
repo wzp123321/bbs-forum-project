@@ -2,6 +2,7 @@
  * 统一 axios 调用封装
  * - 请求拦截器自动加 Authorization: Bearer <token>
  * - 业务码 200 直接返回 data,非 200 走 reject
+ * - 生产环境通过 VITE_API_BASE_URL 配置 API 基础路径 (如 /api), 由 nginx 反代到后端
  */
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
@@ -9,6 +10,12 @@ import type { R } from '@/apis/types';
 import { tokenStore } from '@/utils';
 
 const http = axios;
+
+// API 基础路径: 生产从环境变量读取, 默认为空 (相对当前 host)
+const API_BASE = (import.meta.env.VITE_API_BASE_URL as string | undefined) || '';
+if (API_BASE) {
+  http.defaults.baseURL = API_BASE;
+}
 
 // 请求拦截器: 注入 token
 http.interceptors.request.use((config) => {

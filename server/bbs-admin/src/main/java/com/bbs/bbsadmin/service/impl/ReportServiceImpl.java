@@ -19,6 +19,8 @@ import com.bbs.bbsadmin.mapper.ReportMapper;
 import com.bbs.bbsadmin.mapper.UserInfoMapper;
 import com.bbs.bbsadmin.response.ResponseCode;
 import com.bbs.bbsadmin.security.AuthContext;
+import com.bbs.bbsadmin.security.Authz;
+import com.bbs.bbsadmin.security.XssSanitizer;
 import com.bbs.bbsadmin.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,6 +47,12 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
 
     @Autowired
     private UserInfoMapper userInfoMapper;
+
+    @Autowired
+    private XssSanitizer xssSanitizer;
+
+    @Autowired
+    private Authz authz;
 
     @Autowired
     private PostMapper postMapper;
@@ -137,7 +145,7 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
         r.setTargetType(dto.getTargetType());
         r.setTargetId(dto.getTargetId());
         r.setReasonType(dto.getReasonType());
-        r.setContent(dto.getContent());
+        r.setContent(xssSanitizer.clean(dto.getContent()));
         r.setStatus(0);
         r.setCreateBy(currentUserId);
         r.setCreateTime(LocalDateTime.now());
@@ -194,6 +202,12 @@ public class ReportServiceImpl extends ServiceImpl<ReportMapper, Report> impleme
 
     @Override
     public boolean delete(Long id) {
+        Report exist = baseMapper.selectById(id);
+        if (exist == null) {
+            return true;
+        }
+        // 越权: 仅提交者或管理员可删除
+        authz.assertOwnerOrAdmin(exist.getUserId());
         return baseMapper.deleteById(id) > 0;
     }
 

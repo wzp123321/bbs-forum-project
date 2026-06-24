@@ -1,0 +1,81 @@
+# =============================================================
+#  9527 论坛 - 一键启动
+#  用法:
+#    docker compose up -d --build
+#    docker compose logs -f bbs-admin
+#    docker compose down
+# =============================================================
+
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: bbs-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-bbs}
+      TZ: Asia/Shanghai
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # 首次启动时自动执行建表脚本 (注意: 仅当数据卷为空时生效)
+      - ./server/bbs-admin/src/main/resources/sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-123456}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  bbs-admin:
+    build:
+      context: ./server/bbs-admin
+      dockerfile: Dockerfile
+    image: bbs-forum/bbs-admin:latest
+    container_name: bbs-admin
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      TZ: Asia/Shanghai
+      # 容器间用服务名访问 MySQL
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-bbs}?useSSL=false&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
+      # JWT / 上传等可在此覆盖
+      BSS_JWT_SECRET: ${BBS_JWT_SECRET:-please-change-me-in-prod-32bytes-min}
+      BBS_UPLOAD_DIR: /app/upload
+    volumes:
+      - upload_data:/app/upload
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8888/admin/auth/info"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  bbs-web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    image: bbs-forum/bbs-web:latest
+    container_name: bbs-web
+    restart: unless-stopped
+    depends_on:
+      bbs-admin:
+        condition: service_healthy
+    ports:
+      - "${WEB_PORT:-80}:80"
+    environment:
+      TZ: Asia/Shanghai
+
+volumes:
+  mysql_data:
+  upload_data:

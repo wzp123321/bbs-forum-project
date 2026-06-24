@@ -1,0 +1,95 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding-bottom: 60rpx;
+}
+
+.searchBar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 1rpx 0 $color-divider;
+}
+
+.searchBox {
+  flex: 1;
+  height: 72rpx;
+  background: $color-bg-page;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  padding: 0 $spacing-md;
+}
+
+.searchIcon {
+  margin-right: $spacing-xs;
+  font-size: 28rpx;
+  color: $color-text-tertiary;
+}
+
+.searchPlaceholder {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.publishBtn {
+  margin-left: $spacing-sm;
+  padding: 0 24rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  background: linear-gradient(135deg, $color-primary, $color-primary-light);
+  color: #fff;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  border-radius: $radius-button;
+  white-space: nowrap;
+}
+
+.tabs {
+  display: flex;
+  background: $color-bg-card;
+  border-bottom: 1rpx solid $color-divider;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.tabItem {
+  flex: 0 0 auto;
+  padding: 24rpx 32rpx;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  position: relative;
+  white-space: nowrap;
+}
+
+.tabItemActive {
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48rpx;
+    height: 6rpx;
+    background: $color-primary;
+    border-radius: 3rpx;
+  }
+}
+
+.list {
+  padding-top: $spacing-md;
+}
+
+.loading {
+  text-align: center;
+  padding: $spacing-lg;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}

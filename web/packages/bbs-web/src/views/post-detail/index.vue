@@ -32,7 +32,7 @@
         <div class="wpd-tags" v-if="post.tagNames?.length">
           <el-tag v-for="t in post.tagNames" :key="t" size="small" effect="plain"># {{ t }}</el-tag>
         </div>
-        <div class="wpd-content" v-html="renderedContent"></div>
+        <div class="wpd-content" v-html="renderedContent" ref="contentRef"></div>
 
         <div class="wpd-actions">
           <el-button :type="liked ? 'primary' : 'default'" @click="onToggleLike" :loading="likeLoading">
@@ -169,6 +169,8 @@ const route = useRoute();
 const postId = computed(() => Number(route.params.id));
 const loading = ref(false);
 const post = ref<PostVO | null>(null);
+const contentRef = ref<HTMLElement>();
+useLazyImages(contentRef);
 
 /** 把帖子正文中所有 /upload/... 拼接成可访问的完整 URL, 并把媒体标签包裹为自适应容器 */
 const renderedContent = computed(() => {

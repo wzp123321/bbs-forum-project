@@ -1,0 +1,99 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: $spacing-md $page-padding 200rpx;
+  background: $color-bg-page;
+}
+
+.form {
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.titleInput {
+  width: 100%;
+  font-size: 40rpx;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-divider;
+  margin-bottom: $spacing-md;
+}
+
+.contentArea {
+  width: 100%;
+  min-height: 360rpx;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: $line-height-loose;
+  padding: $spacing-sm 0;
+}
+
+.label {
+  display: block;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin: $spacing-md 0 $spacing-sm;
+}
+
+.tagBox {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.tagItem {
+  padding: 12rpx 24rpx;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  background: $color-bg-page;
+  border-radius: $radius-button;
+  border: 1rpx solid $color-border;
+  white-space: nowrap;
+}
+
+.tagItemActive {
+  color: #fff;
+  background: $color-primary;
+  border-color: $color-primary;
+}
+
+.actions {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  padding: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-top: 1rpx solid $color-divider;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.draftBtn {
+  flex: 1;
+  height: $button-height-md;
+  line-height: $button-height-md;
+  text-align: center;
+  background: $color-bg-page;
+  color: $color-text-secondary;
+  font-size: $font-size-md;
+  border-radius: $radius-button;
+  margin-right: $spacing-sm;
+}
+
+.submitBtn {
+  flex: 2;
+  height: $button-height-md;
+  line-height: $button-height-md;
+  text-align: center;
+  background: linear-gradient(135deg, $color-primary, $color-primary-light);
+  color: #fff;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  border-radius: $radius-button;
+}

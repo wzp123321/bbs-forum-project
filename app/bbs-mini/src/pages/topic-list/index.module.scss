@@ -1,0 +1,10 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding: $spacing-md 0 60rpx;
+}
+
+.list {
+  padding: 0;
+}

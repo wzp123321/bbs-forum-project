@@ -12,10 +12,13 @@ import com.bbs.bbsadmin.mapper.TagMapper;
 import com.bbs.bbsadmin.response.ResponseCode;
 import com.bbs.bbsadmin.security.AuthContext;
 import com.bbs.bbsadmin.service.TagService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagService {
@@ -34,6 +37,15 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
     }
 
     @Override
+    @Cacheable(cacheNames = "tag:listEnabled", key = "'all'")
+    public List<Tag> listEnabled() {
+        return baseMapper.selectList(new LambdaQueryWrapper<Tag>()
+                .eq(Tag::getStatus, 1)
+                .orderByDesc(Tag::getPostCount));
+    }
+
+    @Override
+    @CacheEvict(cacheNames = "tag:listEnabled", allEntries = true)
     public Long create(TagSaveDTO dto) {
         long exists = baseMapper.selectCount(new LambdaQueryWrapper<Tag>()
                 .eq(Tag::getName, dto.getName()));
@@ -52,6 +64,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
     }
 
     @Override
+    @CacheEvict(cacheNames = "tag:listEnabled", allEntries = true)
     public boolean update(Long id, TagSaveDTO dto) {
         Tag exist = baseMapper.selectById(id);
         if (exist == null) {

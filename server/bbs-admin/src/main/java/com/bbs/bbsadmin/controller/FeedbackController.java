@@ -6,6 +6,7 @@ import com.bbs.bbsadmin.entity.dto.FeedbackReplyDTO;
 import com.bbs.bbsadmin.entity.dto.FeedbackSaveDTO;
 import com.bbs.bbsadmin.entity.vo.FeedbackVO;
 import com.bbs.bbsadmin.response.R;
+import com.bbs.bbsadmin.security.annotation.RateLimit;
 import com.bbs.bbsadmin.security.annotation.RequireAuth;
 import com.bbs.bbsadmin.service.FeedbackService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,6 +55,7 @@ public class FeedbackController {
 
     @Operation(summary = "提交反馈")
     @RequireAuth
+    @RateLimit(key = "feedback", capacity = 3, refillSeconds = 60, message = "反馈过于频繁")
     @PostMapping
     public R<Long> create(@Valid @RequestBody FeedbackSaveDTO dto) {
         return R.data(feedbackService.create(dto));

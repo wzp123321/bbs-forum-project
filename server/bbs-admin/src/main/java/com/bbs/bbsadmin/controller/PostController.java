@@ -5,6 +5,8 @@ import com.bbs.bbsadmin.entity.dto.PostPageQuery;
 import com.bbs.bbsadmin.entity.dto.PostSaveDTO;
 import com.bbs.bbsadmin.entity.vo.PostVO;
 import com.bbs.bbsadmin.response.R;
+import com.bbs.bbsadmin.security.Authz;
+import com.bbs.bbsadmin.security.annotation.RateLimit;
 import com.bbs.bbsadmin.security.annotation.RequireAuth;
 import com.bbs.bbsadmin.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -52,6 +54,7 @@ public class PostController {
 
     @Operation(summary = "新增帖子")
     @RequireAuth
+    @RateLimit(key = "post:create", capacity = 10, refillSeconds = 60, message = "发帖过于频繁,请稍后再试")
     @PostMapping
     public R<Long> create(@Valid @RequestBody PostSaveDTO dto) {
         return R.data(postService.create(dto));

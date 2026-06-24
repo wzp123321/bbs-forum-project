@@ -103,6 +103,9 @@ knife4j:
 
 # 附件上传 自定义配置
 bbs:
+  auth:
+    # 管理员 userId 列表 (逗号分隔), 可执行后台管理操作
+    admin-user-ids: admin
   upload:
     # 本地存储根目录 (相对于 jar 运行目录)
     base-dir: ./uploads

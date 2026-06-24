@@ -1,0 +1,147 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  padding-bottom: 60rpx;
+}
+
+.header {
+  background: linear-gradient(135deg, $color-primary, $color-primary-light);
+  padding: 80rpx $page-padding 60rpx;
+  color: #fff;
+}
+
+.userRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+}
+
+.avatar {
+  width: 128rpx;
+  height: 128rpx;
+  border-radius: $radius-round;
+  background: rgba(255, 255, 255, 0.3);
+  border: 4rpx solid rgba(255, 255, 255, 0.5);
+  margin-right: $spacing-md;
+}
+
+.userInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.nickname {
+  display: block;
+  font-size: 40rpx;
+  font-weight: $font-weight-semibold;
+  color: #fff;
+  margin-bottom: 4rpx;
+}
+
+.bio {
+  display: block;
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.85);
+  @include text-ellipsis;
+}
+
+.stats {
+  display: flex;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: $radius-md;
+  padding: $spacing-md 0;
+  backdrop-filter: blur(10rpx);
+}
+
+.statItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #fff;
+}
+
+.statValue {
+  font-size: 36rpx;
+  font-weight: $font-weight-semibold;
+  margin-bottom: 4rpx;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  opacity: 0.85;
+}
+
+.menu {
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  margin: $spacing-md $page-padding;
+  box-shadow: $shadow-card;
+  overflow: hidden;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md;
+  border-bottom: 1rpx solid $color-divider;
+  transition: background $transition-base;
+}
+
+.menuItem:last-child {
+  border-bottom: none;
+}
+
+.menuItem:active {
+  background: $color-bg-hover;
+}
+
+.menuIcon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: $radius-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  color: #fff;
+  margin-right: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.menuLabel {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.menuArrow {
+  font-size: 32rpx;
+  color: $color-text-tertiary;
+}
+
+.logoutBtn {
+  margin: $spacing-md $page-padding;
+  height: $button-height-md;
+  line-height: $button-height-md;
+  text-align: center;
+  background: $color-bg-card;
+  color: $color-error;
+  font-size: $font-size-md;
+  border-radius: $radius-button;
+  box-shadow: $shadow-card;
+}
+
+.loginPrompt {
+  margin: $spacing-md $page-padding;
+  height: $button-height-md;
+  line-height: $button-height-md;
+  text-align: center;
+  background: linear-gradient(135deg, $color-primary, $color-primary-light);
+  color: #fff;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  border-radius: $radius-button;
+  box-shadow: $shadow-card;
+}

@@ -6,6 +6,7 @@ import com.bbs.bbsadmin.entity.dto.ReportPageQuery;
 import com.bbs.bbsadmin.entity.dto.ReportSaveDTO;
 import com.bbs.bbsadmin.entity.vo.ReportVO;
 import com.bbs.bbsadmin.response.R;
+import com.bbs.bbsadmin.security.annotation.RateLimit;
 import com.bbs.bbsadmin.security.annotation.RequireAuth;
 import com.bbs.bbsadmin.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,6 +55,7 @@ public class ReportController {
 
     @Operation(summary = "提交举报")
     @RequireAuth
+    @RateLimit(key = "report", capacity = 5, refillSeconds = 60, message = "举报过于频繁")
     @PostMapping
     public R<Long> create(@Valid @RequestBody ReportSaveDTO dto) {
         return R.data(reportService.create(dto));

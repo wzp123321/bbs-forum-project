@@ -1,0 +1,12 @@
+// 全局基础样式
+@import "./styles/variables.scss";
+
+page {
+  background-color: $color-bg-page;
+  color: $color-text-primary;
+  font-size: $font-size-md;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue",
+    sans-serif;
+  line-height: $line-height-normal;
+}
