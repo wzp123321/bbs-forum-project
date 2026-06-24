@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.bbs.bbsadmin.entity.vo.PostVO;
 import com.bbs.bbsadmin.response.R;
 import com.bbs.bbsadmin.security.AuthContext;
+import com.bbs.bbsadmin.security.annotation.AuditLog;
 import com.bbs.bbsadmin.security.annotation.RateLimit;
 import com.bbs.bbsadmin.security.annotation.RequireAuth;
 import com.bbs.bbsadmin.service.LikeRecordService;
@@ -32,6 +33,7 @@ public class LikeController {
     @Operation(summary = "点赞 (1帖子 2评论)")
     @RequireAuth
     @RateLimit(key = "like", capacity = 60, refillSeconds = 60, message = "操作过于频繁")
+    @AuditLog(action = "LIKE", description = "点赞", targetIdSpEl = "#targetId")
     @PostMapping("/{targetType}/{targetId}")
     public R<Void> like(@PathVariable Integer targetType, @PathVariable Long targetId) {
         likeRecordService.like(targetType, targetId);
@@ -41,6 +43,7 @@ public class LikeController {
     @Operation(summary = "取消点赞")
     @RequireAuth
     @RateLimit(key = "like:cancel", capacity = 60, refillSeconds = 60, message = "操作过于频繁")
+    @AuditLog(action = "LIKE_CANCEL", description = "取消点赞", targetIdSpEl = "#targetId")
     @DeleteMapping("/{targetType}/{targetId}")
     public R<Void> cancel(@PathVariable Integer targetType, @PathVariable Long targetId) {
         likeRecordService.cancel(targetType, targetId);

@@ -5,6 +5,7 @@ import com.bbs.bbsadmin.entity.dto.CommentPageQuery;
 import com.bbs.bbsadmin.entity.dto.CommentSaveDTO;
 import com.bbs.bbsadmin.entity.vo.CommentVO;
 import com.bbs.bbsadmin.response.R;
+import com.bbs.bbsadmin.security.annotation.AuditLog;
 import com.bbs.bbsadmin.security.annotation.RateLimit;
 import com.bbs.bbsadmin.security.annotation.RequireAuth;
 import com.bbs.bbsadmin.service.CommentService;
@@ -54,6 +55,7 @@ public class CommentController {
     @Operation(summary = "新增评论")
     @RequireAuth
     @RateLimit(key = "comment:create", capacity = 20, refillSeconds = 60, message = "评论过于频繁")
+    @AuditLog(action = "COMMENT_CREATE", description = "发表评论", targetType = "COMMENT", targetIdSpEl = "#dto.postId")
     @PostMapping
     public R<Long> create(@Valid @RequestBody CommentSaveDTO dto) {
         return R.data(commentService.create(dto));
@@ -61,6 +63,7 @@ public class CommentController {
 
     @Operation(summary = "编辑评论")
     @RequireAuth
+    @AuditLog(action = "COMMENT_UPDATE", description = "编辑评论", targetType = "COMMENT", targetIdSpEl = "#id")
     @PutMapping("/{id}")
     public R<Void> update(@PathVariable Long id, @Valid @RequestBody CommentSaveDTO dto) {
         commentService.update(id, dto);
@@ -69,6 +72,7 @@ public class CommentController {
 
     @Operation(summary = "删除评论")
     @RequireAuth
+    @AuditLog(action = "COMMENT_DELETE", description = "删除评论", targetType = "COMMENT", targetIdSpEl = "#id")
     @DeleteMapping("/{id}")
     public R<Void> delete(@PathVariable Long id) {
         commentService.delete(id);

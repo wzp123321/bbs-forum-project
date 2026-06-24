@@ -9,6 +9,7 @@ import com.bbs.bbsadmin.response.ResponseCode;
 import com.bbs.bbsadmin.security.AuthContext;
 import com.bbs.bbsadmin.security.JwtUtil;
 import com.bbs.bbsadmin.security.LoginLock;
+import com.bbs.bbsadmin.security.annotation.AuditLog;
 import com.bbs.bbsadmin.security.annotation.RateLimit;
 import com.bbs.bbsadmin.security.annotation.RequireAuth;
 import com.bbs.bbsadmin.service.UserInfoService;

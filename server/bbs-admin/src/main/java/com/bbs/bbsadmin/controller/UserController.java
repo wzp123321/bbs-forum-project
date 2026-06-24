@@ -11,6 +11,7 @@ import com.bbs.bbsadmin.exception.BizException;
 import com.bbs.bbsadmin.response.R;
 import com.bbs.bbsadmin.response.ResponseCode;
 import com.bbs.bbsadmin.security.AuthContext;
+import com.bbs.bbsadmin.security.annotation.AuditLog;
 import com.bbs.bbsadmin.security.annotation.RequireAuth;
 import com.bbs.bbsadmin.service.UserInfoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -73,6 +74,7 @@ public class UserController {
 
     @Operation(summary = "修改资料")
     @RequireAuth
+    @AuditLog(action = "USER_UPDATE", description = "修改资料", targetType = "USER", targetIdSpEl = "#userId")
     @PutMapping("/{userId}")
     public R<Void> updateProfile(@PathVariable String userId, @RequestBody UserUpdateDTO dto) {
         // 只允许改自己 或 超级管理员(此处仅判断自己)
@@ -86,6 +88,7 @@ public class UserController {
 
     @Operation(summary = "修改密码")
     @RequireAuth
+    @AuditLog(action = "USER_PASSWORD_UPDATE", description = "修改密码", targetType = "USER", targetIdSpEl = "#userId")
     @PutMapping("/{userId}/password")
     public R<Void> updatePassword(@PathVariable String userId, @Valid @RequestBody PasswordUpdateDTO dto) {
         String current = AuthContext.userId();

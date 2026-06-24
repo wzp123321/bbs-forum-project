@@ -6,6 +6,7 @@ import com.bbs.bbsadmin.entity.dto.PostSaveDTO;
 import com.bbs.bbsadmin.entity.vo.PostVO;
 import com.bbs.bbsadmin.response.R;
 import com.bbs.bbsadmin.security.Authz;
+import com.bbs.bbsadmin.security.annotation.AuditLog;
 import com.bbs.bbsadmin.security.annotation.RateLimit;
 import com.bbs.bbsadmin.security.annotation.RequireAuth;
 import com.bbs.bbsadmin.service.PostService;
@@ -33,6 +34,9 @@ public class PostController {
 
     @Autowired
     private PostService postService;
+
+    @Autowired
+    private Authz authz;
 
     @Operation(summary = "分页查询帖子")
     @GetMapping("/page")

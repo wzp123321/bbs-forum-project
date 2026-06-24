@@ -6,6 +6,7 @@ import com.bbs.bbsadmin.entity.dto.FeedbackReplyDTO;
 import com.bbs.bbsadmin.entity.dto.FeedbackSaveDTO;
 import com.bbs.bbsadmin.entity.vo.FeedbackVO;
 import com.bbs.bbsadmin.response.R;
+import com.bbs.bbsadmin.security.annotation.AuditLog;
 import com.bbs.bbsadmin.security.annotation.RateLimit;
 import com.bbs.bbsadmin.security.annotation.RequireAuth;
 import com.bbs.bbsadmin.service.FeedbackService;
@@ -56,6 +57,7 @@ public class FeedbackController {
     @Operation(summary = "提交反馈")
     @RequireAuth
     @RateLimit(key = "feedback", capacity = 3, refillSeconds = 60, message = "反馈过于频繁")
+    @AuditLog(action = "FEEDBACK_CREATE", description = "提交反馈", targetType = "FEEDBACK")
     @PostMapping
     public R<Long> create(@Valid @RequestBody FeedbackSaveDTO dto) {
         return R.data(feedbackService.create(dto));
@@ -63,6 +65,7 @@ public class FeedbackController {
 
     @Operation(summary = "回复反馈")
     @RequireAuth
+    @AuditLog(action = "FEEDBACK_REPLY", description = "回复反馈", targetType = "FEEDBACK", targetIdSpEl = "#id")
     @PutMapping("/{id}/reply")
     public R<Void> reply(@PathVariable Long id, @Valid @RequestBody FeedbackReplyDTO dto) {
         feedbackService.reply(id, dto);
@@ -71,6 +74,7 @@ public class FeedbackController {
 
     @Operation(summary = "删除反馈")
     @RequireAuth
+    @AuditLog(action = "FEEDBACK_DELETE", description = "删除反馈", targetType = "FEEDBACK", targetIdSpEl = "#id")
     @DeleteMapping("/{id}")
     public R<Void> delete(@PathVariable Long id) {
         feedbackService.delete(id);

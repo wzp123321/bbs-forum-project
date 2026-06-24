@@ -298,6 +298,32 @@ CREATE TABLE IF NOT EXISTS `bbs_attachment` (
     KEY `idx_attach_status` (`status`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='附件表';
 
+-- -------------------------------------------------------------
+-- 13. 操作审计日志
+-- -------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `bbs_operation_log` (
+    `id`          BIGINT        NOT NULL AUTO_INCREMENT,
+    `user_id`     VARCHAR(32)   DEFAULT NULL            COMMENT '操作用户ID',
+    `user_name`   VARCHAR(50)   DEFAULT NULL            COMMENT '操作用户名',
+    `action`      VARCHAR(50)   NOT NULL                COMMENT '操作类型: LOGIN/POST_CREATE/...',
+    `description` VARCHAR(255)  DEFAULT NULL            COMMENT '操作描述',
+    `target_type` VARCHAR(20)   DEFAULT NULL            COMMENT '目标类型: POST/COMMENT/...',
+    `target_id`   VARCHAR(64)   DEFAULT NULL            COMMENT '目标ID',
+    `uri`         VARCHAR(255)  DEFAULT NULL            COMMENT '请求URI',
+    `method`      VARCHAR(10)   DEFAULT NULL            COMMENT 'HTTP方法',
+    `ip`          VARCHAR(64)   DEFAULT NULL            COMMENT '客户端IP',
+    `user_agent`  VARCHAR(500)  DEFAULT NULL            COMMENT 'User-Agent',
+    `success`     TINYINT       NOT NULL DEFAULT 1      COMMENT '1成功 0失败',
+    `error_msg`   VARCHAR(500)  DEFAULT NULL            COMMENT '失败原因',
+    `cost_ms`     BIGINT        DEFAULT NULL            COMMENT '耗时毫秒',
+    `create_time` DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_oplog_user`    (`user_id`, `create_time`),
+    KEY `idx_oplog_action`  (`action`, `create_time`),
+    KEY `idx_oplog_target`  (`target_type`, `target_id`),
+    KEY `idx_oplog_time`    (`create_time`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='操作审计日志';
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- =============================================================

@@ -6,6 +6,7 @@ import com.bbs.bbsadmin.entity.dto.ReportPageQuery;
 import com.bbs.bbsadmin.entity.dto.ReportSaveDTO;
 import com.bbs.bbsadmin.entity.vo.ReportVO;
 import com.bbs.bbsadmin.response.R;
+import com.bbs.bbsadmin.security.annotation.AuditLog;
 import com.bbs.bbsadmin.security.annotation.RateLimit;
 import com.bbs.bbsadmin.security.annotation.RequireAuth;
 import com.bbs.bbsadmin.service.ReportService;
@@ -56,6 +57,7 @@ public class ReportController {
     @Operation(summary = "提交举报")
     @RequireAuth
     @RateLimit(key = "report", capacity = 5, refillSeconds = 60, message = "举报过于频繁")
+    @AuditLog(action = "REPORT_CREATE", description = "提交举报", targetType = "REPORT", targetIdSpEl = "#dto.targetId")
     @PostMapping
     public R<Long> create(@Valid @RequestBody ReportSaveDTO dto) {
         return R.data(reportService.create(dto));
@@ -63,6 +65,7 @@ public class ReportController {
 
     @Operation(summary = "处理举报(0驳回 1已处理)")
     @RequireAuth
+    @AuditLog(action = "REPORT_HANDLE", description = "处理举报", targetType = "REPORT", targetIdSpEl = "#id")
     @PutMapping("/{id}/handle")
     public R<Void> handle(@PathVariable Long id, @Valid @RequestBody ReportHandleDTO dto) {
         reportService.handle(id, dto);
@@ -71,6 +74,7 @@ public class ReportController {
 
     @Operation(summary = "删除举报")
     @RequireAuth
+    @AuditLog(action = "REPORT_DELETE", description = "删除举报", targetType = "REPORT", targetIdSpEl = "#id")
     @DeleteMapping("/{id}")
     public R<Void> delete(@PathVariable Long id) {
         reportService.delete(id);
