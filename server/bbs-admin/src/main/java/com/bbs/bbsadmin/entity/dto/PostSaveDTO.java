@@ -38,4 +38,7 @@ public class PostSaveDTO {
 
     /** 是否精华 1是 0否 */
     private Integer isEssence;
+
+    /** 阅读权限: 1公开 2登录可见 3粉丝可见 4仅作者 */
+    private Integer readPerm;
 }

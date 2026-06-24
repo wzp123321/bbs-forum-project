@@ -1,11 +1,14 @@
 package com.bbs.bbsadmin.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bbs.bbsadmin.entity.CollectRecord;
 import com.bbs.bbsadmin.entity.Comment;
 import com.bbs.bbsadmin.entity.LikeRecord;
 import com.bbs.bbsadmin.entity.Post;
+import com.bbs.bbsadmin.entity.vo.PostVO;
 import com.bbs.bbsadmin.exception.BizException;
 import com.bbs.bbsadmin.mapper.CollectRecordMapper;
 import com.bbs.bbsadmin.mapper.CommentMapper;
@@ -15,17 +18,25 @@ import com.bbs.bbsadmin.response.ResponseCode;
 import com.bbs.bbsadmin.security.AuthContext;
 import com.bbs.bbsadmin.service.CollectRecordService;
 import com.bbs.bbsadmin.service.LikeRecordService;
+import com.bbs.bbsadmin.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class LikeRecordServiceImpl extends ServiceImpl<LikeRecordMapper, LikeRecord> implements LikeRecordService {
 
     @Autowired
     private PostMapper postMapper;
+
+    @Autowired
+    private PostService postService;
 
     @Autowired
     private CommentMapper commentMapper;
@@ -95,6 +106,45 @@ public class LikeRecordServiceImpl extends ServiceImpl<LikeRecordMapper, LikeRec
     @Override
     public boolean isLiked(Integer targetType, Long targetId) {
         return baseMapper.findOne(AuthContext.userId(), targetType, targetId) != null;
+    }
+
+    @Override
+    public IPage<PostVO> pageMyLikedPosts(String userId, int pageNum, int pageSize) {
+        Page<PostVO> page = new Page<>(pageNum, pageSize);
+        if (userId == null || userId.isEmpty()) {
+            return page;
+        }
+        LambdaQueryWrapper<LikeRecord> w = new LambdaQueryWrapper<>();
+        w.eq(LikeRecord::getUserId, userId)
+                .eq(LikeRecord::getTargetType, 1)
+                .orderByDesc(LikeRecord::getCreateTime)
+                .select(LikeRecord::getTargetId);
+        List<LikeRecord> records = baseMapper.selectList(w);
+        if (records.isEmpty()) {
+            return page;
+        }
+        List<Long> postIds = records.stream().map(LikeRecord::getTargetId).collect(Collectors.toList());
+        List<Post> posts = postMapper.selectBatchIds(postIds);
+        if (posts.isEmpty()) {
+            return page;
+        }
+        Map<Long, Post> map = posts.stream().collect(Collectors.toMap(Post::getId, p -> p));
+        List<PostVO> all = new ArrayList<>();
+        for (Long pid : postIds) {
+            Post p = map.get(pid);
+            if (p != null && p.getStatus() != null && p.getStatus() == 1) {
+                PostVO vo = PostVO.from(p);
+                if (vo != null) all.add(vo);
+            }
+        }
+        long total = all.size();
+        int from = Math.min((pageNum - 1) * pageSize, all.size());
+        int to = Math.min(from + pageSize, all.size());
+        List<PostVO> pageRecords = all.subList(from, to);
+        postService.fillAssociationsPublic(pageRecords);
+        page.setRecords(pageRecords);
+        page.setTotal(total);
+        return page;
     }
 
     private void ensureTargetExists(Integer targetType, Long targetId) {

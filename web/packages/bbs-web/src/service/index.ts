@@ -1,13 +1,24 @@
 /**
  * 统一 axios 调用封装
- * 复用 public 包注册的拦截器 (token/前缀/401)
- * 业务码 200 直接返回 data,非 200 走 reject (与 bbs-admin 保持一致)
+ * - 请求拦截器自动加 Authorization: Bearer <token>
+ * - 业务码 200 直接返回 data,非 200 走 reject
  */
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
 import type { R } from '@/apis/types';
+import { tokenStore } from '@/utils';
 
 const http = axios;
+
+// 请求拦截器: 注入 token
+http.interceptors.request.use((config) => {
+  const token = tokenStore.get();
+  if (token) {
+    config.headers = config.headers || {};
+    (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 interface RequestOptions {
   params?: Record<string, unknown>;
@@ -29,7 +40,7 @@ function unwrap<T>(promise: Promise<{ data: R<T> }>, silent?: boolean): Promise<
         return Promise.reject(new Error(body.message || `code=${body.code}`));
       }
       // 非标准 R 协议,直接返回
-      return (body as unknown) as T;
+      return body as unknown as T;
     })
     .catch((err) => {
       if (!silent) {
@@ -51,3 +62,6 @@ const http2 = {
 };
 
 export default http2;
+
+/** 暴露原始 axios (供需要自定义 headers/进度/类型 的场景使用,仍会经过上面注册的 token 拦截器) */
+export { http };

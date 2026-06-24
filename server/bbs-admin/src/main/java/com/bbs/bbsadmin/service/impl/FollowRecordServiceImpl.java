@@ -1,9 +1,12 @@
 package com.bbs.bbsadmin.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bbs.bbsadmin.entity.FollowRecord;
 import com.bbs.bbsadmin.entity.UserInfo;
+import com.bbs.bbsadmin.entity.vo.UserVO;
 import com.bbs.bbsadmin.exception.BizException;
 import com.bbs.bbsadmin.mapper.FollowRecordMapper;
 import com.bbs.bbsadmin.mapper.UserInfoMapper;
@@ -15,7 +18,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -87,5 +93,53 @@ public class FollowRecordServiceImpl extends ServiceImpl<FollowRecordMapper, Fol
     @Override
     public long countFollowing(String userId) {
         return baseMapper.countFollowing(userId);
+    }
+
+    @Override
+    public IPage<UserVO> pageFollowers(String userId, int pageNum, int pageSize) {
+        Page<UserVO> page = new Page<>(pageNum, pageSize);
+        if (userId == null || userId.isEmpty()) return page;
+        LambdaQueryWrapper<FollowRecord> w = new LambdaQueryWrapper<>();
+        w.eq(FollowRecord::getFollowUserId, userId)
+                .orderByDesc(FollowRecord::getCreateTime)
+                .select(FollowRecord::getUserId);
+        List<FollowRecord> records = baseMapper.selectList(w);
+        return buildUserVOPage(records, FollowRecord::getUserId, page, pageNum, pageSize);
+    }
+
+    @Override
+    public IPage<UserVO> pageFollowing(String userId, int pageNum, int pageSize) {
+        Page<UserVO> page = new Page<>(pageNum, pageSize);
+        if (userId == null || userId.isEmpty()) return page;
+        LambdaQueryWrapper<FollowRecord> w = new LambdaQueryWrapper<>();
+        w.eq(FollowRecord::getUserId, userId)
+                .orderByDesc(FollowRecord::getCreateTime)
+                .select(FollowRecord::getFollowUserId);
+        List<FollowRecord> records = baseMapper.selectList(w);
+        return buildUserVOPage(records, FollowRecord::getFollowUserId, page, pageNum, pageSize);
+    }
+
+    @SuppressWarnings("unchecked")
+    private IPage<UserVO> buildUserVOPage(List<FollowRecord> records,
+                                          java.util.function.Function<FollowRecord, String> idGetter,
+                                          Page<UserVO> page, int pageNum, int pageSize) {
+        if (records.isEmpty()) return page;
+        List<String> ids = records.stream().map(idGetter).collect(Collectors.toList());
+        List<UserInfo> users = userInfoMapper.selectBatchIds(ids);
+        Map<String, UserInfo> map = users.stream().collect(Collectors.toMap(UserInfo::getUserId, u -> u));
+        List<UserVO> all = new ArrayList<>();
+        for (String id : ids) {
+            UserInfo u = map.get(id);
+            if (u != null) {
+                UserVO vo = UserVO.from(u);
+                if (vo != null) all.add(vo);
+            }
+        }
+        long total = all.size();
+        int from = Math.min((pageNum - 1) * pageSize, all.size());
+        int to = Math.min(from + pageSize, all.size());
+        page.setRecords(new ArrayList<>(all.subList(from, to)));
+        page.setTotal(total);
+        return page;
     }
 }

@@ -14,7 +14,9 @@
           style="width: 280px"
           @keyup.enter="handleSearch"
         >
-          <template #prefix><el-icon><Search /></el-icon></template>
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
         </el-input>
         <el-button type="primary" @click="handleSearch">搜索</el-button>
         <el-button @click="handleReset">重置</el-button>
@@ -32,16 +34,37 @@
               <el-tag v-if="item.isTop === 1" type="danger" size="small" effect="dark">置顶</el-tag>
               <el-tag v-if="item.isEssence === 1" type="warning" size="small" effect="dark">精华</el-tag>
               <span class="wh-item-title">{{ item.title }}</span>
+              <el-tag
+                v-if="item.readPerm && item.readPerm !== 1"
+                :type="readPermTagType(item.readPerm)"
+                size="small"
+                effect="plain"
+              >
+                <el-icon><Lock /></el-icon>
+                {{ readPermLabel(item.readPerm) }}
+              </el-tag>
             </div>
             <div class="wh-item-meta">
               <el-tag v-for="t in item.tagNames" :key="t" size="small" effect="plain" class="wh-tag">{{ t }}</el-tag>
               <span class="wh-item-cat">板块 · {{ item.categoryName || '-' }}</span>
             </div>
             <div class="wh-item-foot">
-              <span><el-icon><User /></el-icon> {{ item.userName || item.userId || '匿名' }}</span>
-              <span><el-icon><View /></el-icon> {{ item.viewCount ?? 0 }}</span>
-              <span><el-icon><ChatDotRound /></el-icon> {{ item.commentCount ?? 0 }}</span>
-              <span><el-icon><Star /></el-icon> {{ item.likeCount ?? 0 }}</span>
+              <span class="wh-item-user" @click.stop="goUser(item.userId)">
+                <el-icon><User /></el-icon>
+                {{ item.userName || item.userId || '匿名' }}
+              </span>
+              <span>
+                <el-icon><View /></el-icon>
+                {{ item.viewCount ?? 0 }}
+              </span>
+              <span>
+                <el-icon><ChatDotRound /></el-icon>
+                {{ item.commentCount ?? 0 }}
+              </span>
+              <span>
+                <el-icon><Star /></el-icon>
+                {{ item.likeCount ?? 0 }}
+              </span>
               <span class="wh-item-time">{{ item.createTime }}</span>
             </div>
           </article>
@@ -82,7 +105,7 @@ const keyword = ref('');
 const fetchList = async () => {
   loading.value = true;
   try {
-    const res = await postApi.pagePosts({
+    const res = await postApi.page({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
       status: 1, // 只看正常的

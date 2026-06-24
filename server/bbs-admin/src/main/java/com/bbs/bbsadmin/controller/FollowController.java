@@ -1,5 +1,7 @@
 package com.bbs.bbsadmin.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.bbs.bbsadmin.entity.vo.UserVO;
 import com.bbs.bbsadmin.response.R;
 import com.bbs.bbsadmin.security.annotation.RequireAuth;
 import com.bbs.bbsadmin.service.FollowRecordService;
@@ -50,13 +52,44 @@ public class FollowController {
         return R.data(data);
     }
 
-    @Operation(summary = "粉丝数/关注数")
-    @RequireAuth
+    @Operation(summary = "粉丝数/关注数 (公开)")
     @GetMapping("/count")
     public R<Map<String, Object>> count(@RequestParam String userId) {
         Map<String, Object> data = new HashMap<>();
         data.put("followers", followRecordService.countFollowers(userId));
         data.put("following", followRecordService.countFollowing(userId));
+        return R.data(data);
+    }
+
+    @Operation(summary = "我的粉丝列表")
+    @RequireAuth
+    @GetMapping("/followers")
+    public R<Map<String, Object>> pageFollowers(
+            @RequestParam String userId,
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "20") int pageSize) {
+        IPage<UserVO> page = followRecordService.pageFollowers(userId, pageNum, pageSize);
+        Map<String, Object> data = new HashMap<>();
+        data.put("list", page.getRecords());
+        data.put("total", page.getTotal());
+        data.put("pageNum", page.getCurrent());
+        data.put("pageSize", page.getSize());
+        return R.data(data);
+    }
+
+    @Operation(summary = "我的关注列表")
+    @RequireAuth
+    @GetMapping("/following")
+    public R<Map<String, Object>> pageFollowing(
+            @RequestParam String userId,
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "20") int pageSize) {
+        IPage<UserVO> page = followRecordService.pageFollowing(userId, pageNum, pageSize);
+        Map<String, Object> data = new HashMap<>();
+        data.put("list", page.getRecords());
+        data.put("total", page.getTotal());
+        data.put("pageNum", page.getCurrent());
+        data.put("pageSize", page.getSize());
         return R.data(data);
     }
 }

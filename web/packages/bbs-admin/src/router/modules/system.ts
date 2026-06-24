@@ -11,6 +11,15 @@ export const systemRoutes: RouteRecordRaw[] = [
     component: import('../../views/feedback-manage/index.vue'),
   },
   {
+    path: '/reportManage',
+    name: 'reportManage',
+    meta: {
+      title: '举报管理',
+      hasIcon: true,
+    },
+    component: import('../../views/report-manage/index.vue'),
+  },
+  {
     path: '/tagManage',
     name: 'tagManage',
     meta: {

@@ -61,8 +61,7 @@ public class UserController {
         return R.data(data);
     }
 
-    @Operation(summary = "用户详情")
-    @RequireAuth
+    @Operation(summary = "用户详情 (公开)")
     @GetMapping("/{userId}")
     public R<UserVO> detail(@PathVariable String userId) {
         UserInfo user = userInfoService.findByUserId(userId);

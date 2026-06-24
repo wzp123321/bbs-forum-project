@@ -24,11 +24,15 @@
             <el-icon><ChatDotRound /></el-icon>
             {{ post.commentCount ?? 0 }}
           </span>
+          <el-tag v-if="post.readPerm && post.readPerm !== 1" :type="readPermTagType" size="small" effect="plain">
+            <el-icon><Lock /></el-icon>
+            {{ readPermLabel }}
+          </el-tag>
         </div>
         <div class="wpd-tags" v-if="post.tagNames?.length">
           <el-tag v-for="t in post.tagNames" :key="t" size="small" effect="plain"># {{ t }}</el-tag>
         </div>
-        <div class="wpd-content">{{ post.content }}</div>
+        <div class="wpd-content" v-html="renderedContent"></div>
 
         <div class="wpd-actions">
           <el-button :type="liked ? 'primary' : 'default'" @click="onToggleLike" :loading="likeLoading">
@@ -38,6 +42,21 @@
           <el-button :type="collected ? 'warning' : 'default'" @click="onToggleCollect" :loading="collectLoading">
             <el-icon><Collection /></el-icon>
             {{ post.collectCount ?? 0 }}
+          </el-button>
+          <el-dropdown trigger="click" @command="onShareCommand">
+            <el-button :icon="Share">分享</el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="copy">复制链接</el-dropdown-item>
+                <el-dropdown-item command="system" :disabled="!canSystemShare">系统分享...</el-dropdown-item>
+                <el-dropdown-item command="weibo">分享到微博</el-dropdown-item>
+                <el-dropdown-item command="qq">分享到 QQ</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+          <el-button v-if="post.userId !== currentUserId" @click="onOpenPostReport">
+            <el-icon><Warning /></el-icon>
+            举报
           </el-button>
         </div>
       </article>
@@ -80,6 +99,9 @@
             </div>
             <div class="wpd-comment-foot">
               <el-button link size="small" @click="onReplyStart(c)">回复</el-button>
+              <el-button v-if="c.userId !== currentUserId" link size="small" @click="onOpenCommentReport(c)">
+                举报
+              </el-button>
               <el-button v-if="c.userId === currentUserId" link size="small" type="danger" @click="onDeleteComment(c)">
                 删除
               </el-button>
@@ -114,19 +136,30 @@
         />
       </section>
     </template>
+
+    <ReportDialog
+      v-model="reportDialog.visible"
+      :target-type="reportDialog.targetType"
+      :target-id="reportDialog.targetId"
+      :target-title="reportDialog.targetTitle"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { User, Clock, View, ChatDotRound, Star, Collection } from '@element-plus/icons-vue';
+import { User, Clock, View, ChatDotRound, Star, Collection, Warning, Share } from '@element-plus/icons-vue';
 import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
 import { postApi } from '@/apis/post';
 import { commentApi } from '@/apis/comment';
 import { likeApi } from '@/apis/like';
 import { collectApi } from '@/apis/collect';
+import { attachmentApi } from '@/apis/attachment';
+import { wrapMedia } from '@/utils/media';
+import { READ_PERM_LABELS } from '@/apis/post';
+import ReportDialog from '@/components/report-dialog/report-dialog.vue';
 import type { PostVO, CommentVO } from '@/apis/post';
 import { isLoggedIn, userStore } from '@/utils';
 
@@ -136,6 +169,52 @@ const route = useRoute();
 const postId = computed(() => Number(route.params.id));
 const loading = ref(false);
 const post = ref<PostVO | null>(null);
+
+/** 把帖子正文中所有 /upload/... 拼接成可访问的完整 URL, 并把媒体标签包裹为自适应容器 */
+const renderedContent = computed(() => {
+  const c = post.value?.content;
+  if (!c) return '';
+  if (post.value?.contentType === 2) {
+    // markdown 暂时按纯文本展示
+    return c.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br/>');
+  }
+  const abs = c.replace(/(src=["'])\/upload\//g, `$1${attachmentApi.resolveUrl('/upload/')}`);
+  return wrapMedia(abs);
+});
+
+const canSystemShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+
+const onShareCommand = async (cmd: string) => {
+  const url = window.location.href;
+  const title = post.value?.title || 'BBS 论坛帖子';
+  if (cmd === 'copy') {
+    try {
+      await navigator.clipboard.writeText(url);
+      ElMessage.success('链接已复制');
+    } catch {
+      ElMessage.warning('复制失败,请手动复制: ' + url);
+    }
+    return;
+  }
+  if (cmd === 'system') {
+    try {
+      await navigator.share({ title, url });
+    } catch {
+      // 用户取消
+    }
+    return;
+  }
+  if (cmd === 'weibo') {
+    const w = `https://service.weibo.com/share/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
+    window.open(w, '_blank', 'noopener,noreferrer');
+    return;
+  }
+  if (cmd === 'qq') {
+    const w = `https://connect.qq.com/widget/shareqq/index.html?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
+    window.open(w, '_blank', 'noopener,noreferrer');
+    return;
+  }
+};
 
 const { pageNum, pageSize, total, setPageNum } = usePagination();
 const dataSource = ref<CommentVO[]>([]);
@@ -154,8 +233,31 @@ const collectLoading = ref(false);
 const fetchPost = async () => {
   if (!postId.value) return;
   loading.value = true;
+  post.value = null;
   try {
-    post.value = await postApi.getPost(postId.value);
+    post.value = await postApi.detail(postId.value);
+  } catch (e) {
+    const msg = (e as { message?: string })?.message || '';
+    const code = (e as { code?: number })?.code;
+    if (code === 401) {
+      post.value = {
+        id: postId.value,
+        title: '该帖需登录后查看',
+        content: '<p>请先登录后再访问此帖子</p>',
+        readPerm: 2,
+      } as PostVO;
+      ElMessage.warning('请先登录');
+    } else if (code === 403) {
+      post.value = {
+        id: postId.value,
+        title: '该帖无访问权限',
+        content: `<p>${msg || '你没有访问此帖子的权限'}</p>`,
+        readPerm: 3,
+      } as PostVO;
+      ElMessage.warning(msg || '无访问权限');
+    } else {
+      ElMessage.error(msg || '加载失败');
+    }
   } finally {
     loading.value = false;
   }
@@ -164,7 +266,7 @@ const fetchPost = async () => {
 const fetchComments = async () => {
   if (!postId.value) return;
   try {
-    const res = await commentApi.pageComments({
+    const res = await commentApi.page({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
       postId: postId.value,
@@ -240,7 +342,7 @@ const onSubmitComment = async () => {
   }
   commentSubmitting.value = true;
   try {
-    await commentApi.createComment({
+    await commentApi.create({
       postId: postId.value,
       content: newComment.value.trim(),
     });
@@ -274,7 +376,7 @@ const onSubmitReply = async (c: CommentVO) => {
   }
   commentSubmitting.value = true;
   try {
-    await commentApi.createComment({
+    await commentApi.create({
       postId: postId.value,
       parentId: c.parentId && c.parentId > 0 ? c.parentId : c.id,
       replyToUserId: c.userId,
@@ -300,9 +402,33 @@ const onDeleteComment = async (c: CommentVO) => {
   } catch {
     return;
   }
-  await commentApi.deleteComment(c.id);
+  await commentApi.delete(c.id);
   ElMessage.success('已删除');
   await fetchComments();
+};
+
+const reportDialog = reactive({
+  visible: false,
+  targetType: 1 as 1 | 2,
+  targetId: 0,
+  targetTitle: '',
+});
+
+const onOpenPostReport = () => {
+  if (!ensureLogin()) return;
+  if (!post.value) return;
+  reportDialog.targetType = 1;
+  reportDialog.targetId = post.value.id;
+  reportDialog.targetTitle = post.value.title ?? '';
+  reportDialog.visible = true;
+};
+
+const onOpenCommentReport = (c: CommentVO) => {
+  if (!ensureLogin()) return;
+  reportDialog.targetType = 2;
+  reportDialog.targetId = c.id;
+  reportDialog.targetTitle = c.content ? c.content.substring(0, 30) : '';
+  reportDialog.visible = true;
 };
 
 watch(postId, () => {
@@ -363,9 +489,61 @@ onMounted(async () => {
 .wpd-content {
   margin-top: 16px;
   line-height: 1.8;
-  white-space: pre-wrap;
   word-break: break-word;
   color: var(--el-text-color-primary);
+
+  :deep(img) {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 8px 0;
+    border-radius: 4px;
+  }
+
+  :deep(.responsive-media) {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    margin: 12px 0;
+    background: #000;
+    border-radius: 6px;
+    overflow: hidden;
+
+    iframe,
+    video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+  }
+
+  :deep(p) {
+    margin: 8px 0;
+  }
+
+  :deep(pre),
+  :deep(code) {
+    background: #f5f7fa;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  :deep(pre) {
+    padding: 12px;
+    overflow-x: auto;
+  }
+
+  :deep(a) {
+    color: var(--el-color-primary);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 .wpd-actions {

@@ -6,7 +6,9 @@
         :effect="activeId === undefined ? 'dark' : 'plain'"
         class="wt-cat"
         @click="handleSelect(undefined)"
-      >全部</el-tag>
+      >
+        全部
+      </el-tag>
       <el-tag
         v-for="c in categories"
         :key="c.id"
@@ -14,7 +16,9 @@
         :effect="activeId === c.id ? 'dark' : 'plain'"
         class="wt-cat"
         @click="handleSelect(c.id)"
-      >{{ c.name }}</el-tag>
+      >
+        {{ c.name }}
+      </el-tag>
     </div>
 
     <el-empty v-if="!loading && !dataSource.length" description="该板块暂无帖子" />
@@ -66,7 +70,7 @@ const activeId = ref<number | undefined>(undefined);
 
 const loadCategories = async () => {
   try {
-    categories.value = await categoryApi.listCategories();
+    categories.value = await categoryApi.list();
   } catch {
     // 忽略
   }
@@ -75,7 +79,7 @@ const loadCategories = async () => {
 const fetchList = async () => {
   loading.value = true;
   try {
-    const res = await postApi.pagePosts({
+    const res = await postApi.page({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
       categoryId: activeId.value,

@@ -49,7 +49,6 @@ public class CategoryController {
     }
 
     @Operation(summary = "全部板块 (启用中,下拉用)")
-    @RequireAuth
     @GetMapping("/list")
     public R<List<CategoryVO>> list() {
         List<Category> all = categoryService.lambdaQuery()

@@ -32,7 +32,6 @@ public class CommentController {
     private CommentService commentService;
 
     @Operation(summary = "分页查询评论")
-    @RequireAuth
     @GetMapping("/page")
     public R<Map<String, Object>> page(CommentPageQuery query) {
         IPage<CommentVO> page = commentService.pageQueryVO(query);

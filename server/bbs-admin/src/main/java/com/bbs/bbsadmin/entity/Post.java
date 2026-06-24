@@ -68,6 +68,10 @@ public class Post implements Serializable {
     @TableField("is_essence")
     private Integer isEssence;
 
+    /** 阅读权限: 1公开 2登录可见 3粉丝可见 4仅作者 */
+    @TableField("read_perm")
+    private Integer readPerm;
+
     @TableField("top_time")
     private LocalDateTime topTime;
 

@@ -43,4 +43,9 @@ public interface PostService extends IService<Post> {
      * 修改状态
      */
     boolean changeStatus(Long id, Integer status);
+
+    /**
+     * 公开给其他 Service 复用的关联信息填充方法
+     */
+    void fillAssociationsPublic(java.util.List<PostVO> vos);
 }

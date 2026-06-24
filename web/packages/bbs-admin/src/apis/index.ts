@@ -9,3 +9,4 @@ export * as feedbackApi from './feedback';
 export * as likeApi from './like';
 export * as collectApi from './collect';
 export * as followApi from './follow';
+export * as reportApi from './report';

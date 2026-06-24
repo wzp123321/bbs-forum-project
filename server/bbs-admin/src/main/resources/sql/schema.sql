@@ -82,8 +82,9 @@ CREATE TABLE `bbs_post` (
     `comment_count`  INT           NOT NULL DEFAULT 0,
     `collect_count`  INT           NOT NULL DEFAULT 0,
     `status`         TINYINT       NOT NULL DEFAULT 1     COMMENT '1正常 0已删 2审核中 3审核不通过',
-    `is_top`         TINYINT       NOT NULL DEFAULT 0     COMMENT '是否置顶: 1是 0否',
-    `is_essence`     TINYINT       NOT NULL DEFAULT 0     COMMENT '是否精华: 1是 0否',
+    `is_top`         TINYINT      NOT NULL DEFAULT 0     COMMENT '是否置顶: 1是 0否',
+    `is_essence`     TINYINT      NOT NULL DEFAULT 0     COMMENT '是否精华: 1是 0否',
+    `read_perm`      TINYINT      NOT NULL DEFAULT 1     COMMENT '阅读权限: 1公开 2登录可见 3粉丝可见 4仅作者',
     `top_time`       DATETIME      DEFAULT NULL           COMMENT '置顶时间,用于排序',
     `create_time`    DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `update_time`    DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -243,6 +244,58 @@ CREATE TABLE `bbs_dictionary` (
     PRIMARY KEY (`id`),
     KEY `idx_dict_type` (`type_id`, `sort`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='字典数据表';
+
+-- -------------------------------------------------------------
+-- 13. 举报表
+-- -------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `bbs_report` (
+    `id`             BIGINT       NOT NULL AUTO_INCREMENT,
+    `user_id`        VARCHAR(32)  NOT NULL                COMMENT '举报人ID',
+    `target_type`    TINYINT      NOT NULL                COMMENT '举报目标: 1帖子 2评论',
+    `target_id`      BIGINT       NOT NULL                COMMENT '目标ID',
+    `reason_type`    VARCHAR(20)  NOT NULL                COMMENT '举报原因类型: spam/porn/violence/abuse/illegal/other',
+    `content`        VARCHAR(500) DEFAULT NULL            COMMENT '补充说明',
+    `status`         TINYINT      NOT NULL DEFAULT 0      COMMENT '0待处理 1已处理 2已驳回',
+    `handle_user_id` VARCHAR(32)  DEFAULT NULL            COMMENT '处理人',
+    `handle_remark`  VARCHAR(500) DEFAULT NULL            COMMENT '处理备注',
+    `handle_time`    DATETIME     DEFAULT NULL            COMMENT '处理时间',
+    `create_time`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `update_time`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `create_by`      VARCHAR(32)  DEFAULT NULL,
+    `update_by`      VARCHAR(32)  DEFAULT NULL,
+    `deleted`        TINYINT      NOT NULL DEFAULT 0,
+    PRIMARY KEY (`id`),
+    KEY `idx_report_user`     (`user_id`),
+    KEY `idx_report_target`   (`target_type`, `target_id`),
+    KEY `idx_report_status`   (`status`, `create_time`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='举报表';
+
+-- -------------------------------------------------------------
+-- 12. 附件表
+-- -------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `bbs_attachment` (
+    `id`           BIGINT        NOT NULL AUTO_INCREMENT,
+    `user_id`      VARCHAR(32)   NOT NULL                COMMENT '上传人',
+    `biz_type`     VARCHAR(20)   DEFAULT NULL            COMMENT '业务类型: post/comment/avatar',
+    `biz_id`       BIGINT        DEFAULT NULL            COMMENT '业务ID(帖子/评论ID等)',
+    `origin_name`  VARCHAR(255)  NOT NULL                COMMENT '原始文件名',
+    `file_name`    VARCHAR(255)  NOT NULL                COMMENT '存储文件名',
+    `file_path`    VARCHAR(500)  NOT NULL                COMMENT '存储相对路径',
+    `url`          VARCHAR(500)  NOT NULL                COMMENT '访问URL',
+    `content_type` VARCHAR(100)  DEFAULT NULL            COMMENT 'MIME 类型',
+    `size`         BIGINT        NOT NULL DEFAULT 0      COMMENT '字节数',
+    `storage_type` VARCHAR(20)   NOT NULL DEFAULT 'local' COMMENT '存储类型: local/oss',
+    `status`       TINYINT       NOT NULL DEFAULT 1      COMMENT '1正常 0已删',
+    `create_time`  DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `update_time`  DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `create_by`    VARCHAR(32)   DEFAULT NULL,
+    `update_by`    VARCHAR(32)   DEFAULT NULL,
+    `deleted`      TINYINT       NOT NULL DEFAULT 0,
+    PRIMARY KEY (`id`),
+    KEY `idx_attach_user`   (`user_id`),
+    KEY `idx_attach_biz`    (`biz_type`, `biz_id`),
+    KEY `idx_attach_status` (`status`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='附件表';
 
 SET FOREIGN_KEY_CHECKS = 1;
 

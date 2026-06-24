@@ -47,7 +47,7 @@ const activeId = ref<number | undefined>(undefined);
 
 const loadTags = async () => {
   try {
-    tags.value = await tagApi.listTags();
+    tags.value = await tagApi.list();
   } catch {
     // 忽略
   }
@@ -56,7 +56,7 @@ const loadTags = async () => {
 const fetchList = async () => {
   loading.value = true;
   try {
-    const res = await postApi.pagePosts({
+    const res = await postApi.page({
       pageNum: 1,
       pageSize: 50,
       tagId: activeId.value,

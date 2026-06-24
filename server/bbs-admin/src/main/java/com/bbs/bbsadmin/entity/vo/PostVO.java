@@ -28,6 +28,7 @@ public class PostVO {
     private Integer status;
     private Integer isTop;
     private Integer isEssence;
+    private Integer readPerm;
     private LocalDateTime topTime;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

@@ -20,6 +20,9 @@ import com.bbs.bbsadmin.mapper.TagMapper;
 import com.bbs.bbsadmin.mapper.UserInfoMapper;
 import com.bbs.bbsadmin.response.ResponseCode;
 import com.bbs.bbsadmin.security.AuthContext;
+import com.bbs.bbsadmin.security.SensitiveWordFilter;
+import com.bbs.bbsadmin.service.AttachmentService;
+import com.bbs.bbsadmin.service.FollowRecordService;
 import com.bbs.bbsadmin.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -51,6 +54,12 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
 
     @Autowired
     private TagMapper tagMapper;
+
+    @Autowired
+    private SensitiveWordFilter sensitiveWordFilter;
+
+    @Autowired
+    private FollowRecordService followRecordService;
 
     @Override
     public IPage<PostVO> pageQueryVO(PostPageQuery query) {
@@ -98,9 +107,51 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         if (p == null) {
             throw new BizException(ResponseCode.NOT_FOUND, "帖子不存在");
         }
+        // 阅读权限检查
+        assertReadable(p);
         PostVO vo = toVO(p);
         fillAssociations(Collections.singletonList(vo));
         return vo;
+    }
+
+    /**
+     * 阅读权限:
+     * 1 公开 任何人都能看
+     * 2 登录可见
+     * 3 粉丝可见 (含作者本人)
+     * 4 仅作者
+     * 不通过时:
+     * - 状态非正常(status!=1): 抛出 404
+     * - 已删/审核中: 同样 404
+     * - 权限不足: 把 content/title 置为占位提示
+     */
+    private void assertReadable(Post p) {
+        // 状态过滤: 未传/非法 -> 视为已删
+        if (p.getStatus() == null || p.getStatus() != 1) {
+            throw new BizException(ResponseCode.NOT_FOUND, "帖子不存在");
+        }
+        Integer perm = p.getReadPerm() == null ? 1 : p.getReadPerm();
+        if (perm == 1) return;
+        String me = AuthContext.userId();
+        if (me != null && me.equals(p.getUserId())) return;
+        if (perm == 2) {
+            if (me == null) throwNoPerm();
+            return;
+        }
+        if (perm == 3) {
+            if (me == null) throwNoPerm();
+            if (!followRecordService.isFollowing(p.getUserId())) {
+                throw new BizException(ResponseCode.FORBIDDEN, "该帖仅粉丝可读");
+            }
+            return;
+        }
+        if (perm == 4) {
+            throw new BizException(ResponseCode.FORBIDDEN, "该帖仅作者可见");
+        }
+    }
+
+    private void throwNoPerm() {
+        throw new BizException(ResponseCode.UNAUTHORIZED);
     }
 
     @Override
@@ -113,7 +164,12 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         p.setTitle(dto.getTitle());
         p.setContent(dto.getContent());
         p.setContentType(dto.getContentType() == null ? 1 : dto.getContentType());
+        p.setReadPerm(dto.getReadPerm() == null ? 1 : dto.getReadPerm());
         p.setStatus(dto.getStatus() == null ? 1 : dto.getStatus());
+        // 敏感词过滤: 命中标题/正文则转审核中
+        if (sensitiveWordFilter.contains(dto.getTitle()) || sensitiveWordFilter.contains(dto.getContent())) {
+            p.setStatus(2);
+        }
         p.setIsTop(dto.getIsTop() == null ? 0 : dto.getIsTop());
         p.setIsEssence(dto.getIsEssence() == null ? 0 : dto.getIsEssence());
         p.setViewCount(0);
@@ -145,7 +201,12 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         p.setTitle(dto.getTitle());
         p.setContent(dto.getContent());
         p.setContentType(dto.getContentType());
+        p.setReadPerm(dto.getReadPerm());
         p.setStatus(dto.getStatus());
+        // 敏感词过滤
+        if (sensitiveWordFilter.contains(dto.getTitle()) || sensitiveWordFilter.contains(dto.getContent())) {
+            p.setStatus(2);
+        }
         p.setIsTop(dto.getIsTop());
         p.setIsEssence(dto.getIsEssence());
         p.setUpdateBy(AuthContext.userId());
@@ -239,6 +300,11 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
 
     private PostVO toVO(Post p) {
         return PostVO.from(p);
+    }
+
+    @Override
+    public void fillAssociationsPublic(List<PostVO> vos) {
+        fillAssociations(vos);
     }
 
     /**

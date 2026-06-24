@@ -1,7 +1,9 @@
 package com.bbs.bbsadmin.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.bbs.bbsadmin.entity.FollowRecord;
+import com.bbs.bbsadmin.entity.vo.UserVO;
 
 import java.util.List;
 
@@ -41,4 +43,14 @@ public interface FollowRecordService extends IService<FollowRecord> {
      * 关注数
      */
     long countFollowing(String userId);
+
+    /**
+     * 分页查询我的粉丝 (返回 UserVO)
+     */
+    IPage<UserVO> pageFollowers(String userId, int pageNum, int pageSize);
+
+    /**
+     * 分页查询我的关注 (返回 UserVO)
+     */
+    IPage<UserVO> pageFollowing(String userId, int pageNum, int pageSize);
 }

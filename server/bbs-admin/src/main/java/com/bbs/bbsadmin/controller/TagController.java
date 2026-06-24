@@ -9,7 +9,6 @@ import com.bbs.bbsadmin.response.R;
 import com.bbs.bbsadmin.security.annotation.RequireAuth;
 import com.bbs.bbsadmin.service.TagService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag as SwaggerTag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@SwaggerTag(name = "TagController", description = "标签管理")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "TagController", description = "标签管理")
 @RestController
 @RequestMapping("admin/tag")
 public class TagController {
@@ -49,7 +48,6 @@ public class TagController {
     }
 
     @Operation(summary = "全部标签 (启用中,下拉用)")
-    @RequireAuth
     @GetMapping("/list")
     public R<List<TagVO>> list() {
         List<Tag> all = tagService.lambdaQuery()

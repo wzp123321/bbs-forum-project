@@ -2,6 +2,16 @@ server:
   port: 8888
 #配置数据源
 spring:
+  # 文件上传配置
+  servlet:
+    multipart:
+      enabled: true
+      # 单个文件最大 10MB
+      max-file-size: 10MB
+      # 单次请求最大 50MB
+      max-request-size: 50MB
+      # 内存中超过此大小的部分会写入临时文件
+      file-size-threshold: 1MB
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver # 驱动包名
     url: jdbc:mysql://localhost:3306/bbs?useSSL=false&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
@@ -90,3 +100,15 @@ knife4j:
     username: admin
     # Basic认证密码
     password: 123456
+
+# 附件上传 自定义配置
+bbs:
+  upload:
+    # 本地存储根目录 (相对于 jar 运行目录)
+    base-dir: ./uploads
+    # 对外访问 URL 前缀
+    url-prefix: /upload/
+    # 允许的扩展名 (逗号分隔,小写), 空表示不限制
+    allowed-extensions: jpg,jpeg,png,gif,webp,bmp,svg,ico,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar,7z,mp3,mp4
+    # 允许的 MIME 类型前缀, 用于 content-type 校验
+    allowed-content-types-prefix: image/,video/,audio/,application/pdf,application/zip,application/msword,application/vnd.openxmlformats-officedocument,text/plain,application/x-rar-compressed,application/x-7z-compressed

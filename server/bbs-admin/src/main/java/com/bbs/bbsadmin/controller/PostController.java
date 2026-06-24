@@ -33,7 +33,6 @@ public class PostController {
     private PostService postService;
 
     @Operation(summary = "分页查询帖子")
-    @RequireAuth
     @GetMapping("/page")
     public R<Map<String, Object>> page(PostPageQuery query) {
         IPage<PostVO> page = postService.pageQueryVO(query);
@@ -46,7 +45,6 @@ public class PostController {
     }
 
     @Operation(summary = "帖子详情")
-    @RequireAuth
     @GetMapping("/{id}")
     public R<PostVO> detail(@PathVariable Long id) {
         return R.data(postService.detail(id));

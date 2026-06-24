@@ -1,6 +1,9 @@
 package com.bbs.bbsadmin.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.bbs.bbsadmin.entity.vo.PostVO;
 import com.bbs.bbsadmin.response.R;
+import com.bbs.bbsadmin.security.AuthContext;
 import com.bbs.bbsadmin.security.annotation.RequireAuth;
 import com.bbs.bbsadmin.service.LikeRecordService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
@@ -46,6 +50,21 @@ public class LikeController {
     public R<Map<String, Object>> status(@PathVariable Integer targetType, @PathVariable Long targetId) {
         Map<String, Object> data = new HashMap<>();
         data.put("liked", likeRecordService.isLiked(targetType, targetId));
+        return R.data(data);
+    }
+
+    @Operation(summary = "我点赞的帖子")
+    @RequireAuth
+    @GetMapping("/page")
+    public R<Map<String, Object>> pageMyLiked(
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        IPage<PostVO> page = likeRecordService.pageMyLikedPosts(AuthContext.userId(), pageNum, pageSize);
+        Map<String, Object> data = new HashMap<>();
+        data.put("list", page.getRecords());
+        data.put("total", page.getTotal());
+        data.put("pageNum", page.getCurrent());
+        data.put("pageSize", page.getSize());
         return R.data(data);
     }
 }

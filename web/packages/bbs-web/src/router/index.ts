@@ -37,6 +37,56 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '帖子详情' },
         component: () => import('../views/post-detail/index.vue'),
       },
+      {
+        path: 'user/:userId',
+        meta: { title: '用户主页' },
+        component: () => import('../views/user-profile/index.vue'),
+      },
+      {
+        path: 'search',
+        meta: { title: '搜索' },
+        component: () => import('../views/search-result/index.vue'),
+      },
+      {
+        path: 'user-center',
+        meta: { title: '个人中心', requireAuth: true },
+        component: () => import('../views/user-center/index.vue'),
+        redirect: '/user-center/overview',
+        children: [
+          {
+            path: 'overview',
+            component: () => import('../views/user-center/pages/overview.vue'),
+          },
+          {
+            path: 'posts',
+            component: () => import('../views/user-center/pages/posts.vue'),
+          },
+          {
+            path: 'collects',
+            component: () => import('../views/user-center/pages/collects.vue'),
+          },
+          {
+            path: 'likes',
+            component: () => import('../views/user-center/pages/likes.vue'),
+          },
+          {
+            path: 'followers',
+            component: () => import('../views/user-center/pages/followers.vue'),
+          },
+          {
+            path: 'following',
+            component: () => import('../views/user-center/pages/following.vue'),
+          },
+          {
+            path: 'edit',
+            component: () => import('../views/user-center/pages/edit-profile.vue'),
+          },
+          {
+            path: 'password',
+            component: () => import('../views/user-center/pages/change-password.vue'),
+          },
+        ],
+      },
     ],
   },
   {

@@ -2,11 +2,13 @@
   <div class="home">
     <LayoutHeader></LayoutHeader>
     <LayoutBody></LayoutBody>
+    <ChatPanel></ChatPanel>
   </div>
 </template>
 <script lang="ts" setup>
 import LayoutHeader from './layout-header/layout-header.vue';
 import LayoutBody from './layout-body/layout-body.vue';
+import ChatPanel from '@/components/chat-panel/chat-panel.vue';
 
 defineOptions({
   name: 'Home',
