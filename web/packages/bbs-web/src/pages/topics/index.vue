@@ -5,7 +5,7 @@
         :type="activeId === undefined ? 'primary' : 'info'"
         :effect="activeId === undefined ? 'dark' : 'plain'"
         class="wt-cat"
-        @click="handleSelect(undefined)"
+        @click="selectCategory(undefined)"
       >
         全部
       </el-tag>
@@ -15,7 +15,7 @@
         :type="activeId === c.id ? 'primary' : 'info'"
         :effect="activeId === c.id ? 'dark' : 'plain'"
         class="wt-cat"
-        @click="handleSelect(c.id)"
+        @click="selectCategory(c.id)"
       >
         {{ c.name }}
       </el-tag>
@@ -53,8 +53,8 @@
 import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
-import { categoryApi } from '@/apis/category';
-import { postApi } from '@/apis/post';
+import { listCategoriesApi } from '@/apis/category';
+import { pagePostsApi } from '@/apis/post';
 import type { CategoryVO } from '@/apis/category';
 import type { PostVO } from '@/apis/post';
 
@@ -70,7 +70,7 @@ const activeId = ref<number | undefined>(undefined);
 
 const loadCategories = async () => {
   try {
-    categories.value = await categoryApi.list();
+    categories.value = await listCategoriesApi();
   } catch {
     // 忽略
   }
@@ -79,7 +79,7 @@ const loadCategories = async () => {
 const fetchList = async () => {
   loading.value = true;
   try {
-    const res = await postApi.page({
+    const res = await pagePostsApi({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
       categoryId: activeId.value,
@@ -92,7 +92,7 @@ const fetchList = async () => {
   }
 };
 
-const handleSelect = (id: number | undefined) => {
+const selectCategory = (id: number | undefined) => {
   activeId.value = id;
   setPageNum(1);
   fetchList();
@@ -107,7 +107,7 @@ watch(
   (v) => {
     if (v != null) {
       const n = Number(v);
-      if (!Number.isNaN(n)) handleSelect(n);
+      if (!Number.isNaN(n)) selectCategory(n);
     }
   },
   { immediate: true },

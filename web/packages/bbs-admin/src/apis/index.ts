@@ -1,12 +1,13 @@
-/** api 命名空间集中转发 */
-export * as authApi from './auth';
-export * as userApi from './user';
-export * as categoryApi from './category';
-export * as tagApi from './tag';
-export * as postApi from './post';
-export * as commentApi from './comment';
-export * as feedbackApi from './feedback';
-export * as likeApi from './like';
-export * as collectApi from './collect';
-export * as followApi from './follow';
-export * as reportApi from './report';
+/** 扁平转发各业务模块，便于 `import { login } from '@/apis/auth'` 这类按需引用 */
+export * from './auth';
+export * from './user';
+export * from './category';
+export * from './tag';
+export * from './post';
+export * from './comment';
+export * from './feedback';
+export * from './like';
+export * from './collect';
+export * from './follow';
+export * from './report';
+export * from './types';

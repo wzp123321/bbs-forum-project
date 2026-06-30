@@ -24,9 +24,9 @@
             <el-icon><ChatDotRound /></el-icon>
             {{ post.commentCount ?? 0 }}
           </span>
-          <el-tag v-if="post.readPerm && post.readPerm !== 1" :type="readPermTagType" size="small" effect="plain">
+          <el-tag v-if="post.readPerm && post.readPerm !== 1" :type="readPermTagTypeValue" size="small" effect="plain">
             <el-icon><Lock /></el-icon>
-            {{ readPermLabel }}
+            {{ readPermLabelValue }}
           </el-tag>
         </div>
         <div class="wpd-tags" v-if="post.tagNames?.length">
@@ -152,16 +152,23 @@ import { useRoute } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { User, Clock, View, ChatDotRound, Star, Collection, Warning, Share } from '@element-plus/icons-vue';
 import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
-import { postApi } from '@/apis/post';
-import { commentApi } from '@/apis/comment';
-import { likeApi } from '@/apis/like';
-import { collectApi } from '@/apis/collect';
-import { attachmentApi } from '@/apis/attachment';
+import { getPostApi, readPermTagType, readPermLabel } from '@/apis/post';
+import { pageCommentsApi, createCommentApi, deleteCommentApi } from '@/apis/comment';
+import { resolveFileUrl } from '@/apis/attachment';
 import { wrapMedia } from '@/utils/media';
-import { READ_PERM_LABELS } from '@/apis/post';
 import ReportDialog from '@/components/report-dialog/report-dialog.vue';
-import type { PostVO, CommentVO } from '@/apis/post';
+import {
+  type PostVO,
+  type CommentVO,
+  likeStatusApi,
+  collectStatusApi,
+  cancelLikeApi,
+  likeApi,
+  cancelCollectApi,
+  collectApi,
+} from '@/apis';
 import { isLoggedIn, userStore } from '@/utils';
+import { useLazyImages } from '@/hooks/useLazyImages';
 
 defineOptions({ name: 'WebPostDetail' });
 
@@ -172,6 +179,12 @@ const post = ref<PostVO | null>(null);
 const contentRef = ref<HTMLElement>();
 useLazyImages(contentRef);
 
+/** 当前帖子的阅读权限标签颜色 */
+const readPermTagTypeValue = computed(() => readPermTagType(post.value?.readPerm ?? 0));
+
+/** 当前帖子的阅读权限文本 */
+const readPermLabelValue = computed(() => readPermLabel(post.value?.readPerm ?? 0));
+
 /** 把帖子正文中所有 /upload/... 拼接成可访问的完整 URL, 并把媒体标签包裹为自适应容器 */
 const renderedContent = computed(() => {
   const c = post.value?.content;
@@ -180,7 +193,7 @@ const renderedContent = computed(() => {
     // markdown 暂时按纯文本展示
     return c.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br/>');
   }
-  const abs = c.replace(/(src=["'])\/upload\//g, `$1${attachmentApi.resolveUrl('/upload/')}`);
+  const abs = c.replace(/(src=["'])\/upload\//g, `$1${resolveFileUrl('/upload/')}`);
   return wrapMedia(abs);
 });
 
@@ -237,7 +250,7 @@ const fetchPost = async () => {
   loading.value = true;
   post.value = null;
   try {
-    post.value = await postApi.detail(postId.value);
+    post.value = await getPostApi(postId.value);
   } catch (e) {
     const msg = (e as { message?: string })?.message || '';
     const code = (e as { code?: number })?.code;
@@ -268,7 +281,7 @@ const fetchPost = async () => {
 const fetchComments = async () => {
   if (!postId.value) return;
   try {
-    const res = await commentApi.page({
+    const res = await pageCommentsApi({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
       postId: postId.value,
@@ -281,10 +294,10 @@ const fetchComments = async () => {
   }
 };
 
-const fetchStatus = async () => {
+const fetchLikeCollectStatus = async () => {
   if (!postId.value || !isLoggedIn()) return;
   try {
-    const [l, c] = await Promise.all([likeApi.likeStatus(1, postId.value), collectApi.collectStatus(postId.value)]);
+    const [l, c] = await Promise.all([likeStatusApi(1, postId.value), collectStatusApi(postId.value)]);
     liked.value = l.liked;
     collected.value = c.collected;
   } catch {
@@ -305,11 +318,11 @@ const onToggleLike = async () => {
   likeLoading.value = true;
   try {
     if (liked.value) {
-      await likeApi.cancelLike(1, post.value.id);
+      await cancelLikeApi(1, post.value.id);
       liked.value = false;
       post.value.likeCount = Math.max(0, (post.value.likeCount ?? 0) - 1);
     } else {
-      await likeApi.like(1, post.value.id);
+      await likeApi(1, post.value.id);
       liked.value = true;
       post.value.likeCount = (post.value.likeCount ?? 0) + 1;
     }
@@ -323,11 +336,11 @@ const onToggleCollect = async () => {
   collectLoading.value = true;
   try {
     if (collected.value) {
-      await collectApi.cancelCollect(post.value.id);
+      await cancelCollectApi(post.value.id);
       collected.value = false;
       post.value.collectCount = Math.max(0, (post.value.collectCount ?? 0) - 1);
     } else {
-      await collectApi.collect(post.value.id);
+      await collectApi(post.value.id);
       collected.value = true;
       post.value.collectCount = (post.value.collectCount ?? 0) + 1;
     }
@@ -344,7 +357,7 @@ const onSubmitComment = async () => {
   }
   commentSubmitting.value = true;
   try {
-    await commentApi.create({
+    await createCommentApi({
       postId: postId.value,
       content: newComment.value.trim(),
     });
@@ -378,7 +391,7 @@ const onSubmitReply = async (c: CommentVO) => {
   }
   commentSubmitting.value = true;
   try {
-    await commentApi.create({
+    await createCommentApi({
       postId: postId.value,
       parentId: c.parentId && c.parentId > 0 ? c.parentId : c.id,
       replyToUserId: c.userId,
@@ -404,7 +417,7 @@ const onDeleteComment = async (c: CommentVO) => {
   } catch {
     return;
   }
-  await commentApi.delete(c.id);
+  await deleteCommentApi(c.id);
   ElMessage.success('已删除');
   await fetchComments();
 };
@@ -437,13 +450,13 @@ watch(postId, () => {
   post.value = null;
   fetchPost();
   fetchComments();
-  fetchStatus();
+  fetchLikeCollectStatus();
 });
 
 onMounted(async () => {
   await fetchPost();
   await fetchComments();
-  await fetchStatus();
+  await fetchLikeCollectStatus();
 });
 </script>
 

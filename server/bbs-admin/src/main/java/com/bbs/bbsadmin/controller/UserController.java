@@ -19,11 +19,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,8 +47,8 @@ public class UserController {
 
     @Operation(summary = "分页查询用户")
     @RequireAuth
-    @GetMapping("/page")
-    public R<Map<String, Object>> page(PageQuery query) {
+    @PostMapping("/page")
+    public R<Map<String, Object>> page(@RequestBody PageQuery query) {
         IPage<UserInfo> page = userInfoService.pageQuery(query);
         List<UserVO> rows = page.getRecords().stream().map(UserVO::from).collect(Collectors.toList());
         Map<String, Object> data = new HashMap<>();
@@ -63,7 +60,7 @@ public class UserController {
     }
 
     @Operation(summary = "用户详情 (公开)")
-    @GetMapping("/{userId}")
+    @PostMapping("/{userId}")
     public R<UserVO> detail(@PathVariable String userId) {
         UserInfo user = userInfoService.findByUserId(userId);
         if (user == null) {
@@ -75,7 +72,7 @@ public class UserController {
     @Operation(summary = "修改资料")
     @RequireAuth
     @AuditLog(action = "USER_UPDATE", description = "修改资料", targetType = "USER", targetIdSpEl = "#userId")
-    @PutMapping("/{userId}")
+    @PostMapping("/{userId}/update")
     public R<Void> updateProfile(@PathVariable String userId, @RequestBody UserUpdateDTO dto) {
         // 只允许改自己 或 超级管理员(此处仅判断自己)
         String current = AuthContext.userId();
@@ -89,7 +86,7 @@ public class UserController {
     @Operation(summary = "修改密码")
     @RequireAuth
     @AuditLog(action = "USER_PASSWORD_UPDATE", description = "修改密码", targetType = "USER", targetIdSpEl = "#userId")
-    @PutMapping("/{userId}/password")
+    @PostMapping("/{userId}/password")
     public R<Void> updatePassword(@PathVariable String userId, @Valid @RequestBody PasswordUpdateDTO dto) {
         String current = AuthContext.userId();
         if (current == null || !current.equals(userId)) {
@@ -113,8 +110,9 @@ public class UserController {
 
     @Operation(summary = "删除用户")
     @RequireAuth
-    @DeleteMapping("/{userId}")
-    public R<Void> delete(@PathVariable String userId) {
+    @PostMapping("/delete")
+    public R<Void> delete(@RequestBody Map<String, String> body) {
+        String userId = body.get("userId");
         userInfoService.removeById(userId);
         return R.success();
     }

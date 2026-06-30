@@ -14,11 +14,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,8 +33,8 @@ public class FeedbackController {
 
     @Operation(summary = "分页查询反馈")
     @RequireAuth
-    @GetMapping("/page")
-    public R<Map<String, Object>> page(FeedbackPageQuery query) {
+    @PostMapping("/page")
+    public R<Map<String, Object>> page(@RequestBody FeedbackPageQuery query) {
         IPage<FeedbackVO> page = feedbackService.pageQueryVO(query);
         Map<String, Object> data = new HashMap<>();
         data.put("list", page.getRecords());
@@ -49,8 +46,9 @@ public class FeedbackController {
 
     @Operation(summary = "反馈详情")
     @RequireAuth
-    @GetMapping("/{id}")
-    public R<FeedbackVO> detail(@PathVariable Long id) {
+    @PostMapping("/detail")
+    public R<FeedbackVO> detail(@RequestBody Map<String, Long> body) {
+        Long id = body.get("id");
         return R.data(feedbackService.detail(id));
     }
 
@@ -58,7 +56,7 @@ public class FeedbackController {
     @RequireAuth
     @RateLimit(key = "feedback", capacity = 3, refillSeconds = 60, message = "反馈过于频繁")
     @AuditLog(action = "FEEDBACK_CREATE", description = "提交反馈", targetType = "FEEDBACK")
-    @PostMapping
+    @PostMapping("/create")
     public R<Long> create(@Valid @RequestBody FeedbackSaveDTO dto) {
         return R.data(feedbackService.create(dto));
     }
@@ -66,7 +64,7 @@ public class FeedbackController {
     @Operation(summary = "回复反馈")
     @RequireAuth
     @AuditLog(action = "FEEDBACK_REPLY", description = "回复反馈", targetType = "FEEDBACK", targetIdSpEl = "#id")
-    @PutMapping("/{id}/reply")
+    @PostMapping("/{id}/reply")
     public R<Void> reply(@PathVariable Long id, @Valid @RequestBody FeedbackReplyDTO dto) {
         feedbackService.reply(id, dto);
         return R.success();
@@ -75,8 +73,9 @@ public class FeedbackController {
     @Operation(summary = "删除反馈")
     @RequireAuth
     @AuditLog(action = "FEEDBACK_DELETE", description = "删除反馈", targetType = "FEEDBACK", targetIdSpEl = "#id")
-    @DeleteMapping("/{id}")
-    public R<Void> delete(@PathVariable Long id) {
+    @PostMapping("/delete")
+    public R<Void> delete(@RequestBody Map<String, Long> body) {
+        Long id = body.get("id");
         feedbackService.delete(id);
         return R.success();
     }

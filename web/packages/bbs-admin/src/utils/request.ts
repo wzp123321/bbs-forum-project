@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { tokenStore } from './storage';
 import { message } from './message';
-import type { R } from '@/apis/types';
+import type { IResponseVO } from '@/apis/types';
 
 const http = axios.create({
   baseURL: (import.meta.env.VITE_BASE_URL as string) ?? '',
@@ -27,7 +27,7 @@ const handleUnauthorized = () => {
 };
 
 http.interceptors.response.use(
-  (res: AxiosResponse<R>) => {
+  (res: AxiosResponse<IResponseVO>) => {
     const body = res.data;
     if (!body || typeof body !== 'object' || !('code' in body)) {
       return res;
@@ -42,7 +42,7 @@ http.interceptors.response.use(
     }
     return Promise.reject(new Error(body.message || `code=${body.code}`));
   },
-  (error: AxiosError<R>) => {
+  (error: AxiosError<IResponseVO>) => {
     const status = error.response?.status;
     const msg = error.response?.data?.message || error.message;
     if (status === 401) {

@@ -1,11 +1,17 @@
 <template>
   <div class="comment-manage">
-    <el-form :inline="true" :model="searchForm" @submit.prevent="handleSearch" class="search-form">
+    <el-form :inline="true" :model="searchForm" @submit.prevent="searchList" class="search-form">
       <el-form-item label="内容">
-        <el-input v-model="searchForm.keyword" placeholder="请输入评论内容" clearable @keyup.enter="handleSearch" />
+        <el-input v-model="searchForm.keyword" placeholder="请输入评论内容" clearable @keyup.enter="searchList" />
       </el-form-item>
       <el-form-item label="帖子ID">
-        <el-input-number v-model="searchForm.postId" :min="0" controls-position="right" placeholder="帖子ID" style="width: 160px" />
+        <el-input-number
+          v-model="searchForm.postId"
+          :min="0"
+          controls-position="right"
+          placeholder="帖子ID"
+          style="width: 160px"
+        />
       </el-form-item>
       <el-form-item label="状态">
         <el-select v-model="searchForm.status" placeholder="全部状态" clearable style="width: 140px">
@@ -14,8 +20,8 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleSearch">搜索</el-button>
-        <el-button @click="handleReset">重置</el-button>
+        <el-button type="primary" @click="searchList">搜索</el-button>
+        <el-button @click="resetSearch">重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -48,9 +54,9 @@
       <el-table-column prop="createTime" label="评论时间" width="170" />
       <el-table-column label="操作" width="200" fixed="right">
         <template #default="{ row }">
-          <el-button v-if="row.status === 1" type="warning" link @click="handleChangeStatus(row, 0)">禁用</el-button>
-          <el-button v-else type="success" link @click="handleChangeStatus(row, 1)">启用</el-button>
-          <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
+          <el-button v-if="row.status === 1" type="warning" link @click="changeCommentStatus(row, 0)">禁用</el-button>
+          <el-button v-else type="success" link @click="changeCommentStatus(row, 1)">启用</el-button>
+          <el-button type="danger" link @click="confirmDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -62,8 +68,8 @@
       :page-sizes="pageSizes"
       :total="total"
       layout="total, sizes, prev, pager, next, jumper"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
+      @size-change="onPageSizeChange"
+      @current-change="onPageNumChange"
     />
   </div>
 </template>
@@ -72,7 +78,7 @@
 import { reactive, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
-import { commentApi } from '@/utils';
+import { pageCommentsApi, deleteCommentApi, changeStatusApi } from '@/apis/comment';
 import type { CommentVO } from '@/apis/comment';
 import { SearchForm } from './constant/model';
 
@@ -88,7 +94,7 @@ const searchForm = reactive<SearchForm>({ keyword: '', postId: undefined, status
 const fetchList = async () => {
   loading.value = true;
   try {
-    const res = await commentApi.pageComments({
+    const res = await pageCommentsApi({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
       keyword: searchForm.keyword || undefined,
@@ -102,29 +108,29 @@ const fetchList = async () => {
   }
 };
 
-const handleSizeChange = (value: number) => {
+const onPageSizeChange = (value: number) => {
   setPageSize(value);
   fetchList();
 };
 
-const handleCurrentChange = (value: number) => {
+const onPageNumChange = (value: number) => {
   setPageNum(value);
   fetchList();
 };
 
-const handleSearch = () => {
+const searchList = () => {
   setPageNum(1);
   fetchList();
 };
 
-const handleReset = () => {
+const resetSearch = () => {
   searchForm.keyword = '';
   searchForm.postId = undefined;
   searchForm.status = undefined;
-  handleSearch();
+  searchList();
 };
 
-const handleDelete = async (row: CommentVO) => {
+const confirmDelete = async (row: CommentVO) => {
   try {
     await ElMessageBox.confirm(`确认删除评论「${row.content}」?`, '提示', {
       type: 'warning',
@@ -134,13 +140,13 @@ const handleDelete = async (row: CommentVO) => {
   } catch {
     return;
   }
-  await commentApi.deleteComment(row.id);
+  await deleteCommentApi(row.id);
   ElMessage.success('删除成功');
   fetchList();
 };
 
-const handleChangeStatus = async (row: CommentVO, status: number) => {
-  await commentApi.changeStatus(row.id, { status });
+const changeCommentStatus = async (row: CommentVO, status: number) => {
+  await changeStatusApi(row.id, { status });
   ElMessage.success(status === 1 ? '已启用' : '已禁用');
   fetchList();
 };

@@ -13,11 +13,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,8 +31,8 @@ public class CommentController {
     private CommentService commentService;
 
     @Operation(summary = "分页查询评论")
-    @GetMapping("/page")
-    public R<Map<String, Object>> page(CommentPageQuery query) {
+    @PostMapping("/page")
+    public R<Map<String, Object>> page(@RequestBody CommentPageQuery query) {
         IPage<CommentVO> page = commentService.pageQueryVO(query);
         Map<String, Object> data = new HashMap<>();
         data.put("list", page.getRecords());
@@ -47,8 +44,9 @@ public class CommentController {
 
     @Operation(summary = "评论详情")
     @RequireAuth
-    @GetMapping("/{id}")
-    public R<CommentVO> detail(@PathVariable Long id) {
+    @PostMapping("/detail")
+    public R<CommentVO> detail(@RequestBody Map<String, Long> body) {
+        Long id = body.get("id");
         return R.data(commentService.detail(id));
     }
 
@@ -56,7 +54,7 @@ public class CommentController {
     @RequireAuth
     @RateLimit(key = "comment:create", capacity = 20, refillSeconds = 60, message = "评论过于频繁")
     @AuditLog(action = "COMMENT_CREATE", description = "发表评论", targetType = "COMMENT", targetIdSpEl = "#dto.postId")
-    @PostMapping
+    @PostMapping("/create")
     public R<Long> create(@Valid @RequestBody CommentSaveDTO dto) {
         return R.data(commentService.create(dto));
     }
@@ -64,7 +62,7 @@ public class CommentController {
     @Operation(summary = "编辑评论")
     @RequireAuth
     @AuditLog(action = "COMMENT_UPDATE", description = "编辑评论", targetType = "COMMENT", targetIdSpEl = "#id")
-    @PutMapping("/{id}")
+    @PostMapping("/{id}/update")
     public R<Void> update(@PathVariable Long id, @Valid @RequestBody CommentSaveDTO dto) {
         commentService.update(id, dto);
         return R.success();
@@ -73,15 +71,16 @@ public class CommentController {
     @Operation(summary = "删除评论")
     @RequireAuth
     @AuditLog(action = "COMMENT_DELETE", description = "删除评论", targetType = "COMMENT", targetIdSpEl = "#id")
-    @DeleteMapping("/{id}")
-    public R<Void> delete(@PathVariable Long id) {
+    @PostMapping("/delete")
+    public R<Void> delete(@RequestBody Map<String, Long> body) {
+        Long id = body.get("id");
         commentService.delete(id);
         return R.success();
     }
 
     @Operation(summary = "修改评论状态")
     @RequireAuth
-    @PutMapping("/{id}/status")
+    @PostMapping("/{id}/changeStatus")
     public R<Void> changeStatus(@PathVariable Long id, @RequestBody Map<String, Integer> body) {
         Integer status = body == null ? null : body.get("status");
         commentService.changeStatus(id, status);

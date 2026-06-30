@@ -10,20 +10,8 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleSearch">查询</el-button>
-        <el-button
-          type="primary"
-          @click="
-            handleDialog({
-              name: '',
-              status: false,
-              describe: '',
-              type: '',
-            })
-          "
-        >
-          新增
-        </el-button>
+        <el-button type="primary" @click="searchList">查询</el-button>
+        <el-button type="primary" @click="openAddEditDrawer">新增</el-button>
       </el-form-item>
     </el-form>
     <el-divider />
@@ -39,8 +27,8 @@
       <el-table-column prop="describe" label="描述" />
       <el-table-column fixed="right" label="操作" min-width="120">
         <template #default="scope">
-          <el-button link type="primary" size="small" @click="handleDialog(scope.row)">编辑</el-button>
-          <el-button link type="primary" size="small" @click="handleDelete">删除</el-button>
+          <el-button link type="primary" size="small" @click="openAddEditDrawer(scope.row)">编辑</el-button>
+          <el-button link type="primary" size="small" @click="confirmDelete">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -51,12 +39,12 @@
       background
       layout="total, sizes, prev, pager, next, jumper"
       :total="total"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
+      @size-change="onPageSizeChange"
+      @current-change="onPageNumChange"
     />
   </div>
   <!-- 新增/编辑弹窗 -->
-  <UmAddEditDrawer ref="UmAddEditDrawerRef" />
+  <UmAddEditDrawer ref="addEditDrawerRef" />
 </template>
 
 <script lang="ts" setup>
@@ -99,14 +87,14 @@ const options = [
 // 分页
 const { pageNum, pageSize, total, setPageNum, setPageSize } = usePagination();
 // 修改条数
-const handleSizeChange = (value: number) => {
+const onPageSizeChange = (value: number) => {
   setPageSize(value);
-  handleSearch();
+  searchList();
 };
 // 修改页码
-const handleCurrentChange = (value: number) => {
+const onPageNumChange = (value: number) => {
   setPageNum(value);
-  handleSearch();
+  searchList();
 };
 
 // 查询表单
@@ -115,16 +103,16 @@ const searchForm = reactive<SearchForm>({
   name: '',
 });
 // 查询
-const handleSearch = () => {};
+const searchList = () => {};
 
-const UmAddEditDrawerRef = ref<typeof UmAddEditDrawer>();
+const addEditDrawerRef = ref<typeof UmAddEditDrawer>();
 // 打开抽屉
-const handleDialog = (row: RowFrom) => {
-  if (!UmAddEditDrawerRef.value) return;
-  UmAddEditDrawerRef.value.handleOpen(row);
+const openAddEditDrawer = (row: RowFrom) => {
+  if (!addEditDrawerRef.value) return;
+  addEditDrawerRef.value.open(row);
 };
 // 删除
-const handleDelete = () => {
+const confirmDelete = () => {
   ElMessageBox.confirm('确定删除该数据?', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',

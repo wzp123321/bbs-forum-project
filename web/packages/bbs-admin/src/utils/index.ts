@@ -2,6 +2,4 @@
 export * from './token';
 export * from './storage';
 export * from './message';
-export * from './api';
-export * from './types';
 export { default as http } from './request';

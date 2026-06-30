@@ -1,8 +1,8 @@
 <template>
   <div class="feedback-manage">
-    <el-form :inline="true" :model="searchForm" @submit.prevent="handleSearch" class="search-form">
-      <el-form-item label="关键词">
-        <el-input v-model="searchForm.keyword" placeholder="请输入反馈内容" clearable @keyup.enter="handleSearch" />
+    <el-form :inline="true" :model="searchForm" @submit.prevent="searchList" class="search-form">
+      <el-form-item label="内容">
+        <el-input v-model="searchForm.keyword" placeholder="请输入反馈内容" clearable @keyup.enter="searchList" />
       </el-form-item>
       <el-form-item label="类型">
         <el-select v-model="searchForm.type" placeholder="全部类型" clearable style="width: 160px">
@@ -19,8 +19,8 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleSearch">搜索</el-button>
-        <el-button @click="handleReset">重置</el-button>
+        <el-button type="primary" @click="searchList">搜索</el-button>
+        <el-button @click="resetSearch">重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -50,8 +50,10 @@
       </el-table-column>
       <el-table-column label="操作" width="180" fixed="right">
         <template #default="{ row }">
-          <el-button type="primary" link @click="handleReply(row)">{{ row.status === 1 ? '查看/修改' : '处理' }}</el-button>
-          <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
+          <el-button type="primary" link @click="openReplyDialog(row)">
+            {{ row.status === 1 ? '查看/修改' : '处理' }}
+          </el-button>
+          <el-button type="danger" link @click="confirmDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -63,8 +65,8 @@
       :page-sizes="pageSizes"
       :total="total"
       layout="total, sizes, prev, pager, next, jumper"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
+      @size-change="onPageSizeChange"
+      @current-change="onPageNumChange"
     />
 
     <FmDealDialog ref="dealRef" @replied="fetchList" />
@@ -75,7 +77,7 @@
 import { reactive, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
-import { feedbackApi } from '@/utils';
+import { pageFeedbacksApi, deleteFeedbackApi } from '@/apis/feedback';
 import type { FeedbackVO } from '@/apis/feedback';
 import { SearchForm } from './constant/model';
 import FmDealDialog from './components/fm-deal-dialog.vue';
@@ -91,7 +93,7 @@ const dealRef = ref<InstanceType<typeof FmDealDialog>>();
 const fetchList = async () => {
   loading.value = true;
   try {
-    const res = await feedbackApi.pageFeedbacks({
+    const res = await pageFeedbacksApi({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
       keyword: searchForm.keyword || undefined,
@@ -105,28 +107,28 @@ const fetchList = async () => {
   }
 };
 
-const handleSizeChange = (value: number) => {
+const onPageSizeChange = (value: number) => {
   setPageSize(value);
   fetchList();
 };
-const handleCurrentChange = (value: number) => {
+const onPageNumChange = (value: number) => {
   setPageNum(value);
   fetchList();
 };
-const handleSearch = () => {
+const searchList = () => {
   setPageNum(1);
   fetchList();
 };
-const handleReset = () => {
+const resetSearch = () => {
   searchForm.keyword = '';
   searchForm.type = undefined;
   searchForm.status = undefined;
-  handleSearch();
+  searchList();
 };
-const handleReply = (row: FeedbackVO) => {
-  dealRef.value?.show(row);
+const openReplyDialog = (row: FeedbackVO) => {
+  dealRef.value?.open(row);
 };
-const handleDelete = async (row: FeedbackVO) => {
+const confirmDelete = async (row: FeedbackVO) => {
   try {
     await ElMessageBox.confirm('确认删除该反馈?', '提示', {
       type: 'warning',
@@ -136,7 +138,7 @@ const handleDelete = async (row: FeedbackVO) => {
   } catch {
     return;
   }
-  await feedbackApi.deleteFeedback(row.id);
+  await deleteFeedbackApi(row.id);
   ElMessage.success('删除成功');
   fetchList();
 };

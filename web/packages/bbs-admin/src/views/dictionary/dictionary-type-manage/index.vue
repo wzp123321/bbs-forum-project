@@ -5,11 +5,8 @@
         <el-input v-model="searchForm.name" placeholder="字典类型" clearable />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleSearch">查询</el-button>
-        <el-button type="primary" @click="handleDialog({
-          id: '',
-          name: ''
-        })">新增</el-button>
+        <el-button type="primary" @click="searchList">查询</el-button>
+        <el-button type="primary" @click="openAddEditDrawer">新增</el-button>
       </el-form-item>
     </el-form>
     <el-divider />
@@ -18,25 +15,32 @@
       <el-table-column prop="name" label="字典类型" />
       <el-table-column fixed="right" label="操作" min-width="120">
         <template #default="scope">
-          <el-button link type="primary" size="small" @click="handleDialog(scope.row)">编辑</el-button>
-          <el-button link type="primary" size="small" @click="handleDelete">删除</el-button>
+          <el-button link type="primary" size="small" @click="openAddEditDrawer(scope.row)">编辑</el-button>
+          <el-button link type="primary" size="small" @click="confirmDelete">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination v-model:current-page="pageNum" v-model:page-size="pageSize" :page-sizes="pageSizes" background
-      layout="total, sizes, prev, pager, next, jumper" :total="total" @size-change="handleSizeChange"
-      @current-change="handleCurrentChange" />
+    <el-pagination
+      v-model:current-page="pageNum"
+      v-model:page-size="pageSize"
+      :page-sizes="pageSizes"
+      background
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total"
+      @size-change="onPageSizeChange"
+      @current-change="onPageNumChange"
+    />
   </div>
   <!-- 新增/编辑弹窗 -->
-  <UmAddEditDrawer ref="UmAddEditDrawerRef" />
+  <UmAddEditDrawer ref="addEditDrawerRef" />
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { reactive, ref } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
-import { UmAddEditDrawer } from "./components";
-import { TypeFrom, SearchForm, TableData } from './constant/model'
+import { UmAddEditDrawer } from './components';
+import { TypeFrom, SearchForm, TableData } from './constant/model';
 defineOptions({
   name: 'DictionaryTypeManage',
 });
@@ -54,58 +58,54 @@ const tableData = ref<TableData[]>([
   {
     id: '3',
     name: 'Tom',
-  }
-])
+  },
+]);
 // 分页
 const { pageNum, pageSize, total, setPageNum, setPageSize } = usePagination();
 // 修改条数
-const handleSizeChange = (value: number) => {
+const onPageSizeChange = (value: number) => {
   setPageSize(value);
-  handleSearch();
+  searchList();
 };
 // 修改页码
-const handleCurrentChange = (value: number) => {
+const onPageNumChange = (value: number) => {
   setPageNum(value);
-  handleSearch();
+  searchList();
 };
 
 // 查询表单
 const searchForm = reactive<SearchForm>({
   name: '',
-})
+});
 // 查询
-const handleSearch = () => { };
+const searchList = () => {};
 
-const UmAddEditDrawerRef = ref<typeof UmAddEditDrawer>()
+const addEditDrawerRef = ref<typeof UmAddEditDrawer>();
 // 打开抽屉
-const handleDialog = (row: TypeFrom) => {
-  if (!UmAddEditDrawerRef.value) return;
-  UmAddEditDrawerRef.value.handleOpen(row)
-}
+const openAddEditDrawer = (row: TypeFrom) => {
+  if (!addEditDrawerRef.value) return;
+  addEditDrawerRef.value.open(row);
+};
 // 删除
-const handleDelete = () => {
-  ElMessageBox.confirm(
-    '确定删除该数据?',
-    '提示',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
-    }
-  )
+const confirmDelete = () => {
+  ElMessageBox.confirm('确定删除该数据?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  })
     .then(() => {
       ElMessage({
         type: 'success',
         message: '删除 completed',
-      })
+      });
     })
     .catch(() => {
       ElMessage({
         type: 'info',
         message: '删除 canceled',
-      })
-    })
-}
+      });
+    });
+};
 </script>
 
 <style lang="less" scoped>
@@ -120,7 +120,3 @@ const handleDelete = () => {
   }
 }
 </style>
-
-
-
-

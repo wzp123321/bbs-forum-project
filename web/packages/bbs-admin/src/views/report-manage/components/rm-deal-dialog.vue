@@ -4,7 +4,7 @@
     v-model="visible"
     :title="row ? `处理举报 #${row.id}` : '处理举报'"
     width="560"
-    :before-close="handleClose"
+    :before-close="closeDialog"
   >
     <div v-if="row" class="rm-deal-detail">
       <div class="rm-row">
@@ -52,8 +52,8 @@
     </el-form>
 
     <template #footer>
-      <el-button @click="handleClose">取消</el-button>
-      <el-button type="primary" :loading="submitting" @click="handleSubmit">确定</el-button>
+      <el-button @click="closeDialog">取消</el-button>
+      <el-button type="primary" :loading="submitting" @click="submitForm">确定</el-button>
     </template>
   </el-dialog>
 </template>
@@ -62,7 +62,7 @@
 import { reactive, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useDialogOpen } from '@/hooks';
-import { reportApi } from '@/utils';
+import { handleReportApi } from '@/apis/report';
 import type { ReportVO } from '@/apis/report';
 import { HandleForm, REASON_TEXT } from '../constant/model';
 
@@ -70,36 +70,36 @@ defineOptions({ name: 'RmDealDialog' });
 
 const emit = defineEmits<{ (e: 'handled'): void }>();
 
-const { visible, handleClose, handleOpen } = useDialogOpen();
+const { visible, closeDialog, openDialog } = useDialogOpen();
 
 const form = reactive<HandleForm>({ status: 1, handleRemark: '' });
 const submitting = ref(false);
 const row = ref<ReportVO | null>(null);
 
-const show = (r: ReportVO) => {
+const open = (r: ReportVO) => {
   row.value = r;
   form.status = 1;
   form.handleRemark = r.handleRemark || '';
-  handleOpen();
+  openDialog();
 };
 
-const handleSubmit = async () => {
+const submitForm = async () => {
   if (!row.value) return;
   submitting.value = true;
   try {
-    await reportApi.handle(row.value.id, {
+    await handleReportApi(row.value.id, {
       status: form.status,
       handleRemark: form.handleRemark.trim() || undefined,
     });
     ElMessage.success('已处理');
-    handleClose();
+    closeDialog();
     emit('handled');
   } finally {
     submitting.value = false;
   }
 };
 
-defineExpose({ show });
+defineExpose({ open });
 </script>
 
 <style lang="less" scoped>

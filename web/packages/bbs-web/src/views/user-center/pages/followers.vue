@@ -10,8 +10,12 @@
           <div class="uc-item-id">ID: {{ u.userId }}</div>
         </div>
         <div class="uc-item-foot">
-          <el-button v-if="!isSelf(u.userId)" :type="isFollowingMap[u.userId] ? 'default' : 'primary'" size="small"
-            @click="onToggleFollow(u)">
+          <el-button
+            v-if="!isSelf(u.userId)"
+            :type="isFollowingMap[u.userId] ? 'default' : 'primary'"
+            size="small"
+            @click="onToggleFollow(u)"
+          >
             {{ isFollowingMap[u.userId] ? '已关注' : '回关' }}
           </el-button>
         </div>
@@ -33,7 +37,7 @@
 import { onMounted, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { usePagination } from '@bbs/core';
-import { followApi } from '@/apis/follow';
+import { cancelFollowApi, followApi, followStatusApi, pageFollowersApi } from '@/apis';
 import { userStore } from '@/utils';
 import type { UserInfoVO } from '@/apis/user';
 
@@ -44,13 +48,13 @@ const dataSource = ref<UserInfoVO[]>([]);
 const isFollowingMap = ref<Record<string, boolean>>({});
 const loading = ref(false);
 
-const myId = () => userStore.getUserId();
-const isSelf = (id: string) => id === myId();
+const getMyId = () => userStore.getUserId();
+const isSelf = (id: string) => id === getMyId();
 
 const fetchList = async () => {
   loading.value = true;
   try {
-    const res = await followApi.pageFollowers(myId(), pageNum.value, pageSize.value);
+    const res = await pageFollowersApi(getMyId(), pageNum.value, pageSize.value);
     dataSource.value = res.list;
     total.value = res.total;
     // 查询每个粉丝的互关状态
@@ -63,7 +67,7 @@ const fetchList = async () => {
 const fetchFollowStatus = async (uid: string) => {
   if (isSelf(uid)) return;
   try {
-    const r = await followApi.followStatus(uid);
+    const r = await followStatusApi(uid);
     isFollowingMap.value[uid] = r.following;
   } catch {
     isFollowingMap.value[uid] = false;
@@ -73,11 +77,11 @@ const fetchFollowStatus = async (uid: string) => {
 const onToggleFollow = async (u: UserInfoVO) => {
   try {
     if (isFollowingMap.value[u.userId]) {
-      await followApi.cancelFollow(u.userId);
+      await cancelFollowApi(u.userId);
       isFollowingMap.value[u.userId] = false;
       ElMessage.success('已取消关注');
     } else {
-      await followApi.follow(u.userId);
+      await followApi(u.userId);
       isFollowingMap.value[u.userId] = true;
       ElMessage.success('关注成功');
     }

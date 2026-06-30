@@ -6,7 +6,7 @@
     v-model="visible"
     :title="isEdit ? '编辑用户' : '新增用户'"
     direction="rtl"
-    :before-close="handleClose"
+    :before-close="close"
     size="420px"
   >
     <el-form ref="formRef" :model="form" :rules="rules" label-width="80px" v-loading="loading">
@@ -31,15 +31,15 @@
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="handleClose">取消</el-button>
-      <el-button type="primary" :loading="submitting" @click="handleSubmit">确定</el-button>
+      <el-button @click="close">取消</el-button>
+      <el-button type="primary" :loading="submitting" @click="submitForm">确定</el-button>
     </template>
   </el-drawer>
 </template>
 <script lang="ts" setup>
 import { computed, reactive, ref } from 'vue';
 import { ElMessage, FormInstance, FormRules } from 'element-plus';
-import { userApi } from '@/utils';
+import { registerApi, updateProfileApi } from '@/apis/user';
 import { UserInfo } from '../../constant/model';
 
 defineOptions({ name: 'UmAddEditDrawer' });
@@ -76,7 +76,7 @@ const rules: FormRules<AddEditForm> = {
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
 };
 
-const reset = () => {
+const resetForm = () => {
   form.userId = '';
   form.userName = '';
   form.password = '';
@@ -85,8 +85,8 @@ const reset = () => {
   form.phone = '';
 };
 
-const handleOpen = (row?: UserInfo) => {
-  reset();
+const open = (row?: UserInfo) => {
+  resetForm();
   if (row) {
     form.userId = row.userId;
     form.userName = row.userName;
@@ -97,24 +97,24 @@ const handleOpen = (row?: UserInfo) => {
   visible.value = true;
 };
 
-const handleClose = () => {
+const close = () => {
   visible.value = false;
 };
 
-const handleSubmit = async () => {
+const submitForm = async () => {
   if (!formRef.value) return;
   await formRef.value.validate();
   submitting.value = true;
   try {
     if (isEdit.value) {
-      await userApi.updateProfile(form.userId, {
+      await updateProfileApi(form.userId, {
         email: form.email,
         phone: form.phone,
         gender: form.gender,
       });
       ElMessage.success('修改成功');
     } else {
-      await userApi.register({
+      await registerApi({
         userName: form.userName,
         password: form.password,
         email: form.email,
@@ -123,7 +123,7 @@ const handleSubmit = async () => {
       });
       ElMessage.success('新增成功');
     }
-    handleClose();
+    close();
     visible.value = false;
     // 通知父组件刷新
     emit('saved');
@@ -132,9 +132,5 @@ const handleSubmit = async () => {
   }
 };
 
-defineExpose({ handleOpen });
+defineExpose({ open });
 </script>
-<style lang="less" scoped>
-.um-add-edit-drawer {
-}
-</style>

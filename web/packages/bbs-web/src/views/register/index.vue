@@ -7,10 +7,23 @@
           <el-input v-model="form.userName" placeholder="用户名 (3-20字符)" clearable maxlength="20" />
         </el-form-item>
         <el-form-item prop="password">
-          <el-input v-model="form.password" placeholder="密码 (6-32字符)" type="password" show-password maxlength="32" />
+          <el-input
+            v-model="form.password"
+            placeholder="密码 (6-32字符)"
+            type="password"
+            show-password
+            maxlength="32"
+          />
         </el-form-item>
         <el-form-item prop="confirm">
-          <el-input v-model="form.confirm" placeholder="确认密码" type="password" show-password maxlength="32" @keyup.enter="handleSubmit" />
+          <el-input
+            v-model="form.confirm"
+            placeholder="确认密码"
+            type="password"
+            show-password
+            maxlength="32"
+            @keyup.enter="handleSubmit"
+          />
         </el-form-item>
         <el-form-item prop="email">
           <el-input v-model="form.email" placeholder="邮箱 (选填)" clearable maxlength="64" />
@@ -18,7 +31,7 @@
         <el-button class="register-btn" type="primary" :loading="loading" @click="handleSubmit">注册</el-button>
         <div class="register-footer">
           已有账号?
-          <el-link type="primary" :underline="false" @click="goLogin">立即登录</el-link>
+          <el-link type="primary" :underline="false" @click="navigateToLogin">立即登录</el-link>
         </div>
       </el-form>
     </el-card>
@@ -29,7 +42,7 @@
 import { reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, FormInstance, FormRules } from 'element-plus';
-import { userApi } from '@/apis/user';
+import { registerApi } from '@/apis/user';
 
 defineOptions({ name: 'Register' });
 
@@ -70,7 +83,7 @@ const handleSubmit = async () => {
   }
   loading.value = true;
   try {
-    await userApi.register({
+    await registerApi({
       userName: form.userName.trim(),
       password: form.password,
       email: form.email || undefined,
@@ -84,7 +97,7 @@ const handleSubmit = async () => {
   }
 };
 
-const goLogin = () => router.push({ path: '/login', query: route.query });
+const navigateToLogin = () => router.push({ path: '/login', query: route.query });
 </script>
 
 <style lang="less" scoped>

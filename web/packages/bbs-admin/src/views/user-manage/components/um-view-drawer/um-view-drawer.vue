@@ -6,7 +6,7 @@
     v-model="visible"
     title="详情"
     direction="rtl"
-    :before-close="handleClose"
+    :before-close="close"
   >
     <section class="uvd-detail" v-loading="loading">
       <div class="uvd-detail-item">
@@ -19,7 +19,7 @@
       </div>
       <div class="uvd-detail-item">
         <label>性别:</label>
-        <span>{{ genderText(userDetail.gender) }}</span>
+        <span>{{ getGenderText(userDetail.gender) }}</span>
       </div>
       <div class="uvd-detail-item">
         <label>邮箱:</label>
@@ -39,7 +39,7 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue';
 import { UserInfo } from '../../constant/model';
-import { userApi } from '@/utils';
+import { getUserApi } from '@/apis/user';
 
 defineOptions({
   name: 'UmViewDrawer',
@@ -58,18 +58,18 @@ const userDetail = reactive<UserInfo>({
 });
 
 /** 0未知 1男 2女 */
-const genderText = (g?: string) => (g === '1' ? '男' : g === '2' ? '女' : '未知');
+const getGenderText = (g?: string) => (g === '1' ? '男' : g === '2' ? '女' : '未知');
 
 /**
  * 打开
  * @param {UserInfo} userInfo
  */
-const handleOpen = async (userInfo: UserInfo) => {
+const open = async (userInfo: UserInfo) => {
   visible.value = true;
   // 拉取最新详情
   loading.value = true;
   try {
-    const detail = await userApi.getUser(userInfo.userId);
+    const detail = await getUserApi(userInfo.userId);
     Object.assign(userDetail, detail);
   } finally {
     loading.value = false;
@@ -78,12 +78,12 @@ const handleOpen = async (userInfo: UserInfo) => {
 /**
  * 关闭
  */
-const handleClose = () => {
+const close = () => {
   visible.value = false;
 };
 
 defineExpose({
-  handleOpen,
+  open,
 });
 </script>
 <style lang="less" scoped>

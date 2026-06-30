@@ -28,7 +28,7 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePagination } from '@bbs/core';
-import { likeApi } from '@/apis/like';
+import { myLikedApi } from '@/apis';
 import type { PostVO } from '@/apis/post';
 
 defineOptions({ name: 'UcLikes' });
@@ -41,7 +41,7 @@ const loading = ref(false);
 const fetchList = async () => {
   loading.value = true;
   try {
-    const res = await likeApi.pageMyLiked({ pageNum: pageNum.value, pageSize: pageSize.value });
+    const res = await myLikedApi({ pageNum: pageNum.value, pageSize: pageSize.value });
     dataSource.value = res.list;
     total.value = res.total;
   } finally {

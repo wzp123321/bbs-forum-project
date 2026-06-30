@@ -28,8 +28,7 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePagination } from '@bbs/core';
-import { collectApi } from '@/apis/collect';
-import type { PostVO } from '@/apis/post';
+import { pageMyCollectedApi, PostVO } from '@/apis';
 
 defineOptions({ name: 'UcCollects' });
 
@@ -41,7 +40,7 @@ const loading = ref(false);
 const fetchList = async () => {
   loading.value = true;
   try {
-    const res = await collectApi.pageMyCollected({ pageNum: pageNum.value, pageSize: pageSize.value });
+    const res = await pageMyCollectedApi({ pageNum: pageNum.value, pageSize: pageSize.value });
     dataSource.value = res.list;
     total.value = res.total;
   } finally {

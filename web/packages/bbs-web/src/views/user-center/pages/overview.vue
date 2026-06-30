@@ -37,7 +37,7 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import { userApi } from '@/apis/user';
+import { myPostsApi, myCollectedApi, myLikedApi } from '@/apis/user';
 import { userStore } from '@/utils';
 import type { UserInfoVO, FollowCountVO } from '@/apis/user';
 
@@ -55,9 +55,9 @@ const totalLiked = ref(0);
 const loadStats = async () => {
   try {
     const [a, b, c] = await Promise.all([
-      userApi.myPosts({ pageNum: 1, pageSize: 1 }),
-      userApi.myCollected({ pageNum: 1, pageSize: 1 }),
-      userApi.myLiked({ pageNum: 1, pageSize: 1 }),
+      myPostsApi({ pageNum: 1, pageSize: 1 }),
+      myCollectedApi({ pageNum: 1, pageSize: 1 }),
+      myLikedApi({ pageNum: 1, pageSize: 1 }),
     ]);
     totalPosts.value = a.total;
     totalCollected.value = b.total;

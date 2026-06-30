@@ -1,24 +1,26 @@
 import http from '@/utils/request';
 import type { TagVO, TagSaveParams, TagPageParams } from './index.api';
-import type { PageResult, R } from '../types';
+import type { PageResult, IResponseVO } from '../types';
+
+export * from './index.api';
 
 /** 分页查询 */
-export const pageTags = (params: TagPageParams) =>
-  http.get<R<PageResult<TagVO>>>('/admin/tag/page', { params }).then((res) => res.data.data);
+export const pageTagsApi = (params: TagPageParams) =>
+  http.post<IResponseVO<PageResult<TagVO>>>('/admin/tag/page', params).then((res) => res.data.data);
 
 /** 全部 (启用中,下拉用) */
-export const listTags = () => http.get<R<TagVO[]>>('/admin/tag/list').then((res) => res.data.data);
+export const listTagsApi = () => http.post<IResponseVO<TagVO[]>>('/admin/tag/list').then((res) => res.data.data);
 
 /** 详情 */
-export const getTag = (id: number) => http.get<R<TagVO>>(`/admin/tag/${id}`).then((res) => res.data.data);
+export const getTagApi = (id: number) => http.post<IResponseVO<TagVO>>('/admin/tag/detail', { id }).then((res) => res.data.data);
 
 /** 新增 */
-export const createTag = (params: TagSaveParams) =>
-  http.post<R<number>>('/admin/tag', params).then((res) => res.data.data);
+export const createTagApi = (params: TagSaveParams) =>
+  http.post<IResponseVO<number>>('/admin/tag/create', params).then((res) => res.data.data);
 
 /** 编辑 */
-export const updateTag = (id: number, params: TagSaveParams) =>
-  http.put<R<void>>(`/admin/tag/${id}`, params).then((res) => res.data);
+export const updateTagApi = (id: number, params: TagSaveParams) =>
+  http.post<IResponseVO<void>>(`/admin/tag/${id}/update`, params).then((res) => res.data);
 
 /** 删除 */
-export const deleteTag = (id: number) => http.delete<R<void>>(`/admin/tag/${id}`).then((res) => res.data);
+export const deleteTagApi = (id: number) => http.post<IResponseVO<void>>('/admin/tag/delete', { id }).then((res) => res.data);

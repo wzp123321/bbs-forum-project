@@ -1,8 +1,8 @@
 <template>
   <div class="report-manage">
-    <el-form :inline="true" :model="searchForm" @submit.prevent="handleSearch" class="search-form">
+    <el-form :inline="true" :model="searchForm" @submit.prevent="searchList" class="search-form">
       <el-form-item label="关键词">
-        <el-input v-model="searchForm.keyword" placeholder="举报说明/补充" clearable @keyup.enter="handleSearch" />
+        <el-input v-model="searchForm.keyword" placeholder="举报说明/补充" clearable @keyup.enter="searchList" />
       </el-form-item>
       <el-form-item label="目标">
         <el-select v-model="searchForm.targetType" placeholder="全部目标" clearable style="width: 140px">
@@ -12,12 +12,7 @@
       </el-form-item>
       <el-form-item label="原因">
         <el-select v-model="searchForm.reasonType" placeholder="全部原因" clearable style="width: 140px">
-          <el-option
-            v-for="(text, val) in REASON_TEXT"
-            :key="val"
-            :label="text"
-            :value="val"
-          />
+          <el-option v-for="(text, val) in REASON_TEXT" :key="val" :label="text" :value="val" />
         </el-select>
       </el-form-item>
       <el-form-item label="状态">
@@ -28,8 +23,8 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleSearch">搜索</el-button>
-        <el-button @click="handleReset">重置</el-button>
+        <el-button type="primary" @click="searchList">搜索</el-button>
+        <el-button @click="resetSearch">重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -73,15 +68,10 @@
       <el-table-column prop="createTime" label="举报时间" width="170" />
       <el-table-column label="操作" width="180" fixed="right">
         <template #default="{ row }">
-          <el-button
-            type="primary"
-            link
-            :disabled="row.status !== 0"
-            @click="handleShow(row)"
-          >
+          <el-button type="primary" link :disabled="row.status !== 0" @click="openDealDialog(row)">
             {{ row.status === 0 ? '处理' : '查看' }}
           </el-button>
-          <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
+          <el-button type="danger" link @click="confirmDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -93,8 +83,8 @@
       :page-sizes="pageSizes"
       :total="total"
       layout="total, sizes, prev, pager, next, jumper"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
+      @size-change="onPageSizeChange"
+      @current-change="onPageNumChange"
     />
 
     <RmDealDialog ref="dealRef" @handled="fetchList" />
@@ -105,7 +95,7 @@
 import { reactive, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
-import { reportApi } from '@/utils';
+import { pageReportsApi, deleteReportApi } from '@/apis/report';
 import type { ReportVO } from '@/apis/report';
 import { SearchForm, REASON_TEXT } from './constant/model';
 import RmDealDialog from './components/rm-deal-dialog.vue';
@@ -126,7 +116,7 @@ const dealRef = ref<InstanceType<typeof RmDealDialog>>();
 const fetchList = async () => {
   loading.value = true;
   try {
-    const res = await reportApi.page({
+    const res = await pageReportsApi({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
       keyword: searchForm.keyword || undefined,
@@ -141,29 +131,29 @@ const fetchList = async () => {
   }
 };
 
-const handleSizeChange = (value: number) => {
+const onPageSizeChange = (value: number) => {
   setPageSize(value);
   fetchList();
 };
-const handleCurrentChange = (value: number) => {
+const onPageNumChange = (value: number) => {
   setPageNum(value);
   fetchList();
 };
-const handleSearch = () => {
+const searchList = () => {
   setPageNum(1);
   fetchList();
 };
-const handleReset = () => {
+const resetSearch = () => {
   searchForm.keyword = '';
   searchForm.targetType = undefined;
   searchForm.reasonType = undefined;
   searchForm.status = undefined;
-  handleSearch();
+  searchList();
 };
-const handleShow = (row: ReportVO) => {
-  dealRef.value?.show(row);
+const openDealDialog = (row: ReportVO) => {
+  dealRef.value?.open(row);
 };
-const handleDelete = async (row: ReportVO) => {
+const confirmDelete = async (row: ReportVO) => {
   try {
     await ElMessageBox.confirm('确认删除该举报记录?', '提示', {
       type: 'warning',
@@ -173,7 +163,7 @@ const handleDelete = async (row: ReportVO) => {
   } catch {
     return;
   }
-  await reportApi.delete(row.id);
+  await deleteReportApi(row.id);
   ElMessage.success('删除成功');
   fetchList();
 };

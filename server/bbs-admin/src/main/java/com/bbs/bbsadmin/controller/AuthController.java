@@ -18,7 +18,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -88,7 +87,7 @@ public class AuthController {
 
     @Operation(summary = "当前登录用户信息")
     @RequireAuth
-    @GetMapping("/info")
+    @PostMapping("/info")
     public R<UserInfo> info() {
         String userId = AuthContext.userId();
         UserInfo user = userInfoService.findByUserId(userId);

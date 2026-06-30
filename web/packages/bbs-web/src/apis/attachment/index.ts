@@ -5,17 +5,17 @@ import type { AttachmentVO, UploadOptions } from './index.api';
 const API_BASE = (import.meta.env.VITE_API_BASE_URL as string) || '';
 
 /** 把相对路径 /upload/xxx 转成可直接展示的完整 URL */
-export function resolveFileUrl(url?: string): string {
+export const resolveFileUrl = (url?: string): string => {
   if (!url) return '';
   if (/^https?:\/\//i.test(url)) return url;
   if (url.startsWith('/upload/')) {
     return API_BASE + url;
   }
   return url;
-}
+};
 
 /** 上传附件 (走原始 axios,可自定义 onUploadProgress; 自动经过 service 注册的 token 拦截器) */
-export function uploadAttachment(file: File, opts: UploadOptions = {}): Promise<AttachmentVO> {
+export const uploadAttachment = (file: File, opts: UploadOptions = {}): Promise<AttachmentVO> => {
   const baseURL = (import.meta.env.VITE_BASE_URL as string) || '';
   const form = new FormData();
   form.append('file', file);
@@ -42,12 +42,4 @@ export function uploadAttachment(file: File, opts: UploadOptions = {}): Promise<
       }
       return att;
     });
-}
-
-/** 通用 axios 形态的 attachment 接口 (用于统一调用) */
-export const attachmentApi = {
-  upload: uploadAttachment,
-  resolveUrl: resolveFileUrl,
 };
-
-export default attachmentApi;

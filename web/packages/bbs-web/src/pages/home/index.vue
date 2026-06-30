@@ -91,7 +91,7 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { Search, User, View, ChatDotRound, Star } from '@element-plus/icons-vue';
 import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
-import { postApi } from '@/apis/post';
+import { pagePostsApi, readPermTagType, readPermLabel } from '@/apis/post';
 import type { PostVO } from '@/apis/post';
 
 defineOptions({ name: 'WebHome' });
@@ -105,7 +105,7 @@ const keyword = ref('');
 const fetchList = async () => {
   loading.value = true;
   try {
-    const res = await postApi.page({
+    const res = await pagePostsApi({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
       status: 1, // 只看正常的
@@ -130,6 +130,10 @@ const handleReset = () => {
 
 const goDetail = (id: number) => {
   router.push(`/post/${id}`);
+};
+
+const goUser = (userId?: string) => {
+  if (userId) router.push(`/user/${userId}`);
 };
 
 onMounted(fetchList);

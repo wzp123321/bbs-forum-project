@@ -1,13 +1,13 @@
 <template>
   <div class="tag-manage">
-    <el-form :inline="true" :model="searchForm" @submit.prevent="handleSearch">
-      <el-form-item label="名称">
-        <el-input v-model="searchForm.keyword" placeholder="请输入标签名称" clearable @keyup.enter="handleSearch" />
+    <el-form :inline="true" :model="searchForm" @submit.prevent="searchList">
+      <el-form-item>
+        <el-input v-model="searchForm.keyword" placeholder="请输入标签名称" clearable @keyup.enter="searchList" />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleSearch">搜索</el-button>
-        <el-button @click="handleReset">重置</el-button>
-        <el-button type="success" @click="handleAdd">新增标签</el-button>
+        <el-button type="primary" @click="searchList">搜索</el-button>
+        <el-button @click="resetSearch">重置</el-button>
+        <el-button type="success" @click="openAddDrawer">新增标签</el-button>
       </el-form-item>
     </el-form>
 
@@ -26,8 +26,8 @@
       <el-table-column prop="createTime" label="创建时间" width="170" />
       <el-table-column label="操作" width="160" fixed="right">
         <template #default="{ row }">
-          <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
-          <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
+          <el-button type="primary" link @click="openEditDrawer(row)">编辑</el-button>
+          <el-button type="danger" link @click="confirmDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -39,8 +39,8 @@
       :page-sizes="pageSizes"
       :total="total"
       layout="total, sizes, prev, pager, next, jumper"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
+      @size-change="onPageSizeChange"
+      @current-change="onPageNumChange"
     />
 
     <TmAddEditDrawer ref="drawerRef" @saved="fetchList" />
@@ -51,10 +51,9 @@
 import { reactive, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
-import { tagApi } from '@/utils';
-import type { TagVO } from '@/apis/tag';
 import { SearchForm } from './constant/model';
 import { TmAddEditDrawer } from './components';
+import { deleteTagApi, pageTagsApi, TagVO } from '@/apis';
 
 defineOptions({ name: 'TagManage' });
 
@@ -67,7 +66,7 @@ const drawerRef = ref<InstanceType<typeof TmAddEditDrawer>>();
 const fetchList = async () => {
   loading.value = true;
   try {
-    const res = await tagApi.pageTags({
+    const res = await pageTagsApi({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
       keyword: searchForm.keyword || undefined,
@@ -79,35 +78,35 @@ const fetchList = async () => {
   }
 };
 
-const handleSizeChange = (value: number) => {
+const onPageSizeChange = (value: number) => {
   setPageSize(value);
   fetchList();
 };
 
-const handleCurrentChange = (value: number) => {
+const onPageNumChange = (value: number) => {
   setPageNum(value);
   fetchList();
 };
 
-const handleSearch = () => {
+const searchList = () => {
   setPageNum(1);
   fetchList();
 };
 
-const handleReset = () => {
+const resetSearch = () => {
   searchForm.keyword = '';
-  handleSearch();
+  searchList();
 };
 
-const handleAdd = () => {
-  drawerRef.value?.handleOpen();
+const openAddDrawer = () => {
+  drawerRef.value?.open();
 };
 
-const handleEdit = (row: TagVO) => {
-  drawerRef.value?.handleOpen(row);
+const openEditDrawer = (row: TagVO) => {
+  drawerRef.value?.open(row);
 };
 
-const handleDelete = async (row: TagVO) => {
+const confirmDelete = async (row: TagVO) => {
   try {
     await ElMessageBox.confirm(`确认删除标签 ${row.name} ?`, '提示', {
       type: 'warning',
@@ -117,7 +116,7 @@ const handleDelete = async (row: TagVO) => {
   } catch {
     return;
   }
-  await tagApi.deleteTag(row.id);
+  await deleteTagApi(row.id);
   ElMessage.success('删除成功');
   fetchList();
 };

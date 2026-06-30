@@ -12,7 +12,7 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item>前往论坛</el-dropdown-item>
-                <el-dropdown-item @click="handleLogout">退出登录</el-dropdown-item>
+                <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -38,8 +38,9 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { menuList } from '@/config';
-import { authApi, tokenStore, USER_NAME_KEY } from '@/utils';
+import { logoutApi } from '@/apis/auth';
 import LayoutMenuItem from './layout-menu-item/layout-menu-item.vue';
+import { tokenStore, USER_NAME_KEY } from '@/utils/index';
 
 defineOptions({
   name: 'BbsAdmin',
@@ -48,9 +49,9 @@ const router = useRouter();
 const defaultActive = menuList?.[0]?.index;
 const userName = ref(sessionStorage.getItem(USER_NAME_KEY) || '');
 
-const handleLogout = async () => {
+const logout = async () => {
   try {
-    await authApi.logout();
+    await logoutApi();
   } catch (e) {
     // 忽略服务端错误,本地清掉即可
   } finally {

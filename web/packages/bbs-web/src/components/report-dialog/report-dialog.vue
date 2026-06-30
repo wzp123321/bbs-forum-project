@@ -10,12 +10,7 @@
     <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
       <el-form-item label="原因" prop="reasonType">
         <el-select v-model="form.reasonType" placeholder="请选择举报原因" style="width: 100%">
-          <el-option
-            v-for="opt in REPORT_REASON_OPTIONS"
-            :key="opt.value"
-            :label="opt.label"
-            :value="opt.value"
-          />
+          <el-option v-for="opt in REPORT_REASON_OPTIONS" :key="opt.value" :label="opt.label" :value="opt.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="说明" prop="content">
@@ -39,7 +34,7 @@
 <script lang="ts" setup>
 import { reactive, ref, watch } from 'vue';
 import { ElMessage, FormInstance, FormRules } from 'element-plus';
-import { reportApi } from '@/apis/report';
+import { createReportApi } from '@/apis/report';
 import { REPORT_REASON_OPTIONS, ReportTargetType } from '@/apis/report';
 import { isLoggedIn } from '@/utils';
 
@@ -74,7 +69,7 @@ watch(
   () => props.modelValue,
   (v) => {
     visible.value = v;
-  }
+  },
 );
 watch(visible, (v) => emit('update:modelValue', v));
 
@@ -105,7 +100,7 @@ const onSubmit = async () => {
   }
   submitting.value = true;
   try {
-    await reportApi.create({
+    await createReportApi({
       targetType: props.targetType,
       targetId: props.targetId,
       reasonType: form.reasonType,

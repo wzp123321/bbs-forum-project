@@ -9,7 +9,7 @@
               v-if="!item.children?.length"
               :index="`${index + 1}`"
               :route="item.path"
-              @click="handleSelect(item.path)"
+              @click="navigateToPage(item.path)"
             >
               {{ item.title }}
             </el-menu-item>
@@ -18,7 +18,7 @@
               <el-menu-item
                 v-for="(cItem, cIndex) in item.children"
                 :index="`${index + 1}-${cIndex + 1}`"
-                @click="handleSelect(item.path)"
+                @click="navigateToPage(item.path)"
               >
                 {{ cItem.title }}
               </el-menu-item>
@@ -40,7 +40,7 @@
         </el-input>
         <el-menu mode="horizontal" :ellipsis="false">
           <template v-for="(item, index) in headerRightMenuList">
-            <el-menu-item v-if="!item.children?.length" :index="`${index + 1}`" @click="handleSelect(item.path)">
+            <el-menu-item v-if="!item.children?.length" :index="`${index + 1}`" @click="navigateToPage(item.path)">
               {{ item.title }}
             </el-menu-item>
             <el-sub-menu v-else :index="`${index + 1}`">
@@ -48,7 +48,7 @@
               <el-menu-item
                 v-for="(cItem, cIndex) in item.children"
                 :index="`${index + 1}-${cIndex + 1}`"
-                @click="handleSelect(item.path)"
+                @click="navigateToPage(item.path)"
               >
                 {{ cItem.title }}
               </el-menu-item>
@@ -59,10 +59,10 @@
 
         <!-- 用户 -->
         <template v-if="!userName">
-          <el-button type="primary" link @click="goLogin">登录</el-button>
-          <el-button type="primary" @click="goRegister">注册</el-button>
+          <el-button type="primary" link @click="navigateToLogin">登录</el-button>
+          <el-button type="primary" @click="navigateToRegister">注册</el-button>
         </template>
-        <el-dropdown v-else trigger="click" @command="handleUserCmd">
+        <el-dropdown v-else trigger="click" @command="handleUserCommand">
           <span class="lh-user">
             <el-avatar :size="28" icon="UserFilled" />
             <span class="lh-user-name">{{ userName }}</span>
@@ -85,7 +85,7 @@ import { ElMessageBox, ElMessage } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
 import { headerLeftMenuList, headerRightMenuList } from './model';
 import { useUserInfo } from '@/hooks';
-import { authApi } from '@/apis/auth';
+import { logoutApi } from '@/apis/auth';
 import { tokenStore, userStore } from '@/utils';
 
 defineOptions({
@@ -96,7 +96,7 @@ const router = useRouter();
 /**
  * 左侧菜单
  */
-const handleSelect = (path: string) => {
+const navigateToPage = (path: string) => {
   router.push({
     path,
     query: route.query,
@@ -117,10 +117,10 @@ const handleSearch = () => {
 
 const { userName, initUserByStorage } = useUserInfo();
 
-const goLogin = () => router.push({ path: '/login', query: { redirect: route.fullPath } });
-const goRegister = () => router.push({ path: '/register', query: { redirect: route.fullPath } });
+const navigateToLogin = () => router.push({ path: '/login', query: { redirect: route.fullPath } });
+const navigateToRegister = () => router.push({ path: '/register', query: { redirect: route.fullPath } });
 
-const handleUserCmd = async (cmd: string) => {
+const handleUserCommand = async (cmd: string) => {
   if (cmd === 'publish') {
     router.push('/post/publish');
     return;
@@ -140,7 +140,7 @@ const handleUserCmd = async (cmd: string) => {
       return;
     }
     try {
-      await authApi.logout();
+      await logoutApi();
     } catch {
       // 即使后端失败也继续清理本地
     }

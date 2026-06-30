@@ -30,11 +30,3 @@ export interface CommentSaveParams {
   replyToUserId?: string;
   content: string;
 }
-
-/** 分页响应 */
-export interface PageData<T> {
-  list: T[];
-  total: number;
-  pageNum: number;
-  pageSize: number;
-}

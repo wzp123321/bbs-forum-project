@@ -14,11 +14,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,8 +33,8 @@ public class ReportController {
 
     @Operation(summary = "分页查询举报")
     @RequireAuth
-    @GetMapping("/page")
-    public R<Map<String, Object>> page(ReportPageQuery query) {
+    @PostMapping("/page")
+    public R<Map<String, Object>> page(@RequestBody ReportPageQuery query) {
         IPage<ReportVO> page = reportService.pageQueryVO(query);
         Map<String, Object> data = new HashMap<>();
         data.put("list", page.getRecords());
@@ -49,8 +46,9 @@ public class ReportController {
 
     @Operation(summary = "举报详情")
     @RequireAuth
-    @GetMapping("/{id}")
-    public R<ReportVO> detail(@PathVariable Long id) {
+    @PostMapping("/detail")
+    public R<ReportVO> detail(@RequestBody Map<String, Long> body) {
+        Long id = body.get("id");
         return R.data(reportService.detail(id));
     }
 
@@ -58,7 +56,7 @@ public class ReportController {
     @RequireAuth
     @RateLimit(key = "report", capacity = 5, refillSeconds = 60, message = "举报过于频繁")
     @AuditLog(action = "REPORT_CREATE", description = "提交举报", targetType = "REPORT", targetIdSpEl = "#dto.targetId")
-    @PostMapping
+    @PostMapping("/create")
     public R<Long> create(@Valid @RequestBody ReportSaveDTO dto) {
         return R.data(reportService.create(dto));
     }
@@ -66,7 +64,7 @@ public class ReportController {
     @Operation(summary = "处理举报(0驳回 1已处理)")
     @RequireAuth
     @AuditLog(action = "REPORT_HANDLE", description = "处理举报", targetType = "REPORT", targetIdSpEl = "#id")
-    @PutMapping("/{id}/handle")
+    @PostMapping("/{id}/handle")
     public R<Void> handle(@PathVariable Long id, @Valid @RequestBody ReportHandleDTO dto) {
         reportService.handle(id, dto);
         return R.success();
@@ -75,8 +73,9 @@ public class ReportController {
     @Operation(summary = "删除举报")
     @RequireAuth
     @AuditLog(action = "REPORT_DELETE", description = "删除举报", targetType = "REPORT", targetIdSpEl = "#id")
-    @DeleteMapping("/{id}")
-    public R<Void> delete(@PathVariable Long id) {
+    @PostMapping("/delete")
+    public R<Void> delete(@RequestBody Map<String, Long> body) {
+        Long id = body.get("id");
         reportService.delete(id);
         return R.success();
     }

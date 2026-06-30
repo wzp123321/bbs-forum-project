@@ -39,8 +39,8 @@
         <!-- 统计 -->
         <el-card shadow="never" class="wup-stats">
           <el-statistic :value="totalPost" label="帖子" />
-        <el-statistic :value="counts.followers" label="粉丝" />
-        <el-statistic :value="counts.following" label="关注" />
+          <el-statistic :value="counts.followers" label="粉丝" />
+          <el-statistic :value="counts.following" label="关注" />
         </el-card>
 
         <!-- 标签页 -->
@@ -95,9 +95,9 @@ import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { View, ChatDotRound, Star } from '@element-plus/icons-vue';
 import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
-import { userApi } from '@/apis/user';
-import { followApi } from '@/apis/follow';
-import { postApi } from '@/apis/post';
+import { getUserApi, followCountApi } from '@/apis/user';
+import { cancelFollowApi, followApi, followStatusApi } from '@/apis';
+import { pagePostsApi } from '@/apis/post';
 import { isLoggedIn, userStore } from '@/utils';
 import type { UserInfoVO, FollowCountVO } from '@/apis/user';
 import type { PostVO } from '@/apis/post';
@@ -107,6 +107,7 @@ defineOptions({ name: 'WebUserProfile' });
 const route = useRoute();
 const router = useRouter();
 const { pageNum, pageSize, total, setPageNum } = usePagination();
+const totalPost = computed(() => total.value);
 
 const user = ref<UserInfoVO | null>(null);
 const counts = ref<FollowCountVO>({ followers: 0, following: 0 });
@@ -126,7 +127,7 @@ const loadUser = async () => {
   if (!targetUserId.value) return;
   loading.value = true;
   try {
-    user.value = await userApi.getUser(targetUserId.value);
+    user.value = await getUserApi(targetUserId.value);
   } catch {
     user.value = null;
   } finally {
@@ -137,7 +138,7 @@ const loadUser = async () => {
 const loadCounts = async () => {
   if (!targetUserId.value) return;
   try {
-    counts.value = await userApi.followCount(targetUserId.value);
+    counts.value = await followCountApi(targetUserId.value);
   } catch {
     // ignore
   }
@@ -146,7 +147,7 @@ const loadCounts = async () => {
 const loadFollowStatus = async () => {
   if (!targetUserId.value || isSelf.value || !isLoggedIn()) return;
   try {
-    const res = await followApi.followStatus(targetUserId.value);
+    const res = await followStatusApi(targetUserId.value);
     following.value = res.following;
   } catch {
     // ignore
@@ -157,7 +158,7 @@ const loadPosts = async () => {
   if (!targetUserId.value) return;
   loadingPosts.value = true;
   try {
-    const res = await postApi.page({
+    const res = await pagePostsApi({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
       userId: targetUserId.value,
@@ -181,12 +182,12 @@ const toggleFollow = async () => {
   followLoading.value = true;
   try {
     if (following.value) {
-      await followApi.cancelFollow(targetUserId.value);
+      await cancelFollowApi(targetUserId.value);
       following.value = false;
       counts.value.followers = Math.max(0, (counts.value.followers ?? 0) - 1);
       ElMessage.success('已取消关注');
     } else {
-      await followApi.follow(targetUserId.value);
+      await followApi(targetUserId.value);
       following.value = true;
       counts.value.followers = (counts.value.followers ?? 0) + 1;
       ElMessage.success('关注成功');

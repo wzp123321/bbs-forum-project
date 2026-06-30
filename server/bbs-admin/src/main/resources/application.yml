@@ -1,5 +1,5 @@
 server:
-  port: 8888
+  port: 9999
 #配置数据源
 spring:
   # 文件上传配置
@@ -83,7 +83,7 @@ logging:
     name: logs/htctbs-service.log
 
 mybatis-plus:
-  mapper-locations: classpath:mybatis/*.xml
+  mapper-locations: classpath:mapper/*.xml
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
@@ -105,7 +105,8 @@ knife4j:
 bbs:
   auth:
     # 管理员 userId 列表 (逗号分隔), 可执行后台管理操作
-    admin-user-ids: admin
+    # 留空表示无内置管理员，由后续注册的账户配合角色/权限使用
+    admin-user-ids:
   upload:
     # 本地存储根目录 (相对于 jar 运行目录)
     base-dir: ./uploads

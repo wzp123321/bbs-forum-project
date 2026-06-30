@@ -1,24 +1,15 @@
 import http from '@/service';
-import type { CommentVO, CommentPageParams, CommentSaveParams, PageData } from './index.api';
+import { CommentVO, CommentPageParams, CommentSaveParams } from './index.api';
+import { PageResult } from '../types';
 
 export * from './index.api';
 
 /** 帖子下的评论分页 */
-export const pageComments = (params: CommentPageParams) =>
-  http.get<PageData<CommentVO>>('/admin/comment/page', { params: params as Record<string, unknown> });
+export const pageCommentsApi = (params: CommentPageParams) =>
+  http.post<PageResult<CommentVO>>('/admin/comment/page', params);
 
 /** 提交评论 */
-export const createComment = (params: CommentSaveParams) =>
-  http.post<number>('/admin/comment', params);
+export const createCommentApi = (params: CommentSaveParams) => http.post<number>('/admin/comment/create', params);
 
 /** 删除 */
-export const deleteComment = (id: number) => http.delete<void>(`/admin/comment/${id}`);
-
-/** 命名空间导出 */
-export const commentApi = {
-  page: pageComments,
-  create: createComment,
-  delete: deleteComment,
-};
-
-export default commentApi;
+export const deleteCommentApi = (id: number) => http.post<void>('/admin/comment/delete', { id });

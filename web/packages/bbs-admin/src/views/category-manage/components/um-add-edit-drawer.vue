@@ -6,7 +6,7 @@
     v-model="visible"
     :title="isEdit ? '编辑板块' : '新增板块'"
     direction="rtl"
-    :before-close="handleClose"
+    :before-close="close"
     size="420px"
   >
     <el-form ref="formRef" :model="form" :rules="rules" label-width="80px" v-loading="loading">
@@ -28,8 +28,8 @@
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="handleClose">取消</el-button>
-      <el-button type="primary" :loading="submitting" @click="handleSubmit">确定</el-button>
+      <el-button @click="close">取消</el-button>
+      <el-button type="primary" :loading="submitting" @click="submitForm">确定</el-button>
     </template>
   </el-drawer>
 </template>
@@ -37,7 +37,7 @@
 <script lang="ts" setup>
 import { computed, reactive, ref } from 'vue';
 import { ElMessage, FormInstance, FormRules } from 'element-plus';
-import { categoryApi } from '@/utils';
+import { createCategoryApi, updateCategoryApi } from '@/apis/category';
 import type { CategoryVO } from '@/apis/category';
 import { RowFrom } from '../constant/model';
 
@@ -63,7 +63,7 @@ const rules: FormRules<RowFrom> = {
   name: [{ required: true, message: '请输入板块名称', trigger: 'blur' }],
 };
 
-const reset = () => {
+const resetForm = () => {
   form.id = undefined;
   form.name = '';
   form.description = '';
@@ -71,8 +71,8 @@ const reset = () => {
   form.status = 1;
 };
 
-const handleOpen = (row?: CategoryVO) => {
-  reset();
+const open = (row?: CategoryVO) => {
+  resetForm();
   if (row) {
     form.id = row.id;
     form.name = row.name;
@@ -83,17 +83,17 @@ const handleOpen = (row?: CategoryVO) => {
   visible.value = true;
 };
 
-const handleClose = () => {
+const close = () => {
   visible.value = false;
 };
 
-const handleSubmit = async () => {
+const submitForm = async () => {
   if (!formRef.value) return;
   await formRef.value.validate();
   submitting.value = true;
   try {
     if (isEdit.value) {
-      await categoryApi.updateCategory(form.id!, {
+      await updateCategoryApi(form.id!, {
         name: form.name,
         description: form.description,
         sort: form.sort,
@@ -101,7 +101,7 @@ const handleSubmit = async () => {
       });
       ElMessage.success('修改成功');
     } else {
-      await categoryApi.createCategory({
+      await createCategoryApi({
         name: form.name,
         description: form.description,
         sort: form.sort,
@@ -109,14 +109,14 @@ const handleSubmit = async () => {
       });
       ElMessage.success('新增成功');
     }
-    handleClose();
+    close();
     emit('saved');
   } finally {
     submitting.value = false;
   }
 };
 
-defineExpose({ handleOpen });
+defineExpose({ open });
 </script>
 
 <style lang="less" scoped>

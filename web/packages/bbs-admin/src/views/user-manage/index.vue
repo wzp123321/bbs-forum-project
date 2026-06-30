@@ -6,8 +6,8 @@
           <el-input v-model="searchForm.keyword" v-inputFilter:text :maxlength="20" placeholder="请输入关键词" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">查询</el-button>
-          <el-button type="primary" @click="handleAdd">新增</el-button>
+          <el-button type="primary" @click="searchList">查询</el-button>
+          <el-button type="primary" @click="openAddDrawer">新增</el-button>
         </el-form-item>
       </el-form>
     </template>
@@ -22,16 +22,16 @@
         <el-table-column prop="email" label="邮箱" align="left" show-overflow-ellipsis />
         <el-table-column prop="phone" label="手机" align="left" />
         <el-table-column label="性别" align="left" width="80">
-          <template #default="{ row }">{{ genderText(row.gender) }}</template>
+          <template #default="{ row }">{{ getGenderText(row.gender) }}</template>
         </el-table-column>
         <el-table-column label="注册时间" align="left" width="180">
           <template #default="{ row }">{{ row.createTime || '-' }}</template>
         </el-table-column>
         <el-table-column label="操作" width="220" align="left">
           <template #default="{ row }">
-            <el-button text type="primary" @click="handleView(row)">详情</el-button>
-            <el-button text type="primary" @click="handleEdit(row)">编辑</el-button>
-            <el-button text type="danger" @click="handleDelete(row)">删除</el-button>
+            <el-button text type="primary" @click="openViewDrawer(row)">详情</el-button>
+            <el-button text type="primary" @click="openEditDrawer(row)">编辑</el-button>
+            <el-button text type="danger" @click="confirmDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -42,15 +42,15 @@
         background
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
+        @size-change="onPageSizeChange"
+        @current-change="onPageNumChange"
       />
     </template>
   </bbs-page-container>
   <!-- 查看 -->
   <um-view-drawer ref="viewDrawerRef"></um-view-drawer>
   <!-- 新增/编辑 -->
-  <um-add-edit-drawer ref="addEditDrawerRef" @saved="handleSearch"></um-add-edit-drawer>
+  <um-add-edit-drawer ref="addEditDrawerRef" @saved="searchList"></um-add-edit-drawer>
 </template>
 
 <script lang="ts" setup>
@@ -59,7 +59,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
 import { UmViewDrawer, UmAddEditDrawer } from './components';
 import { UserForm, UserInfo } from './constant/model';
-import { userApi } from '@/utils';
+import { pageUsersApi, deleteUserApi } from '@/apis/user';
 
 defineOptions({
   name: 'UserManage',
@@ -76,13 +76,13 @@ const searchForm = reactive<UserForm>({
 });
 
 /** 0未知 1男 2女 */
-const genderText = (g?: string) => (g === '1' ? '男' : g === '2' ? '女' : '未知');
+const getGenderText = (g?: string) => (g === '1' ? '男' : g === '2' ? '女' : '未知');
 
 /** 拉数据 */
 const fetchList = async () => {
   loading.value = true;
   try {
-    const res = await userApi.pageUsers({
+    const res = await pageUsersApi({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
       keyword: searchForm.keyword || undefined,
@@ -94,30 +94,30 @@ const fetchList = async () => {
   }
 };
 
-const handleSizeChange = (value: number) => {
+const onPageSizeChange = (value: number) => {
   setPageSize(value);
   fetchList();
 };
 
-const handleCurrentChange = (value: number) => {
+const onPageNumChange = (value: number) => {
   setPageNum(value);
   fetchList();
 };
 
-const handleSearch = () => {
+const searchList = () => {
   setPageNum(1);
   fetchList();
 };
 
-const handleAdd = () => {
-  addEditDrawerRef.value?.handleOpen();
+const openAddDrawer = () => {
+  addEditDrawerRef.value?.open();
 };
 
-const handleEdit = (row: UserInfo) => {
-  addEditDrawerRef.value?.handleOpen(row);
+const openEditDrawer = (row: UserInfo) => {
+  addEditDrawerRef.value?.open(row);
 };
 
-const handleDelete = async (row: UserInfo) => {
+const confirmDelete = async (row: UserInfo) => {
   try {
     await ElMessageBox.confirm(`确认删除用户 ${row.userName} ?`, '提示', {
       type: 'warning',
@@ -127,15 +127,15 @@ const handleDelete = async (row: UserInfo) => {
   } catch {
     return;
   }
-  await userApi.deleteUser(row.userId);
+  await deleteUserApi(row.userId);
   ElMessage.success('删除成功');
   fetchList();
 };
 
 // 查看组件
 const viewDrawerRef = ref<InstanceType<typeof UmViewDrawer>>();
-const handleView = (row: UserInfo) => {
-  viewDrawerRef.value?.handleOpen(row);
+const openViewDrawer = (row: UserInfo) => {
+  viewDrawerRef.value?.open(row);
 };
 
 const addEditDrawerRef = ref<InstanceType<typeof UmAddEditDrawer>>();

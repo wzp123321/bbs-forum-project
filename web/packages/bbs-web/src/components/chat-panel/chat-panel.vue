@@ -10,7 +10,7 @@
     </div>
     <div v-show="!minimized" class="wc-body">
       <div ref="listRef" class="wc-list">
-        <div v-for="(m, i) in messages" :key="i" class="wc-msg" :class="wcMsgClass(m)">
+        <div v-for="(m, i) in messages" :key="i" class="wc-msg" :class="getChatMessageClass(m)">
           <template v-if="m.type === 2">
             <div class="wc-sys">{{ m.content }} · {{ m.time }}</div>
           </template>
@@ -22,9 +22,7 @@
             <div class="wc-text">{{ m.content }}</div>
           </template>
         </div>
-        <div v-if="!connected && !messages.length" class="wc-empty">
-          正在连接聊天室...
-        </div>
+        <div v-if="!connected && !messages.length" class="wc-empty">正在连接聊天室...</div>
       </div>
       <div class="wc-input">
         <el-input
@@ -35,9 +33,7 @@
           @keydown.enter.prevent="onSend"
         >
           <template #append>
-            <el-button :disabled="!connected || !input.trim()" type="primary" @click="onSend">
-              发送
-            </el-button>
+            <el-button :disabled="!connected || !input.trim()" type="primary" @click="onSend">发送</el-button>
           </template>
         </el-input>
         <div v-if="!connected" class="wc-status">连接已断开,自动重连中...</div>
@@ -75,7 +71,7 @@ let reconnectDelay = 1000;
 const meId = computed(() => userStore.getUserId?.() || '');
 const meName = computed(() => userStore.getUserName?.() || '');
 
-const wcMsgClass = (m: ChatMessage) => ({
+const getChatMessageClass = (m: ChatMessage) => ({
   'wc-msg-self': m.type !== 2 && m.userId === meId.value,
 });
 
@@ -85,7 +81,7 @@ const scrollToBottom = async () => {
   if (el) el.scrollTop = el.scrollHeight;
 };
 
-const setupWs = () => {
+const initWebSocket = () => {
   const token = tokenStore.get();
   const url = `${resolveWsUrl('/ws/chat')}?token=${encodeURIComponent(token || '')}`;
   try {
@@ -129,7 +125,7 @@ const scheduleReconnect = () => {
   if (reconnectTimer) return;
   reconnectTimer = window.setTimeout(() => {
     reconnectTimer = null;
-    setupWs();
+    initWebSocket();
     reconnectDelay = Math.min(reconnectDelay * 2, 15000);
   }, reconnectDelay);
 };
@@ -151,7 +147,7 @@ watch(minimized, (v) => {
 onMounted(() => {
   // 未登录不连接
   if (!isLoggedIn()) return;
-  setupWs();
+  initWebSocket();
 });
 
 onBeforeUnmount(() => {

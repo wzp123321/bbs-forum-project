@@ -1,10 +1,5 @@
-import { CommonMenu } from '@/utils/types';
-import {
-  categoryRoutes,
-  dictionaryRoutes,
-  systemRoutes,
-  postsRoutes,
-} from '../router/modules';
+import { CommonMenu } from '@/apis';
+import { categoryRoutes, dictionaryRoutes, systemRoutes, postsRoutes } from '../router/modules';
 import { RouteRecordRaw } from 'vue-router';
 import { randomNumber16 } from 'zp-common-utils';
 

@@ -101,6 +101,21 @@
         </div>
       </el-card>
     </el-card>
+
+    <!-- 插入视频对话框 -->
+    <el-dialog v-model="videoDialog.visible" title="插入视频" width="560px">
+      <el-input
+        v-model="videoDialog.url"
+        placeholder="请输入视频链接 (支持 B站/YouTube 等)"
+        clearable
+        @input="onPreviewVideo"
+      />
+      <div v-if="videoDialog.preview" class="wpp-video-preview" v-html="videoDialog.preview.html"></div>
+      <template #footer>
+        <el-button @click="videoDialog.visible = false">取消</el-button>
+        <el-button type="primary" @click="onConfirmVideo">确定插入</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -109,10 +124,10 @@ import { onMounted, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox, FormInstance, FormRules } from 'element-plus';
 import { Coin, Delete, EditPen, Files, Link, Picture, VideoCameraFilled } from '@element-plus/icons-vue';
-import { categoryApi } from '@/apis/category';
-import { tagApi } from '@/apis/tag';
-import { postApi } from '@/apis/post';
-import { attachmentApi } from '@/apis/attachment';
+import { listCategoriesApi } from '@/apis/category';
+import { listTagsApi } from '@/apis/tag';
+import { createPostApi } from '@/apis/post';
+import { uploadAttachment } from '@/apis/attachment';
 import { parseVideoEmbed } from '@/utils/media';
 import { READ_PERM_LABELS } from '@/apis/post';
 import type { CategoryVO } from '@/apis/category';
@@ -163,12 +178,12 @@ const rules: FormRules = {
 const loadOptions = async () => {
   loadingCategory.value = true;
   try {
-    categories.value = await categoryApi.list();
+    categories.value = await listCategoriesApi();
   } finally {
     loadingCategory.value = false;
   }
   try {
-    tags.value = await tagApi.listTags();
+    tags.value = await listTagsApi();
   } catch {
     // ignore
   }
@@ -273,7 +288,7 @@ const handleUpload = async (option: { file: File }) => {
   uploading.value = true;
   uploadPercent.value = 0;
   try {
-    const att = await attachmentApi.upload(option.file, {
+    const att = await uploadAttachment(option.file, {
       bizType: 'post',
       onProgress: (p) => (uploadPercent.value = p),
     });
@@ -299,7 +314,7 @@ const handleSubmit = async () => {
   }
   submitting.value = true;
   try {
-    const id = await postApi.create({
+    const id = await createPostApi({
       title: form.title.trim(),
       content: form.content,
       contentType: 1,
@@ -315,6 +330,32 @@ const handleSubmit = async () => {
 
 const onReset = () => {
   formRef.value?.resetFields();
+};
+
+const onOpenVideoDialog = () => {
+  videoDialog.visible = true;
+  videoDialog.url = '';
+  videoDialog.html = '';
+  videoDialog.preview = null;
+};
+
+const onConfirmVideo = () => {
+  if (!videoDialog.url) {
+    ElMessage.warning('请输入视频链接');
+    return;
+  }
+  const embed = parseVideoEmbed(videoDialog.url);
+  if (embed) {
+    insertAtCursor(embed.html);
+    ElMessage.success('视频已插入');
+  } else {
+    ElMessage.error('无法解析该视频链接');
+  }
+  videoDialog.visible = false;
+};
+
+const onPreviewVideo = () => {
+  videoDialog.preview = parseVideoEmbed(videoDialog.url);
 };
 
 onMounted(loadOptions);

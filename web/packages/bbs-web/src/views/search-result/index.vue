@@ -3,7 +3,11 @@
     <div class="wsr-main">
       <div class="wsr-banner">
         <h2 class="wsr-title">搜索结果</h2>
-        <p class="wsr-sub">关键词: <b>{{ keyword || '无' }}</b>，共 {{ total }} 条结果</p>
+        <p class="wsr-sub">
+          关键词:
+          <b>{{ keyword || '无' }}</b>
+          ，共 {{ total }} 条结果
+        </p>
       </div>
 
       <div class="wsr-toolbar">
@@ -12,11 +16,13 @@
           placeholder="搜索帖子标题/内容"
           clearable
           style="width: 360px"
-          @keyup.enter="doSearch"
+          @keyup.enter="executeSearch"
         >
-          <template #prefix><el-icon><Search /></el-icon></template>
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
         </el-input>
-        <el-button type="primary" @click="doSearch">搜索</el-button>
+        <el-button type="primary" @click="executeSearch">搜索</el-button>
       </div>
 
       <el-skeleton v-if="loading" :rows="5" animated />
@@ -24,21 +30,23 @@
       <template v-else>
         <el-empty v-if="!dataSource.length" description="没有匹配的结果" />
         <div v-else class="wsr-list">
-          <article
-            v-for="item in dataSource"
-            :key="item.id"
-            class="wsr-item"
-            @click="goDetail(item.id)"
-          >
+          <article v-for="item in dataSource" :key="item.id" class="wsr-item" @click="goDetail(item.id)">
             <h3 class="wsr-item-title">{{ item.title }}</h3>
             <p class="wsr-item-excerpt" v-html="highlightExcerpt(item.content)"></p>
             <div class="wsr-item-meta">
               <el-tag v-for="t in item.tagNames" :key="t" size="small" effect="plain">{{ t }}</el-tag>
               <span class="wsr-item-user">
-                <el-icon><User /></el-icon> {{ item.userName || item.userId || '匿名' }}
+                <el-icon><User /></el-icon>
+                {{ item.userName || item.userId || '匿名' }}
               </span>
-              <span><el-icon><View /></el-icon> {{ item.viewCount ?? 0 }}</span>
-              <span><el-icon><ChatDotRound /></el-icon> {{ item.commentCount ?? 0 }}</span>
+              <span>
+                <el-icon><View /></el-icon>
+                {{ item.viewCount ?? 0 }}
+              </span>
+              <span>
+                <el-icon><ChatDotRound /></el-icon>
+                {{ item.commentCount ?? 0 }}
+              </span>
               <span class="wsr-item-time">{{ item.createTime }}</span>
             </div>
           </article>
@@ -51,7 +59,7 @@
           background
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
-          @size-change="doSearch"
+          @size-change="executeSearch"
           @current-change="fetchList"
         />
       </template>
@@ -64,7 +72,7 @@ import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Search, User, View, ChatDotRound } from '@element-plus/icons-vue';
 import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
-import { postApi } from '@/apis/post';
+import { pagePostsApi } from '@/apis/post';
 import type { PostVO } from '@/apis/post';
 
 defineOptions({ name: 'WebSearchResult' });
@@ -87,7 +95,7 @@ const fetchList = async () => {
   }
   loading.value = true;
   try {
-    const res = await postApi.page({
+    const res = await pagePostsApi({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
       keyword: keyword.value,
@@ -102,7 +110,7 @@ const fetchList = async () => {
   }
 };
 
-const doSearch = () => {
+const executeSearch = () => {
   const kw = inputKw.value.trim();
   if (!kw) {
     keyword.value = '';
@@ -119,7 +127,11 @@ const doSearch = () => {
 
 const goDetail = (id: number) => router.push(`/post/${id}`);
 
-const stripHtml = (html: string) => (html || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+const stripHtml = (html: string) =>
+  (html || '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 
 const highlightExcerpt = (html?: string) => {
   const text = stripHtml(html ?? '');
@@ -131,8 +143,7 @@ const highlightExcerpt = (html?: string) => {
   return escapeHtml(snippet).replace(re, (m) => `<mark>${m}</mark>`);
 };
 
-const escapeHtml = (s: string) =>
-  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 const escapeReg = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 

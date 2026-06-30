@@ -29,7 +29,7 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePagination } from '@bbs/core';
-import { userApi } from '@/apis/user';
+import { myPostsApi } from '@/apis/user';
 import type { PostVO } from '@/apis/post';
 
 defineOptions({ name: 'UcPosts' });
@@ -42,7 +42,7 @@ const loading = ref(false);
 const fetchList = async () => {
   loading.value = true;
   try {
-    const res = await userApi.myPosts({ pageNum: pageNum.value, pageSize: pageSize.value });
+    const res = await myPostsApi({ pageNum: pageNum.value, pageSize: pageSize.value });
     dataSource.value = res.list;
     total.value = res.total;
   } finally {

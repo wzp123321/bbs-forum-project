@@ -38,6 +38,17 @@ export const READ_PERM_LABELS: Record<number, string> = {
   4: '仅作者',
 };
 
+/** 阅读权限标签颜色 */
+export const readPermTagType = (readPerm: number): string => {
+  const map: Record<number, string> = { 2: 'info', 3: 'warning', 4: 'danger' };
+  return map[readPerm] || 'info';
+};
+
+/** 阅读权限文本 */
+export const readPermLabel = (readPerm: number): string => {
+  return READ_PERM_LABELS[readPerm] || '';
+};
+
 /** 帖子分页查询参数 */
 export interface PostPageParams {
   pageNum?: number;
@@ -56,12 +67,4 @@ export interface PostSaveParams {
   contentType?: number;
   categoryId: number;
   tagIds?: number[];
-}
-
-/** 分页响应 */
-export interface PageData<T> {
-  list: T[];
-  total: number;
-  pageNum: number;
-  pageSize: number;
 }

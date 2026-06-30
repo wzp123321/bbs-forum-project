@@ -5,18 +5,28 @@
       <el-form ref="formRef" :model="form" :rules="rules" size="large" @submit.prevent="handleSubmit">
         <el-form-item prop="account">
           <el-input v-model="form.account" placeholder="用户名 / 邮箱 / 手机号" clearable>
-            <template #prefix><el-icon><User /></el-icon></template>
+            <template #prefix>
+              <el-icon><User /></el-icon>
+            </template>
           </el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input v-model="form.password" placeholder="密码" type="password" show-password @keyup.enter="handleSubmit">
-            <template #prefix><el-icon><Lock /></el-icon></template>
+          <el-input
+            v-model="form.password"
+            placeholder="密码"
+            type="password"
+            show-password
+            @keyup.enter="handleSubmit"
+          >
+            <template #prefix>
+              <el-icon><Lock /></el-icon>
+            </template>
           </el-input>
         </el-form-item>
         <el-button class="login-btn" type="primary" :loading="loading" @click="handleSubmit">登录</el-button>
         <div class="login-footer">
           还没有账号?
-          <el-link type="primary" :underline="false" @click="goRegister">立即注册</el-link>
+          <el-link type="primary" :underline="false" @click="navigateToRegister">立即注册</el-link>
         </div>
       </el-form>
     </el-card>
@@ -28,7 +38,7 @@ import { reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, FormInstance, FormRules } from 'element-plus';
 import { User, Lock } from '@element-plus/icons-vue';
-import { authApi } from '@/apis/auth';
+import { loginApi } from '@/apis/auth';
 import { tokenStore, userStore } from '@/utils';
 
 defineOptions({ name: 'Login' });
@@ -44,7 +54,7 @@ const rules: FormRules = {
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
 };
 
-const redirect = () => {
+const navigateToRedirect = () => {
   const back = (route.query.redirect as string) || '/';
   router.replace(back);
 };
@@ -58,11 +68,11 @@ const handleSubmit = async () => {
   }
   loading.value = true;
   try {
-    const vo = await authApi.login({ account: form.account.trim(), password: form.password });
+    const vo = await loginApi({ account: form.account.trim(), password: form.password });
     tokenStore.set(vo.token);
     userStore.setUser(vo.userId, vo.userName || vo.nickName || vo.userId);
     ElMessage.success(`欢迎回来,${vo.userName || vo.userId}`);
-    redirect();
+    navigateToRedirect();
   } catch (e) {
     // 拦截器已提示
   } finally {
@@ -70,7 +80,7 @@ const handleSubmit = async () => {
   }
 };
 
-const goRegister = () => router.push({ path: '/register', query: route.query });
+const navigateToRegister = () => router.push({ path: '/register', query: route.query });
 </script>
 
 <style lang="less" scoped>

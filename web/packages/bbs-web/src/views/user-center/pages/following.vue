@@ -28,7 +28,7 @@
 import { onMounted, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { usePagination } from '@bbs/core';
-import { followApi } from '@/apis/follow';
+import { pageFollowingApi, cancelFollowApi } from '@/apis';
 import { userStore } from '@/utils';
 import type { UserInfoVO } from '@/apis/user';
 
@@ -38,12 +38,12 @@ const { pageNum, pageSize, total } = usePagination();
 const dataSource = ref<UserInfoVO[]>([]);
 const loading = ref(false);
 
-const myId = () => userStore.getUserId();
+const getMyId = () => userStore.getUserId();
 
 const fetchList = async () => {
   loading.value = true;
   try {
-    const res = await followApi.pageFollowing(myId(), pageNum.value, pageSize.value);
+    const res = await pageFollowingApi(getMyId(), pageNum.value, pageSize.value);
     dataSource.value = res.list;
     total.value = res.total;
   } finally {
@@ -53,7 +53,7 @@ const fetchList = async () => {
 
 const onUnfollow = async (u: UserInfoVO) => {
   try {
-    await followApi.cancelFollow(u.userId);
+    await cancelFollowApi(u.userId);
     ElMessage.success('已取消关注');
     await fetchList();
   } catch {

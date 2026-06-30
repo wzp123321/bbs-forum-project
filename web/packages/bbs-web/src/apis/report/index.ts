@@ -4,15 +4,7 @@ import type { ReportSaveParams, ReportVO } from './index.api';
 export * from './index.api';
 
 /** 提交举报 */
-export const createReport = (params: ReportSaveParams) =>
-  http.post<number>('/admin/report', params);
+export const createReportApi = (params: ReportSaveParams) => http.post<number>('/admin/report/create', params);
 
-/** 查询举报详情 (一般管理后台用,前端保留可用) */
-export const getReport = (id: number) => http.get<ReportVO>(`/admin/report/${id}`);
-
-export const reportApi = {
-  create: createReport,
-  detail: getReport,
-};
-
-export default reportApi;
+/** 查询举报详情 */
+export const getReportApi = (id: number) => http.post<ReportVO>('/admin/report/detail', { id });

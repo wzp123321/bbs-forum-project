@@ -30,7 +30,7 @@
 import { onMounted, reactive, ref } from 'vue';
 import { ElMessage, FormInstance, FormRules } from 'element-plus';
 import { inject } from 'vue';
-import { userApi } from '@/apis/user';
+import { getUserApi, updateProfileApi } from '@/apis/user';
 import { userStore } from '@/utils';
 
 defineOptions({ name: 'UcEditProfile' });
@@ -54,13 +54,13 @@ const rules: FormRules = {
   email: [{ type: 'email', message: '邮箱格式不正确', trigger: 'blur' }],
 };
 
-const myId = () => userStore.getUserId();
+const getMyId = () => userStore.getUserId();
 
 const load = async () => {
-  const id = myId();
+  const id = getMyId();
   if (!id) return;
   try {
-    const u = await userApi.getUser(id);
+    const u = await getUserApi(id);
     form.userName = u.userName || '';
     form.gender = (u.gender as '' | 'M' | 'F') || '';
     form.email = u.email || '';
@@ -79,7 +79,7 @@ const onSubmit = async () => {
   }
   submitting.value = true;
   try {
-    await userApi.updateProfile(myId(), {
+    await updateProfileApi(getMyId(), {
       userName: form.userName.trim(),
       gender: form.gender || undefined,
       email: form.email || undefined,
@@ -87,7 +87,7 @@ const onSubmit = async () => {
     });
     ElMessage.success('保存成功');
     // 同步 userName 到本地
-    userStore.setUser(myId(), form.userName.trim() || myId());
+    userStore.setUser(getMyId(), form.userName.trim() || getMyId());
     if (refresh) await refresh();
   } finally {
     submitting.value = false;

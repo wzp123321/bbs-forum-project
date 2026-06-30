@@ -6,7 +6,7 @@
       :type="activeId === t.id ? 'primary' : 'info'"
       :effect="activeId === t.id ? 'dark' : 'plain'"
       class="wt-tag"
-      @click="handleSelect(t.id)"
+      @click="toggleTagFilter(t.id)"
     >
       # {{ t.name }}
       <span v-if="t.postCount != null">·{{ t.postCount }}</span>
@@ -32,8 +32,8 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { tagApi } from '@/apis/tag';
-import { postApi } from '@/apis/post';
+import { listTagsApi } from '@/apis/tag';
+import { pagePostsApi } from '@/apis/post';
 import type { TagVO } from '@/apis/tag';
 import type { PostVO } from '@/apis/post';
 
@@ -47,7 +47,7 @@ const activeId = ref<number | undefined>(undefined);
 
 const loadTags = async () => {
   try {
-    tags.value = await tagApi.list();
+    tags.value = await listTagsApi();
   } catch {
     // 忽略
   }
@@ -56,7 +56,7 @@ const loadTags = async () => {
 const fetchList = async () => {
   loading.value = true;
   try {
-    const res = await postApi.page({
+    const res = await pagePostsApi({
       pageNum: 1,
       pageSize: 50,
       tagId: activeId.value,
@@ -68,7 +68,7 @@ const fetchList = async () => {
   }
 };
 
-const handleSelect = (id: number) => {
+const toggleTagFilter = (id: number) => {
   activeId.value = activeId.value === id ? undefined : id;
   fetchList();
 };

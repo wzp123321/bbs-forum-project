@@ -1,15 +1,15 @@
 <template>
   <el-drawer custom-class="um-add-edit-drawer" :close-on-press-escape="false" :close-on-click-modal="false"
-    v-model="dialogVisible" title="新增" direction="rtl" :before-close="handleClose">
-    <el-form label-position="top" label-width="auto" :model="dialogForm" style="max-width: 600px">
+    v-model="visible" :title="isEdit ? '编辑字典类型' : '新增字典类型'" direction="rtl" :before-close="close">
+    <el-form label-position="top" label-width="auto" :model="form" style="max-width: 600px">
       <el-form-item label="字典类型：">
-        <el-input v-model="dialogForm.name" />
+        <el-input v-model="form.name" />
       </el-form-item>
     </el-form>
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="handleClose">取消</el-button>
-        <el-button type="primary" @click="dialogVisible = false">
+        <el-button @click="close">取消</el-button>
+        <el-button type="primary" @click="close">
           确定
         </el-button>
       </div>
@@ -17,33 +17,32 @@
   </el-drawer>
 </template>
 <script lang="ts" setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { TypeFrom } from '../constant/model'
 defineOptions({
   name: 'UmAddEditDrawer',
 });
 
-
-// 表单
-const dialogForm = reactive<TypeFrom>({
+const form = reactive<TypeFrom>({
   id: '',
   name: ''
 })
-// 开关
-const dialogVisible = ref(false);
-// 打开
-const handleOpen = (row: TypeFrom) => {
-  dialogVisible.value = true;
-  dialogForm.id = row.id
-  dialogForm.name = row.name
+
+const visible = ref(false);
+const isEdit = computed(() => !!form.id);
+
+const open = (row: TypeFrom) => {
+  visible.value = true;
+  form.id = row.id
+  form.name = row.name
 };
-// 关闭
-const handleClose = () => {
-  dialogVisible.value = false;
+
+const close = () => {
+  visible.value = false;
 };
 
 defineExpose({
-  handleOpen,
+  open,
 });
 </script>
 <style lang="less" scoped>

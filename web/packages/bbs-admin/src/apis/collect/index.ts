@@ -1,13 +1,14 @@
 import http from '@/utils/request';
-import type { R } from '../types';
+import { IResponseVO } from '../types';
 
 /** 收藏帖子 */
-export const collect = (postId: number) => http.post<R<void>>(`/admin/collect/${postId}`).then((res) => res.data);
+export const collectApi = (postId: number) =>
+  http.post<IResponseVO<void>>('/admin/collect/collect', { postId }).then((res) => res.data);
 
 /** 取消收藏 */
-export const cancelCollect = (postId: number) =>
-  http.delete<R<void>>(`/admin/collect/${postId}`).then((res) => res.data);
+export const cancelCollectApi = (postId: number) =>
+  http.post<IResponseVO<void>>('/admin/collect/cancel', { postId }).then((res) => res.data);
 
 /** 是否已收藏 */
-export const collectStatus = (postId: number) =>
-  http.get<R<{ collected: boolean }>>(`/admin/collect/${postId}/status`).then((res) => res.data.data);
+export const collectStatusApi = (postId: number) =>
+  http.post<IResponseVO<{ collected: boolean }>>('/admin/collect/status', { postId }).then((res) => res.data.data);

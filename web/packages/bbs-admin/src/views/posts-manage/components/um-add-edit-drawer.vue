@@ -6,7 +6,7 @@
     v-model="visible"
     :title="isEdit ? '编辑帖子' : '新增帖子'"
     direction="rtl"
-    :before-close="handleClose"
+    :before-close="close"
     size="560px"
   >
     <el-form ref="formRef" :model="form" :rules="rules" label-width="80px" v-loading="loading">
@@ -19,7 +19,14 @@
         </el-select>
       </el-form-item>
       <el-form-item label="标签">
-        <el-select v-model="form.tagIds" multiple collapse-tags collapse-tags-tooltip placeholder="请选择标签" style="width: 100%">
+        <el-select
+          v-model="form.tagIds"
+          multiple
+          collapse-tags
+          collapse-tags-tooltip
+          placeholder="请选择标签"
+          style="width: 100%"
+        >
           <el-option v-for="t in tags" :key="t.id" :label="t.name" :value="t.id" />
         </el-select>
       </el-form-item>
@@ -42,8 +49,8 @@
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="handleClose">取消</el-button>
-      <el-button type="primary" :loading="submitting" @click="handleSubmit">确定</el-button>
+      <el-button @click="close">取消</el-button>
+      <el-button type="primary" :loading="submitting" @click="submitForm">确定</el-button>
     </template>
   </el-drawer>
 </template>
@@ -51,7 +58,9 @@
 <script lang="ts" setup>
 import { computed, onMounted, reactive, ref } from 'vue';
 import { ElMessage, FormInstance, FormRules } from 'element-plus';
-import { categoryApi, postApi, tagApi } from '@/utils';
+import { listCategoriesApi } from '@/apis/category';
+import { createPostApi, updatePostApi } from '@/apis/post';
+import { listTagsApi } from '@/apis/tag';
 import type { CategoryVO } from '@/apis/category';
 import type { PostVO } from '@/apis/post';
 import type { TagVO } from '@/apis/tag';
@@ -98,10 +107,10 @@ const rules: FormRules<RowFrom> = {
 const categories = ref<CategoryVO[]>([]);
 const tags = ref<TagVO[]>([]);
 
-const loadOptions = async () => {
+const loadFilterOptions = async () => {
   loading.value = true;
   try {
-    const [cs, ts] = await Promise.all([categoryApi.listCategories(), tagApi.listTags()]);
+    const [cs, ts] = await Promise.all([listCategoriesApi(), listTagsApi()]);
     categories.value = cs;
     tags.value = ts;
   } finally {
@@ -109,7 +118,7 @@ const loadOptions = async () => {
   }
 };
 
-const reset = () => {
+const resetForm = () => {
   form.id = undefined;
   form.title = '';
   form.content = '';
@@ -121,9 +130,9 @@ const reset = () => {
   form.isEssence = 0;
 };
 
-const handleOpen = async (row?: PostVO) => {
-  reset();
-  await loadOptions();
+const open = async (row?: PostVO) => {
+  resetForm();
+  await loadFilterOptions();
   if (row) {
     form.id = row.id;
     form.title = row.title || '';
@@ -138,11 +147,11 @@ const handleOpen = async (row?: PostVO) => {
   visible.value = true;
 };
 
-const handleClose = () => {
+const close = () => {
   visible.value = false;
 };
 
-const handleSubmit = async () => {
+const submitForm = async () => {
   if (!formRef.value) return;
   await formRef.value.validate();
   submitting.value = true;
@@ -158,13 +167,13 @@ const handleSubmit = async () => {
       isEssence: form.isEssence,
     };
     if (isEdit.value) {
-      await postApi.updatePost(form.id!, payload);
+      await updatePostApi(form.id!, payload);
       ElMessage.success('修改成功');
     } else {
-      await postApi.createPost(payload);
+      await createPostApi(payload);
       ElMessage.success('新增成功');
     }
-    handleClose();
+    close();
     emit('saved');
   } finally {
     submitting.value = false;
@@ -173,10 +182,10 @@ const handleSubmit = async () => {
 
 onMounted(() => {
   // 首次进入组件时预拉下拉数据
-  loadOptions();
+  loadFilterOptions();
 });
 
-defineExpose({ handleOpen });
+defineExpose({ open });
 </script>
 
 <style lang="less" scoped>

@@ -1,13 +1,16 @@
 import http from '@/utils/request';
 import type { LoginParams, LoginResult, CurrentUser } from './index.api';
-import type { R } from '../types';
+import { IResponseVO } from '../types';
+
+export * from './index.api';
 
 /** 登录 */
-export const login = (params: LoginParams) =>
-  http.post<R<LoginResult>>('/admin/auth/login', params).then((res) => res.data.data);
+export const loginApi = (params: LoginParams) =>
+  http.post<IResponseVO<LoginResult>>('/admin/auth/login', params).then((res) => res.data.data);
 
 /** 获取当前用户 */
-export const getCurrentUser = () => http.get<R<CurrentUser>>('/admin/auth/info').then((res) => res.data.data);
+export const getCurrentUserApi = () =>
+  http.post<IResponseVO<CurrentUser>>('/admin/auth/info').then((res) => res.data.data);
 
 /** 退出登录 */
-export const logout = () => http.post<R<void>>('/admin/auth/logout').then((res) => res.data);
+export const logoutApi = () => http.post<IResponseVO<void>>('/admin/auth/logout').then((res) => res.data);

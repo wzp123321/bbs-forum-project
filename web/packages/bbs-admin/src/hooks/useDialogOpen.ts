@@ -6,19 +6,19 @@ export const useDialogOpen = () => {
   /**
    * 打开
    */
-  const handleOpen = () => {
+  const openDialog = () => {
     visible.value = true;
   };
   /**
    * 关闭
    */
-  const handleClose = () => {
+  const closeDialog = () => {
     visible.value = false;
   };
 
   return {
     visible,
-    handleClose,
-    handleOpen,
+    closeDialog,
+    openDialog,
   };
 };

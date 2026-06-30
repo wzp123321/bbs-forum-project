@@ -1,8 +1,8 @@
 <template>
   <div class="posts-manage">
-    <el-form :inline="true" :model="searchForm" @submit.prevent="handleSearch" class="search-form">
+    <el-form :inline="true" :model="searchForm" @submit.prevent="searchList" class="search-form">
       <el-form-item label="标题">
-        <el-input v-model="searchForm.keyword" placeholder="请输入帖子标题" clearable @keyup.enter="handleSearch" />
+        <el-input v-model="searchForm.keyword" placeholder="请输入帖子标题" clearable @keyup.enter="searchList" />
       </el-form-item>
       <el-form-item label="板块">
         <el-select v-model="searchForm.categoryId" placeholder="全部板块" clearable style="width: 160px">
@@ -23,9 +23,9 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleSearch">搜索</el-button>
-        <el-button @click="handleReset">重置</el-button>
-        <el-button type="success" @click="handleAdd">新增帖子</el-button>
+        <el-button type="primary" @click="searchList">搜索</el-button>
+        <el-button @click="resetSearch">重置</el-button>
+        <el-button type="success" @click="openAddDrawer">新增帖子</el-button>
       </el-form-item>
     </el-form>
 
@@ -55,7 +55,10 @@
       </el-table-column>
       <el-table-column label="精华" width="70" align="center">
         <template #default="{ row }">
-          <el-switch :model-value="row.isEssence === 1" @change="(v: boolean | string | number) => onToggleEssence(row, v)" />
+          <el-switch
+            :model-value="row.isEssence === 1"
+            @change="(v: boolean | string | number) => onToggleEssence(row, v)"
+          />
         </template>
       </el-table-column>
       <el-table-column prop="viewCount" label="浏览" width="70" align="center" />
@@ -63,8 +66,8 @@
       <el-table-column prop="createTime" label="创建时间" width="170" />
       <el-table-column label="操作" width="200" fixed="right">
         <template #default="{ row }">
-          <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
-          <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
+          <el-button type="primary" link @click="openEditDrawer(row)">编辑</el-button>
+          <el-button type="danger" link @click="confirmDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -76,8 +79,8 @@
       :page-sizes="pageSizes"
       :total="total"
       layout="total, sizes, prev, pager, next, jumper"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
+      @size-change="onPageSizeChange"
+      @current-change="onPageNumChange"
     />
 
     <PmAddEditDrawer ref="drawerRef" @saved="fetchList" />
@@ -88,10 +91,10 @@
 import { onMounted, reactive, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
-import { categoryApi, postApi, tagApi } from '@/utils';
-import type { CategoryVO } from '@/apis/category';
-import type { PostVO } from '@/apis/post';
-import type { TagVO } from '@/apis/tag';
+import { CategoryVO, PostVO, TagVO } from '@/apis';
+import { listCategoriesApi } from '@/apis/category';
+import { pagePostsApi, deletePostApi, toggleTopApi, toggleEssenceApi } from '@/apis/post';
+import { listTagsApi } from '@/apis/tag';
 import { SearchForm } from './constant/model';
 import { PmAddEditDrawer } from './components';
 
@@ -108,7 +111,7 @@ const tags = ref<TagVO[]>([]);
 
 const loadFilters = async () => {
   try {
-    const [cs, ts] = await Promise.all([categoryApi.listCategories(), tagApi.listTags()]);
+    const [cs, ts] = await Promise.all([listCategoriesApi(), listTagsApi()]);
     categories.value = cs;
     tags.value = ts;
   } catch {
@@ -119,7 +122,7 @@ const loadFilters = async () => {
 const fetchList = async () => {
   loading.value = true;
   try {
-    const res = await postApi.pagePosts({
+    const res = await pagePostsApi({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
       keyword: searchForm.keyword || undefined,
@@ -134,38 +137,38 @@ const fetchList = async () => {
   }
 };
 
-const handleSizeChange = (value: number) => {
+const onPageSizeChange = (value: number) => {
   setPageSize(value);
   fetchList();
 };
 
-const handleCurrentChange = (value: number) => {
+const onPageNumChange = (value: number) => {
   setPageNum(value);
   fetchList();
 };
 
-const handleSearch = () => {
+const searchList = () => {
   setPageNum(1);
   fetchList();
 };
 
-const handleReset = () => {
+const resetSearch = () => {
   searchForm.keyword = '';
   searchForm.categoryId = undefined;
   searchForm.tagId = undefined;
   searchForm.status = undefined;
-  handleSearch();
+  searchList();
 };
 
-const handleAdd = () => {
-  drawerRef.value?.handleOpen();
+const openAddDrawer = () => {
+  drawerRef.value?.open();
 };
 
-const handleEdit = (row: PostVO) => {
-  drawerRef.value?.handleOpen(row);
+const openEditDrawer = (row: PostVO) => {
+  drawerRef.value?.open(row);
 };
 
-const handleDelete = async (row: PostVO) => {
+const confirmDelete = async (row: PostVO) => {
   try {
     await ElMessageBox.confirm(`确认删除帖子《${row.title}》?`, '提示', {
       type: 'warning',
@@ -175,41 +178,51 @@ const handleDelete = async (row: PostVO) => {
   } catch {
     return;
   }
-  await postApi.deletePost(row.id);
+  await deletePostApi(row.id);
   ElMessage.success('删除成功');
   fetchList();
 };
 
 const onToggleTop = async (row: PostVO, v: boolean | string | number) => {
   const isTop = v === true || v === 1 || v === '1' ? 1 : 0;
-  await postApi.toggleTop(row.id, { isTop });
+  await toggleTopApi(row.id, { isTop });
   ElMessage.success(isTop === 1 ? '已置顶' : '已取消置顶');
   fetchList();
 };
 
 const onToggleEssence = async (row: PostVO, v: boolean | string | number) => {
   const isEssence = v === true || v === 1 || v === '1' ? 1 : 0;
-  await postApi.toggleEssence(row.id, { isEssence });
+  await toggleEssenceApi(row.id, { isEssence });
   ElMessage.success(isEssence === 1 ? '已设为精华' : '已取消精华');
   fetchList();
 };
 
 const statusLabel = (s?: number) => {
   switch (s) {
-    case 0: return '已删';
-    case 1: return '正常';
-    case 2: return '审核中';
-    case 3: return '审核不通过';
-    default: return '-';
+    case 0:
+      return '已删';
+    case 1:
+      return '正常';
+    case 2:
+      return '审核中';
+    case 3:
+      return '审核不通过';
+    default:
+      return '-';
   }
 };
 const statusType = (s?: number) => {
   switch (s) {
-    case 1: return 'success';
-    case 2: return 'warning';
-    case 3: return 'danger';
-    case 0: return 'info';
-    default: return 'info';
+    case 1:
+      return 'success';
+    case 2:
+      return 'warning';
+    case 3:
+      return 'danger';
+    case 0:
+      return 'info';
+    default:
+      return 'info';
   }
 };
 

@@ -23,7 +23,7 @@
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox, FormInstance, FormRules } from 'element-plus';
-import { userApi } from '@/apis/user';
+import { updatePasswordApi } from '@/apis/user';
 import { userStore, tokenStore } from '@/utils';
 
 defineOptions({ name: 'UcChangePassword' });
@@ -50,7 +50,7 @@ const rules: FormRules = {
   ],
 };
 
-const myId = () => userStore.getUserId();
+const getMyId = () => userStore.getUserId();
 
 const onSubmit = async () => {
   if (!formRef.value) return;
@@ -61,7 +61,7 @@ const onSubmit = async () => {
   }
   submitting.value = true;
   try {
-    await userApi.updatePassword(myId(), {
+    await updatePasswordApi(getMyId(), {
       oldPassword: form.oldPassword,
       newPassword: form.newPassword,
     });

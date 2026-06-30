@@ -6,7 +6,7 @@ import { watch, type Ref } from 'vue';
  * - 通过 IntersectionObserver 进入视口才真正设置 src
  * - 离开容器时停止观察
  */
-export function useLazyImages(rootRef: Ref<HTMLElement | undefined>) {
+export const useLazyImages = (rootRef: Ref<HTMLElement | undefined>) => {
   let observer: IntersectionObserver | null = null;
   const observed = new WeakSet<HTMLImageElement>();
 

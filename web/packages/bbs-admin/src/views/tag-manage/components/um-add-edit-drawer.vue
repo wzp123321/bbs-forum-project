@@ -6,7 +6,7 @@
     v-model="visible"
     :title="isEdit ? '编辑标签' : '新增标签'"
     direction="rtl"
-    :before-close="handleClose"
+    :before-close="close"
     size="420px"
   >
     <el-form ref="formRef" :model="form" :rules="rules" label-width="80px" v-loading="loading">
@@ -14,7 +14,14 @@
         <el-input v-model="form.name" placeholder="请输入标签名称" maxlength="50" show-word-limit />
       </el-form-item>
       <el-form-item label="描述">
-        <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入标签描述" maxlength="200" show-word-limit />
+        <el-input
+          v-model="form.description"
+          type="textarea"
+          :rows="3"
+          placeholder="请输入标签描述"
+          maxlength="200"
+          show-word-limit
+        />
       </el-form-item>
       <el-form-item label="状态">
         <el-radio-group v-model="form.status">
@@ -24,8 +31,8 @@
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="handleClose">取消</el-button>
-      <el-button type="primary" :loading="submitting" @click="handleSubmit">确定</el-button>
+      <el-button @click="close">取消</el-button>
+      <el-button type="primary" :loading="submitting" @click="submitForm">确定</el-button>
     </template>
   </el-drawer>
 </template>
@@ -33,8 +40,7 @@
 <script lang="ts" setup>
 import { computed, reactive, ref } from 'vue';
 import { ElMessage, FormInstance, FormRules } from 'element-plus';
-import { tagApi } from '@/utils';
-import type { TagVO } from '@/apis/tag';
+import { createTagApi, updateTagApi, TagVO } from '@/apis';
 import { RowFrom } from '../constant/model';
 
 defineOptions({ name: 'TmAddEditDrawer' });
@@ -58,15 +64,15 @@ const rules: FormRules<RowFrom> = {
   name: [{ required: true, message: '请输入标签名称', trigger: 'blur' }],
 };
 
-const reset = () => {
+const resetForm = () => {
   form.id = undefined;
   form.name = '';
   form.description = '';
   form.status = 1;
 };
 
-const handleOpen = (row?: TagVO) => {
-  reset();
+const open = (row?: TagVO) => {
+  resetForm();
   if (row) {
     form.id = row.id;
     form.name = row.name;
@@ -76,38 +82,38 @@ const handleOpen = (row?: TagVO) => {
   visible.value = true;
 };
 
-const handleClose = () => {
+const close = () => {
   visible.value = false;
 };
 
-const handleSubmit = async () => {
+const submitForm = async () => {
   if (!formRef.value) return;
   await formRef.value.validate();
   submitting.value = true;
   try {
     if (isEdit.value) {
-      await tagApi.updateTag(form.id!, {
+      await updateTagApi(form.id!, {
         name: form.name,
         description: form.description,
         status: form.status,
       });
       ElMessage.success('修改成功');
     } else {
-      await tagApi.createTag({
+      await createTagApi({
         name: form.name,
         description: form.description,
         status: form.status,
       });
       ElMessage.success('新增成功');
     }
-    handleClose();
+    close();
     emit('saved');
   } finally {
     submitting.value = false;
   }
 };
 
-defineExpose({ handleOpen });
+defineExpose({ open });
 </script>
 
 <style lang="less" scoped>

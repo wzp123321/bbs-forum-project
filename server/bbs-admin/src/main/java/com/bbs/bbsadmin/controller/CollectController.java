@@ -9,12 +9,9 @@ import com.bbs.bbsadmin.service.CollectRecordService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
@@ -30,24 +27,27 @@ public class CollectController {
 
     @Operation(summary = "收藏帖子")
     @RequireAuth
-    @PostMapping("/{postId}")
-    public R<Void> collect(@PathVariable Long postId) {
+    @PostMapping("/collect")
+    public R<Void> collect(@RequestBody Map<String, Long> body) {
+        Long postId = body.get("postId");
         collectRecordService.collect(postId);
         return R.success();
     }
 
     @Operation(summary = "取消收藏")
     @RequireAuth
-    @DeleteMapping("/{postId}")
-    public R<Void> cancel(@PathVariable Long postId) {
+    @PostMapping("/cancel")
+    public R<Void> cancel(@RequestBody Map<String, Long> body) {
+        Long postId = body.get("postId");
         collectRecordService.cancel(postId);
         return R.success();
     }
 
     @Operation(summary = "是否已收藏")
     @RequireAuth
-    @GetMapping("/{postId}/status")
-    public R<Map<String, Object>> status(@PathVariable Long postId) {
+    @PostMapping("/status")
+    public R<Map<String, Object>> status(@RequestBody Map<String, Long> body) {
+        Long postId = body.get("postId");
         Map<String, Object> data = new HashMap<>();
         data.put("collected", collectRecordService.isCollected(postId));
         return R.data(data);
@@ -55,10 +55,10 @@ public class CollectController {
 
     @Operation(summary = "我收藏的帖子")
     @RequireAuth
-    @GetMapping("/page")
-    public R<Map<String, Object>> pageMyCollected(
-            @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "10") int pageSize) {
+    @PostMapping("/page")
+    public R<Map<String, Object>> pageMyCollected(@RequestBody Map<String, Object> body) {
+        int pageNum = body.get("pageNum") != null ? Integer.parseInt(body.get("pageNum").toString()) : 1;
+        int pageSize = body.get("pageSize") != null ? Integer.parseInt(body.get("pageSize").toString()) : 10;
         IPage<PostVO> page = collectRecordService.pageMyCollectedPosts(AuthContext.userId(), pageNum, pageSize);
         Map<String, Object> data = new HashMap<>();
         data.put("list", page.getRecords());

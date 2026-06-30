@@ -2,18 +2,14 @@
   <div class="web-user-center">
     <div class="wuc-layout">
       <aside class="wuc-side">
-        <div class="wuc-user" @click="goOverview">
+        <div class="wuc-user" @click="navigateToOverview">
           <el-avatar :size="64" icon="UserFilled" />
           <div class="wuc-user-info">
             <div class="wuc-user-name">{{ user?.userName || userStore.getUserName() }}</div>
             <div class="wuc-user-id">ID: {{ userStore.getUserId() }}</div>
           </div>
         </div>
-        <el-menu
-          :default-active="activeMenu"
-          class="wuc-menu"
-          @select="handleMenu"
-        >
+        <el-menu :default-active="activeMenu" class="wuc-menu" @select="navigateToMenu">
           <el-menu-item index="overview">个人概览</el-menu-item>
           <el-menu-item index="posts">我的帖子</el-menu-item>
           <el-menu-item index="collects">我的收藏</el-menu-item>
@@ -37,7 +33,7 @@
 import { computed, onMounted, provide, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { userApi } from '@/apis/user';
+import { getUserApi, followCountApi } from '@/apis/user';
 import { userStore } from '@/utils';
 import type { UserInfoVO, FollowCountVO } from '@/apis/user';
 
@@ -57,7 +53,7 @@ const loadUser = async () => {
   const myId = userStore.getUserId();
   if (!myId) return;
   try {
-    user.value = await userApi.getUser(myId);
+    user.value = await getUserApi(myId);
   } catch {
     ElMessage.error('获取用户信息失败');
   }
@@ -67,13 +63,13 @@ const loadCounts = async () => {
   const myId = userStore.getUserId();
   if (!myId) return;
   try {
-    counts.value = await userApi.followCount(myId);
+    counts.value = await followCountApi(myId);
   } catch {
     // ignore
   }
 };
 
-const handleMenu = (key: string) => {
+const navigateToMenu = (key: string) => {
   const map: Record<string, string> = {
     overview: '/user-center',
     posts: '/user-center/posts',
@@ -87,7 +83,7 @@ const handleMenu = (key: string) => {
   router.push(map[key] || '/user-center');
 };
 
-const goOverview = () => router.push('/user-center');
+const navigateToOverview = () => router.push('/user-center');
 
 // 供子组件刷新
 provide('refreshUserCenter', loadUser);

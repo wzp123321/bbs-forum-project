@@ -16,11 +16,11 @@
             placeholder="密码"
             type="password"
             show-password
-            @keyup.enter="handleSubmit"
+            @keyup.enter="submitLoginForm"
           />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" :loading="loading" @click="handleSubmit">登录</el-button>
+          <el-button type="primary" :loading="loading" @click="submitLoginForm">登录</el-button>
         </el-form-item>
       </el-form>
     </section>
@@ -31,7 +31,8 @@
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { authApi, tokenStore, USER_ID_KEY, USER_NAME_KEY } from '@/utils';
+import { loginApi } from '@/apis/auth';
+import { tokenStore, USER_ID_KEY, USER_NAME_KEY } from '@/utils';
 
 defineOptions({ name: 'BbsLogin' });
 
@@ -48,7 +49,7 @@ const loginForm = reactive<LoginForm>({
   password: '',
 });
 
-const handleSubmit = async () => {
+const submitLoginForm = async () => {
   if (!loginForm.account) {
     ElMessage.error('请输入账号');
     return;
@@ -59,7 +60,7 @@ const handleSubmit = async () => {
   }
   loading.value = true;
   try {
-    const data = await authApi.login({ account: loginForm.account, password: loginForm.password });
+    const data = await loginApi({ account: loginForm.account, password: loginForm.password });
     tokenStore.set(data.token);
     sessionStorage.setItem(USER_ID_KEY, data.userId);
     sessionStorage.setItem(USER_NAME_KEY, data.nickName || data.userName);

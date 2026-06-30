@@ -1,33 +1,21 @@
 import http from '@/service';
-import type { PostVO, PostPageParams, PostSaveParams, PageData } from './index.api';
+import type { PostVO, PostPageParams, PostSaveParams } from './index.api';
+import { PageResult } from '../types';
 
 export * from './index.api';
 
 /** 帖子分页 */
-export const pagePosts = (params: PostPageParams) =>
-  http.get<PageData<PostVO>>('/admin/post/page', { params: params as Record<string, unknown> });
+export const pagePostsApi = (params: PostPageParams) => http.post<PageResult<PostVO>>('/admin/post/page', params);
 
 /** 帖子详情 */
-export const getPost = (id: number) => http.get<PostVO>(`/admin/post/${id}`);
+export const getPostApi = (id: number) => http.post<PostVO>('/admin/post/detail', { id });
 
 /** 发帖 */
-export const createPost = (params: PostSaveParams) =>
-  http.post<number>('/admin/post', params);
+export const createPostApi = (params: PostSaveParams) => http.post<number>('/admin/post/create', params);
 
 /** 编辑 */
-export const updatePost = (id: number, params: PostSaveParams) =>
-  http.put<void>(`/admin/post/${id}`, params);
+export const updatePostApi = (id: number, params: PostSaveParams) =>
+  http.post<void>(`/admin/post/${id}/update`, params);
 
 /** 删除 */
-export const deletePost = (id: number) => http.delete<void>(`/admin/post/${id}`);
-
-/** 命名空间导出 */
-export const postApi = {
-  page: pagePosts,
-  detail: getPost,
-  create: createPost,
-  update: updatePost,
-  delete: deletePost,
-};
-
-export default postApi;
+export const deletePostApi = (id: number) => http.post<void>('/admin/post/delete', { id });
