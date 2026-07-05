@@ -1,5 +1,66 @@
+/* 按钮 主题样式 */
 .el-button {
+  font-weight: var(--bbs-font-weight-medium);
+  transition: all var(--bbs-transition-base);
+
   &.is-text {
     padding: 0;
   }
+}
+
+.el-button--primary {
+  background: var(--bbs-gradient-primary);
+  border-color: var(--bbs-color-primary);
+  box-shadow: 0 2px 6px rgba(255, 107, 53, 0.2);
+}
+
+.el-button--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.el-button--primary.is-disabled,
+.el-button--primary.is-disabled:hover {
+  background: var(--bbs-color-primary-disabled);
+  border-color: var(--bbs-color-primary-disabled);
+  box-shadow: none;
+  transform: none;
+}
+
+.el-button--success {
+  background: var(--bbs-color-success);
+  border-color: var(--bbs-color-success);
+}
+
+.el-button--success:hover {
+  background: var(--bbs-color-success-dark);
+  border-color: var(--bbs-color-success-dark);
+}
+
+.el-button--warning {
+  background: var(--bbs-color-warning);
+  border-color: var(--bbs-color-warning);
+}
+
+.el-button--warning:hover {
+  background: var(--bbs-color-warning-dark);
+  border-color: var(--bbs-color-warning-dark);
+}
+
+.el-button--danger {
+  background: var(--bbs-color-danger);
+  border-color: var(--bbs-color-danger);
+}
+
+.el-button--danger:hover {
+  background: var(--bbs-color-danger-dark);
+  border-color: var(--bbs-color-danger-dark);
+}
+
+.el-button.is-round {
+  border-radius: var(--bbs-radius-full);
+}
+
+.el-button--small {
+  font-size: var(--bbs-font-size-sm);
 }

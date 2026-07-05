@@ -1,5 +1,6 @@
 @import './parameter.css';
 @import './reset.css';
+@import './element-plus-theme.css';
 
 @font-face {
 	font-family: 'DINPro Medium';

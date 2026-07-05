@@ -46,7 +46,6 @@ public class AuthController {
     public R<LoginVO> login(@Valid @RequestBody LoginDTO dto) {
         // 1) 锁定检查 (优先于一切业务, 避免泄露账号是否存在)
         loginLock.check(dto.getAccount());
-
         UserInfo user = userInfoService.findByAccount(dto.getAccount());
         if (user == null) {
             // 同样计入失败 (防止账号枚举)

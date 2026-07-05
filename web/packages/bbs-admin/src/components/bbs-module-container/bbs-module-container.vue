@@ -1,11 +1,15 @@
 <template>
-  <el-col class="bbs-module-container" :span="props.rowSpan">
+  <div class="bbs-module-container">
     <header class="bmc-header">
       <h5>{{ props.title }}</h5>
-      <slot name="header"></slot>
+      <div v-if="$slots.header" class="bmc-extra">
+        <slot name="header"></slot>
+      </div>
     </header>
-    <main class="bmc-main"></main>
-  </el-col>
+    <main class="bmc-main">
+      <slot></slot>
+    </main>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -13,7 +17,7 @@ defineOptions({
   name: 'BbsModuleContainer',
 });
 interface Props {
-  rowSpan: number;
+  rowSpan?: number;
   title: string;
 }
 const props = withDefaults(defineProps<Props>(), {
@@ -24,25 +28,41 @@ const props = withDefaults(defineProps<Props>(), {
 
 <style lang="less" scoped>
 .bbs-module-container {
-  height: 360px;
-  border-radius: var(--bbs-radius-s);
+  background: var(--bbs-bg-color);
+  border-radius: var(--bbs-radius-lg);
+  box-shadow: var(--bbs-shadow-xs);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+}
 
-  > .bmc-header {
-    padding: var(--bbs-space-12) var(--bbs-space-20);
-    background-color: var(--bbs-gray_brand-color-2);
+.bmc-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--bbs-border-color-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
 
-    > h5 {
-      font-size: var(--bbs-font-size-h20);
-      color: var(--bbs-text-color-primary);
-      font-family: var(--bbs-font-family-bold);
-    }
+  h5 {
+    font-size: var(--bbs-font-size-base);
+    color: var(--bbs-text-color-primary);
+    font-weight: var(--bbs-font-weight-semibold);
+    margin: 0;
   }
+}
 
-  > .bmc-main {
-    flex: auto;
-    background: var(--bbs-bg-color);
-  }
+.bmc-extra {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bmc-main {
+  flex: 1;
+  padding: 16px 20px;
+  overflow: auto;
+  min-height: 0;
 }
 </style>

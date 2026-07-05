@@ -1,22 +1,60 @@
 @import (once) url('./element-plus/index.less');
 
-/* 滚动条 -Chrome */
+/* ============ 滚动条 (Chrome) ============ */
 *::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
-*::-webkit-scrollbar-thumb {
-  background-color: var(--bbs-gray-color-6);
-  border-radius: 4px;
 
-  transition-duration: 233ms;
+*::-webkit-scrollbar-thumb {
+  background-color: var(--bbs-gray-color-4);
+  border-radius: var(--bbs-radius-full);
+  border: 2px solid transparent;
+  background-clip: content-box;
+  transition: background var(--bbs-transition-base);
 }
+
 *::-webkit-scrollbar-thumb:hover {
-  background-color: var(--bbs-gray-color-8);
+  background-color: var(--bbs-gray-color-5);
+  background-clip: content-box;
 }
+
 *::-webkit-scrollbar-thumb:active {
-  background-color: var(--bbs-gray-color-8);
+  background-color: var(--bbs-color-primary);
+  background-clip: content-box;
 }
+
 *::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bbs-gray-color-4) transparent;
+}
+
+/* ============ 选区颜色 ============ */
+::selection {
+  background-color: var(--bbs-color-primary-light);
+  color: var(--bbs-color-primary-active);
+}
+
+/* ============ 通用工具类 ============ */
+.bbs-text-primary   { color: var(--bbs-color-primary) !important; }
+.bbs-text-secondary { color: var(--bbs-text-color-secondary) !important; }
+.bbs-text-muted     { color: var(--bbs-text-color-placeholder) !important; }
+.bbs-text-success   { color: var(--bbs-color-success) !important; }
+.bbs-text-warning   { color: var(--bbs-color-warning) !important; }
+.bbs-text-danger    { color: var(--bbs-color-danger) !important; }
+
+.bbs-bg-primary { background-color: var(--bbs-color-primary) !important; }
+.bbs-bg-card    { background-color: var(--bbs-bg-color) !important; }
+
+.bbs-shadow-sm  { box-shadow: var(--bbs-shadow-sm) !important; }
+.bbs-shadow-md  { box-shadow: var(--bbs-shadow-md) !important; }
+.bbs-shadow-lg  { box-shadow: var(--bbs-shadow-lg) !important; }
+
+.bbs-radius-md  { border-radius: var(--bbs-radius-md) !important; }
+.bbs-radius-lg  { border-radius: var(--bbs-radius-lg) !important; }
+.bbs-radius-full { border-radius: var(--bbs-radius-full) !important; }

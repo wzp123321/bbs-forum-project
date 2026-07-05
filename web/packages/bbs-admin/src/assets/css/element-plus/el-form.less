@@ -1,3 +1,4 @@
+/* 表单 主题样式 */
 .el-form {
   &.el-form--inline {
     display: flex;
@@ -9,4 +10,47 @@
       margin: 0;
     }
   }
+}
+
+.el-form-item__label {
+  font-weight: var(--bbs-font-weight-medium);
+  color: var(--bbs-text-color-primary);
+  font-size: var(--bbs-font-size-base);
+}
+
+.el-input__wrapper {
+  background: var(--bbs-bg-color-secondary);
+  border-radius: var(--bbs-radius-md);
+  transition: all var(--bbs-transition-base);
+  box-shadow: 0 0 0 1px transparent inset;
+}
+
+.el-input__wrapper:hover {
+  background: var(--bbs-bg-color-tertiary);
+  box-shadow: 0 0 0 1px var(--bbs-border-color) inset;
+}
+
+.el-input__wrapper.is-focus {
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--bbs-color-primary) inset, 0 0 0 3px var(--bbs-color-primary-light);
+}
+
+.el-textarea__inner {
+  background: var(--bbs-bg-color-secondary);
+  border-radius: var(--bbs-radius-md);
+  transition: all var(--bbs-transition-base);
+}
+
+.el-textarea__inner:hover {
+  background: var(--bbs-bg-color-tertiary);
+}
+
+.el-textarea__inner:focus {
+  background: #fff;
+  border-color: var(--bbs-color-primary);
+  box-shadow: 0 0 0 3px var(--bbs-color-primary-light);
+}
+
+.el-select .el-input__wrapper {
+  background: var(--bbs-bg-color-secondary);
 }

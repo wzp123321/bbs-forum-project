@@ -1,3 +1,20 @@
+/* ============================================================
+ *  亲和社区风  全局基础样式
+ * ============================================================ */
+
+* {
+	box-sizing: border-box;
+	-webkit-tap-highlight-color: transparent;
+}
+
+html {
+	font-size: 16px;
+	-webkit-text-size-adjust: 100%;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
+}
+
 body,
 h1,
 h2,
@@ -27,36 +44,59 @@ td {
 	padding: 0;
 }
 
-address,
-cite,
-dfn,
-em,
-var {
+body {
+	font-family: var(--bbs-font-family);
+	font-size: var(--bbs-font-size-base);
+	line-height: var(--bbs-line-height-base);
+	color: var(--bbs-text-color-primary);
+	background-color: var(--bbs-bg-color-page);
+	min-height: 100vh;
+}
+
+body,
+html,
+#app {
+	width: 100%;
+	min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-weight: var(--bbs-font-weight-semibold);
+	line-height: var(--bbs-line-height-tight);
+	color: var(--bbs-text-color-primary);
+}
+
+address, cite, dfn, em, var {
 	font-style: normal;
 }
 
-code,
-kbd,
-pre,
-samp {
-	font-family: couriernew, courier, monospace;
+code, kbd, pre, samp {
+	font-family: var(--bbs-font-family-mono);
 }
 
 small {
-	font-size: 12px;
+	font-size: var(--bbs-font-size-xs);
 }
 
-ul,
-ol {
+ul, ol {
 	list-style: none;
 }
 
 a {
+	color: var(--bbs-text-color-link);
 	text-decoration: none;
+	transition: color var(--bbs-transition-fast);
 }
 
 a:hover {
-	text-decoration: underline;
+	color: var(--bbs-text-color-link-hover);
+	text-decoration: none;
+}
+
+a:focus-visible {
+	outline: 2px solid var(--bbs-color-primary);
+	outline-offset: 2px;
+	border-radius: var(--bbs-radius-xs);
 }
 
 sup {
@@ -68,19 +108,27 @@ sub {
 }
 
 legend {
-	color: #000;
+	color: var(--bbs-text-color-primary);
 }
 
-fieldset,
-img {
+fieldset, img {
 	border: 0;
 }
 
-button,
-input,
-select,
-textarea {
+button, input, select, textarea {
+	font-family: inherit;
 	font-size: 100%;
+	color: inherit;
+}
+
+button {
+	cursor: pointer;
+	background: transparent;
+	border: 0;
+}
+
+button:disabled {
+	cursor: not-allowed;
 }
 
 table {
@@ -88,10 +136,88 @@ table {
 	border-spacing: 0;
 }
 
-body,
-html,
-#app {
-	width: 100%;
-	height: 100%;
-	overflow: hidden;
+img, video {
+	max-width: 100%;
+	height: auto;
+	display: block;
 }
+
+/* ============================================================
+ *  选区颜色
+ * ============================================================ */
+::selection {
+	background-color: var(--bbs-color-primary-light);
+	color: var(--bbs-color-primary-active);
+}
+
+::-moz-selection {
+	background-color: var(--bbs-color-primary-light);
+	color: var(--bbs-color-primary-active);
+}
+
+/* ============================================================
+ *  滚动条 (Webkit)
+ * ============================================================ */
+::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--bbs-gray-color-4);
+	border-radius: var(--bbs-radius-full);
+	border: 2px solid transparent;
+	background-clip: content-box;
+	transition: background var(--bbs-transition-base);
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: var(--bbs-gray-color-5);
+	background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:active {
+	background: var(--bbs-color-primary);
+	background-clip: content-box;
+}
+
+/* Firefox */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--bbs-gray-color-4) transparent;
+}
+
+/* ============================================================
+ *  Focus 通用
+ * ============================================================ */
+:focus-visible {
+	outline: 2px solid var(--bbs-color-primary);
+	outline-offset: 2px;
+}
+
+/* ============================================================
+ *  工具类
+ * ============================================================ */
+.bbs-text-primary   { color: var(--bbs-color-primary) !important; }
+.bbs-text-secondary { color: var(--bbs-text-color-secondary) !important; }
+.bbs-text-muted     { color: var(--bbs-text-color-placeholder) !important; }
+.bbs-text-success   { color: var(--bbs-color-success) !important; }
+.bbs-text-warning   { color: var(--bbs-color-warning) !important; }
+.bbs-text-danger    { color: var(--bbs-color-danger) !important; }
+
+.bbs-bg-primary     { background-color: var(--bbs-color-primary) !important; }
+.bbs-bg-page        { background-color: var(--bbs-bg-color-page) !important; }
+.bbs-bg-card        { background-color: var(--bbs-bg-color) !important; }
+
+.bbs-shadow-sm  { box-shadow: var(--bbs-shadow-sm) !important; }
+.bbs-shadow-md  { box-shadow: var(--bbs-shadow-md) !important; }
+.bbs-shadow-lg  { box-shadow: var(--bbs-shadow-lg) !important; }
+
+.bbs-radius-md  { border-radius: var(--bbs-radius-md) !important; }
+.bbs-radius-lg  { border-radius: var(--bbs-radius-lg) !important; }
+.bbs-radius-xl  { border-radius: var(--bbs-radius-xl) !important; }
+.bbs-radius-full { border-radius: var(--bbs-radius-full) !important; }

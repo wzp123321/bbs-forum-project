@@ -1,11 +1,11 @@
 <template>
   <div class="bbs-page-container">
-    <header class="bpc-header">
+    <header v-if="$slots.header" class="bpc-header">
       <slot name="header"></slot>
     </header>
-    <header class="bpc-content">
-      <slot name="content"></slot>
-    </header>
+    <div class="bpc-content">
+      <slot></slot>
+    </div>
   </div>
 </template>
 
@@ -18,29 +18,26 @@ defineOptions({
 <style lang="less" scoped>
 .bbs-page-container {
   width: 100%;
-  height: 100%;
-  overflow: hidden;
-  min-width: 1310px;
-  padding: var(--bbs-space-20);
-  box-sizing: border-box;
-
   background: var(--bbs-bg-color);
+  border-radius: var(--bbs-radius-lg);
+  box-shadow: var(--bbs-shadow-xs);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
 
-  .bpc-header {
-    padding-bottom: var(--bbs-space-20);
-    border-bottom: 1px solid var(--bbs-border-color);
-    flex-shrink: 0;
-  }
+.bpc-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--bbs-border-color-light);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
-  .bpc-content {
-    flex: auto;
-    flex-shrink: 0;
-    padding: var(--bbs-space-20) 0;
-
-    display: flex;
-    flex-direction: column;
-  }
+.bpc-content {
+  flex: 1;
+  padding: 24px;
+  min-width: 0;
 }
 </style>

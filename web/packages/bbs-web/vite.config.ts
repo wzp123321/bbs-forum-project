@@ -59,7 +59,7 @@ export default ({ mode, command }: any) =>
         '/bbs-api/': {
           target: loadEnv(mode, process.cwd()).VITE_PROXY_URL,
           changeOrigin: true, //是否跨域
-          rewrite: (path) => path.replace(/^\/energy\/ems-api/, ''),
+          rewrite: (path) => path.replace(/^\/bbs-api/, ''),
         },
       },
     },

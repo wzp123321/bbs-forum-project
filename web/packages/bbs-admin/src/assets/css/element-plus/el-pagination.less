@@ -1,4 +1,26 @@
+/* 分页 主题样式 */
 .el-pagination {
   margin-top: var(--bbs-space-16);
   justify-content: flex-end;
+  gap: 4px;
+}
+
+.el-pagination .btn-prev,
+.el-pagination .btn-next,
+.el-pagination .el-pager li {
+  background: var(--bbs-bg-color) !important;
+  border-radius: var(--bbs-radius-md) !important;
+  transition: all var(--bbs-transition-fast);
+  font-weight: var(--bbs-font-weight-medium);
+}
+
+.el-pagination .el-pager li:hover {
+  color: var(--bbs-color-primary) !important;
+}
+
+.el-pagination .el-pager li.is-active {
+  background: var(--bbs-gradient-primary) !important;
+  color: #fff !important;
+  font-weight: var(--bbs-font-weight-semibold);
+  box-shadow: 0 2px 6px rgba(255, 107, 53, 0.3);
 }

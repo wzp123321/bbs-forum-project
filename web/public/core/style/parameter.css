@@ -1,7 +1,14 @@
 :root {
-	/* 间距 */
-	--bbs-space-4: 4px;
-	--bbs-space-8: 8px;
+	/* ============================================================
+	 *  亲和社区风  设计系统 (Design Tokens)
+	 *  调性: 暖色 / 圆角 / 柔和阴影 / 大留白 / 友好交互
+	 * ============================================================ */
+
+	/* ============ 间距 (4px 基准) ============ */
+	--bbs-space-2:  2px;
+	--bbs-space-4:  4px;
+	--bbs-space-6:  6px;
+	--bbs-space-8:  8px;
 	--bbs-space-12: 12px;
 	--bbs-space-16: 16px;
 	--bbs-space-20: 20px;
@@ -13,124 +20,285 @@
 	--bbs-space-80: 80px;
 	--bbs-space-96: 96px;
 	--bbs-space-160: 160px;
-	/* 圆角 */
-	--bbs-radius-s: 4px;
-	--bbs-radius-m: 8px;
-	--bbs-radius-l: 12;
-	--bbs-radius-xl: 16;
-	--bbs-radius-round: 9999;
-	/* 颜色 */
-	--bbs-color-white: #ffffff;
-	--bbs-color-black: #000000;
-	--bbs-color-primary: #0e6dfa;
-	--bbs-color-success: #21b534;
-	--bbs-color-warning: #fa8205;
-	--bbs-color-danger: #e60a15;
-	--bbs-color-error: #e60a15;
-	--bbs-color-error-light-3: #ee545b;
-	--bbs-color-error-light-5: #f3858a;
-	--bbs-color-error-light-7: #f8b6b9;
-	--bbs-color-error-light-8: #faced0;
-	--bbs-color-error-light-9: #fde7e8;
-	--bbs-color-error-dark-2: #b80811;
-	--bbs-color-info: #909399;
-	--bbs-bg-color: #ffffff;
-	--bbs-gray-color-1: #f7f7f7;
-	--bbs-gray-color-2: #f2f2f2;
-	--bbs-gray-color-3: #ededed;
-	--bbs-gray-color-4: #e8e8e8;
-	--bbs-gray-color-5: #dedede;
-	--bbs-gray-color-6: #b5b5b5;
-	--bbs-gray-color-7: #969696;
-	--bbs-gray-color-8: #828282;
-	--bbs-gray-color-9: #6e6e6e;
-	--bbs-gray-color-10: #636363;
-	--bbs-gray_brand-color-1: #f5f6f8;
-	--bbs-gray_brand-color-2: #eef0f3;
-	--bbs-gray_brand-color-3: #e7eaef;
-	--bbs-gray_brand-color-4: #dfe4eb;
-	--bbs-gray_brand-color-5: #d3d9e2;
-	--bbs-gray_brand-color-6: #aab2be;
-	--bbs-gray_brand-color-7: #8691a2;
-	--bbs-gray_brand-color-8: #747d8a;
-	--bbs-gray_brand-color-9: #626770;
-	--bbs-gray_brand-color-10: #585b60;
-	--bbs-danger-color-1: #fce6e7;
-	--bbs-danger-color-2: #faced0;
-	--bbs-danger-color-3: #f7b5b9;
-	--bbs-danger-color-4: #f59da1;
-	--bbs-danger-color-5: #f3848a;
-	--bbs-danger-color-6: #ee545b;
-	--bbs-danger-color-7: #e60a15;
-	--bbs-danger-color-8: #b80811;
-	--bbs-danger-color-9: #73050b;
-	--bbs-danger-color-10: #450306;
-	--bbs-warning-color-1: #fef2e6;
-	--bbs-warning-color-2: #fee6cd;
-	--bbs-warning-color-3: #fdd9b4;
-	--bbs-warning-color-4: #fdcd9b;
-	--bbs-warning-color-5: #fdc182;
-	--bbs-warning-color-6: #fca750;
-	--bbs-warning-color-7: #fa8205;
-	--bbs-warning-color-8: #c86804;
-	--bbs-warning-color-9: #7d4103;
-	--bbs-warning-color-10: #4b2702;
-	--bbs-success-color-1: #e8f7ea;
-	--bbs-success-color-2: #d3f0d6;
-	--bbs-success-color-3: #bce9c2;
-	--bbs-success-color-4: #a6e1ae;
-	--bbs-success-color-5: #90da99;
-	--bbs-success-color-6: #64cb71;
-	--bbs-success-color-7: #21b534;
-	--bbs-success-color-8: #1a912a;
-	--bbs-success-color-9: #105a1a;
-	--bbs-success-color-10: #0a3610;
-	--bbs-color-primary-light: #e6f0fe;
-	--bbs-color-primary-light-hover: #cfe2fe;
-	--bbs-color-primary-light-border: #b7d3fd;
-	--bbs-brand-color-4: #9fc5fd;
-	--bbs-color-primary-disabled: #86b6fd;
-	--bbs-color-primary-hover: #5699fc;
-	--bbs-disabled-bg-color: var(--bbs-bg-color-secondary);
-	--bbs-disabled-text-color: var(--bbs-text-color-placeholder);
-	--bbs-bg-color-page: var(--bbs-gray_brand-color-1);
-	--bbs-bg-color-overlay: #ffffff;
-	--bbs-bg-color-secondary: var(--bbs-gray_brand-color-2);
-	--bbs-bg-color-tertiary: var(--bbs-gray_brand-color-3);
-	--bbs-bg-color-component: var(--bbs-gray_brand-color-5);
-	--bbs-bg-color-component-hover: var(--bbs-gray_brand-color-4);
-	--bbs-bg-color-component-active: var(--bbs-gray_brand-color-6);
-	--bbs-bg-color-component-disabled: var(--bbs-gray_brand-color-2);
-	--bbs-bg-color-blank: #ffffff;
-	--bbs-text-color-primary: rgba(0, 0, 0, 0.85);
-	--bbs-text-color-regular: var(--bbs-text-color-primary);
-	--bbs-text-color-secondary: rgba(0, 0, 0, 0.55);
-	--bbs-text-color-placeholder: rgba(0, 0, 0, 0.4);
-	--bbs-text-color-disabled: rgba(0, 0, 0, 0.25);
-	--bbs-border-color: rgba(0, 0, 0, 0.1);
-	--bbs-fill-color: #f0f2f5;
-	--bbs-box-shadow: 0px 2px 6px -3px rgba(0, 0, 0, 0.1), 0px 4px 12px rgba(0, 0, 0, 0.08),
-		0px 6px 18px 6px rgba(0, 0, 0, 0.06);
-	--bbs-box-shadow-light: 0px 2px 6px rgba(0, 0, 0, 0.12), 0px 4px 12px rgba(0, 0, 0, 0.1);
-	--bbs-box-shadow-lighter: 0px 2px 6px rgba(0, 0, 0, 0.14);
-	--bbs-box-shadow-dark: 0px 4px 12px -6px rgba(0, 0, 0, 0.08), 0px 6px 18px rgba(0, 0, 0, 0.06),
-		0px 8px 24px 12px rgba(0, 0, 0, 0.04);
-	/* 字体 */
-	--bbs-font-family-bold: 'DINPro Bold';
-	--bbs-font-family-medium: 'DINPro Medium';
-	/* 字体大小 */
-	--bbs-font-size-b12: 12px;
-	--bbs-font-size-b14: 14px;
-	--bbs-font-size-h16: 16px;
-	--bbs-font-size-h20: 20px;
-	--bbs-font-size-h24: 24px;
-	--bbs-font-size-oh32: 32px;
-	--bbs-font-size-oh40: 40px;
-	--bbs-font-size-oh48: 48px;
-	/* 字重 */
-	--bbs-font-weight-primary: 400;
+
+	/* ============ 圆角 ============ */
+	--bbs-radius-xs:   4px;
+	--bbs-radius-sm:   6px;
+	--bbs-radius-md:   8px;
+	--bbs-radius-lg:   12px;
+	--bbs-radius-xl:   16px;
+	--bbs-radius-2xl:  20px;
+	--bbs-radius-3xl:  24px;
+	--bbs-radius-full: 9999px;
+
+	/* ============ 字体栈 ============ */
+	--bbs-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+		"Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	--bbs-font-family-mono: "JetBrains Mono", "Fira Code", "SF Mono", Menlo, Consolas, monospace;
+	--bbs-font-family-display: "DINPro Bold", var(--bbs-font-family);
+
+	/* ============ 字号 ============ */
+	--bbs-font-size-xs:   12px;
+	--bbs-font-size-sm:   13px;
+	--bbs-font-size-base: 14px;
+	--bbs-font-size-md:   15px;
+	--bbs-font-size-lg:   16px;
+	--bbs-font-size-xl:   18px;
+	--bbs-font-size-2xl:  20px;
+	--bbs-font-size-3xl:  24px;
+	--bbs-font-size-4xl:  30px;
+	--bbs-font-size-5xl:  36px;
+	--bbs-font-size-6xl:  48px;
+
+	/* ============ 字重 ============ */
+	--bbs-font-weight-light:    300;
+	--bbs-font-weight-normal:   400;
+	--bbs-font-weight-medium:   500;
+	--bbs-font-weight-semibold: 600;
+	--bbs-font-weight-bold:     700;
+
+	/* ============ 行高 ============ */
+	--bbs-line-height-tight:   1.25;
+	--bbs-line-height-snug:    1.4;
+	--bbs-line-height-base:    1.5;
+	--bbs-line-height-relaxed: 1.7;
+
+	/* ============================================================
+	 *  颜色 - 品牌 (暖珊瑚橙, 亲和 / 年轻 / 社区感)
+	 * ============================================================ */
+	--bbs-color-primary:           #FF6B35;
+	--bbs-color-primary-hover:     #FF8559;
+	--bbs-color-primary-active:    #E5541A;
+	--bbs-color-primary-disabled:  #FFB89A;
+	--bbs-color-primary-light:     #FFF1EA;
+	--bbs-color-primary-lighter:   #FFF8F4;
+	--bbs-color-primary-border:    #FFC4A8;
+
+	--bbs-color-accent:            #FFB627;
+	--bbs-color-accent-light:      #FFF4DC;
+
+	--bbs-color-secondary:         #6B7280;
+	--bbs-color-secondary-light:   #F3F4F6;
+
+	/* ============================================================
+	 *  颜色 - 状态
+	 * ============================================================ */
+	--bbs-color-success:        #22C55E;
+	--bbs-color-success-light:  #DCFCE7;
+	--bbs-color-success-dark:   #16A34A;
+
+	--bbs-color-warning:        #F59E0B;
+	--bbs-color-warning-light:  #FEF3C7;
+	--bbs-color-warning-dark:   #D97706;
+
+	--bbs-color-danger:         #EF4444;
+	--bbs-color-danger-light:   #FEE2E2;
+	--bbs-color-danger-dark:    #DC2626;
+
+	--bbs-color-error:          #EF4444;
+	--bbs-color-error-light-3:  #FCA5A5;
+	--bbs-color-error-light-5:  #FECACA;
+	--bbs-color-error-light-7:  #FEE2E2;
+	--bbs-color-error-light-8:  #FEE2E2;
+	--bbs-color-error-light-9:  #FEF2F2;
+	--bbs-color-error-dark-2:   #B91C1C;
+
+	--bbs-color-info:           #3B82F6;
+	--bbs-color-info-light:     #DBEAFE;
+
+	/* ============================================================
+	 *  颜色 - 文字
+	 * ============================================================ */
+	--bbs-text-color-primary:     #1F2937;
+	--bbs-text-color-regular:     #374151;
+	--bbs-text-color-secondary:   #6B7280;
+	--bbs-text-color-placeholder: #9CA3AF;
+	--bbs-text-color-disabled:    #D1D5DB;
+	--bbs-text-color-inverse:     #FFFFFF;
+	--bbs-text-color-link:        var(--bbs-color-primary);
+	--bbs-text-color-link-hover:  var(--bbs-color-primary-hover);
+
+	/* ============================================================
+	 *  颜色 - 背景
+	 * ============================================================ */
+	--bbs-bg-color:                  #FFFFFF;
+	--bbs-bg-color-page:             #FAFAFA;
+	--bbs-bg-color-page-soft:        #F9FAFB;
+	--bbs-bg-color-overlay:          #FFFFFF;
+	--bbs-bg-color-secondary:        #F9FAFB;
+	--bbs-bg-color-tertiary:         #F3F4F6;
+	--bbs-bg-color-component:        #F3F4F6;
+	--bbs-bg-color-component-hover:  #E5E7EB;
+	--bbs-bg-color-component-active: #D1D5DB;
+	--bbs-bg-color-component-disabled: #F3F4F6;
+	--bbs-bg-color-blank:            #FFFFFF;
+	--bbs-fill-color:                #F3F4F6;
+	--bbs-fill-color-light:          #F9FAFB;
+	--bbs-fill-color-lighter:        #FAFAFA;
+	--bbs-fill-color-blank:          #FFFFFF;
+
+	/* ============================================================
+	 *  颜色 - 边框
+	 * ============================================================ */
+	--bbs-border-color:             #E5E7EB;
+	--bbs-border-color-light:       #F3F4F6;
+	--bbs-border-color-lighter:     #F9FAFB;
+	--bbs-border-color-extra-light: #F3F4F6;
+	--bbs-border-color-hover:       var(--bbs-color-primary);
+	--bbs-border-color-focus:       var(--bbs-color-primary);
+
+	/* ============================================================
+	 *  颜色 - 灰阶
+	 * ============================================================ */
+	--bbs-gray-color-1:  #F9FAFB;
+	--bbs-gray-color-2:  #F3F4F6;
+	--bbs-gray-color-3:  #E5E7EB;
+	--bbs-gray-color-4:  #D1D5DB;
+	--bbs-gray-color-5:  #9CA3AF;
+	--bbs-gray-color-6:  #6B7280;
+	--bbs-gray-color-7:  #4B5563;
+	--bbs-gray-color-8:  #374151;
+	--bbs-gray-color-9:  #1F2937;
+	--bbs-gray-color-10: #111827;
+
+	--bbs-gray-brand-1:  #F9FAFB;
+	--bbs-gray-brand-2:  #F3F4F6;
+	--bbs-gray-brand-3:  #E5E7EB;
+	--bbs-gray-brand-4:  #D1D5DB;
+	--bbs-gray-brand-5:  #9CA3AF;
+	--bbs-gray-brand-6:  #6B7280;
+	--bbs-gray-brand-7:  #4B5563;
+	--bbs-gray-brand-8:  #374151;
+	--bbs-gray-brand-9:  #1F2937;
+	--bbs-gray-brand-10: #111827;
+
+	/* ============================================================
+	 *  颜色 - 特殊场景 (Element Plus 等三方库兼容)
+	 * ============================================================ */
+	--bbs-color-white:       #FFFFFF;
+	--bbs-color-black:       #000000;
+	--bbs-color-transparent: transparent;
+
+	--bbs-color-primary-light-old:      #FFF1EA;
+	--bbs-color-primary-light-hover:    #FFE4D4;
+	--bbs-color-primary-light-border:   #FFC4A8;
+	--bbs-brand-color-4:                #FFC4A8;
+	--bbs-color-primary-disabled-old:    #FFB89A;
+	--bbs-color-primary-hover-old:      #FF8559;
+
+	--bbs-disabled-bg-color:    var(--bbs-bg-color-secondary);
+	--bbs-disabled-text-color:  var(--bbs-text-color-placeholder);
+
+	/* ============================================================
+	 *  颜色 - 危险/警告/成功 渐变 (10 阶)
+	 * ============================================================ */
+	--bbs-danger-color-1:  #FEF2F2;
+	--bbs-danger-color-2:  #FEE2E2;
+	--bbs-danger-color-3:  #FECACA;
+	--bbs-danger-color-4:  #FCA5A5;
+	--bbs-danger-color-5:  #F87171;
+	--bbs-danger-color-6:  #EF4444;
+	--bbs-danger-color-7:  #DC2626;
+	--bbs-danger-color-8:  #B91C1C;
+	--bbs-danger-color-9:  #7F1D1D;
+	--bbs-danger-color-10: #450A0A;
+
+	--bbs-warning-color-1:  #FFFBEB;
+	--bbs-warning-color-2:  #FEF3C7;
+	--bbs-warning-color-3:  #FDE68A;
+	--bbs-warning-color-4:  #FCD34D;
+	--bbs-warning-color-5:  #FBBF24;
+	--bbs-warning-color-6:  #F59E0B;
+	--bbs-warning-color-7:  #D97706;
+	--bbs-warning-color-8:  #B45309;
+	--bbs-warning-color-9:  #78350F;
+	--bbs-warning-color-10: #451A03;
+
+	--bbs-success-color-1:  #F0FDF4;
+	--bbs-success-color-2:  #DCFCE7;
+	--bbs-success-color-3:  #BBF7D0;
+	--bbs-success-color-4:  #86EFAC;
+	--bbs-success-color-5:  #4ADE80;
+	--bbs-success-color-6:  #22C55E;
+	--bbs-success-color-7:  #16A34A;
+	--bbs-success-color-8:  #15803D;
+	--bbs-success-color-9:  #14532D;
+	--bbs-success-color-10: #052E16;
+
+	/* ============================================================
+	 *  阴影 (柔和分层)
+	 * ============================================================ */
+	--bbs-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+	--bbs-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
+	--bbs-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+	--bbs-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.10);
+	--bbs-shadow-xl: 0 16px 40px rgba(0, 0, 0, 0.12);
+	--bbs-shadow-2xl: 0 24px 56px rgba(0, 0, 0, 0.16);
+	--bbs-shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+
+	--bbs-shadow-hover: 0 8px 24px rgba(255, 107, 53, 0.18);
+	--bbs-shadow-focus: 0 0 0 3px rgba(255, 107, 53, 0.20);
+
+	--bbs-box-shadow:        var(--bbs-shadow-md);
+	--bbs-box-shadow-light:  var(--bbs-shadow-sm);
+	--bbs-box-shadow-lighter: var(--bbs-shadow-xs);
+	--bbs-box-shadow-dark:   var(--bbs-shadow-lg);
+
+	/* ============================================================
+	 *  渐变
+	 * ============================================================ */
+	--bbs-gradient-primary: linear-gradient(135deg, #FF6B35 0%, #FF8559 100%);
+	--bbs-gradient-warm:    linear-gradient(135deg, #FF6B35 0%, #FFB627 100%);
+	--bbs-gradient-coral:   linear-gradient(135deg, #FF4757 0%, #FF6B35 100%);
+	--bbs-gradient-soft:    linear-gradient(180deg, #FFFFFF 0%, #FAFAFA 100%);
+	--bbs-gradient-card:    linear-gradient(135deg, #FFF8F4 0%, #FFFFFF 100%);
+
+	/* ============================================================
+	 *  动效曲线 / 时长
+	 * ============================================================ */
+	--bbs-ease-out:        cubic-bezier(0.16, 1, 0.3, 1);
+	--bbs-ease-in-out:     cubic-bezier(0.4, 0, 0.2, 1);
+	--bbs-ease-spring:     cubic-bezier(0.34, 1.56, 0.64, 1);
+	--bbs-transition-fast: 150ms var(--bbs-ease-out);
+	--bbs-transition-base: 200ms var(--bbs-ease-out);
+	--bbs-transition-slow: 300ms var(--bbs-ease-in-out);
+
+	/* ============================================================
+	 *  Z-index 层级
+	 * ============================================================ */
+	--bbs-z-dropdown: 100;
+	--bbs-z-sticky:   200;
+	--bbs-z-fixed:    300;
+	--bbs-z-modal-bg: 400;
+	--bbs-z-modal:    500;
+	--bbs-z-popover:  600;
+	--bbs-z-tooltip:  700;
+	--bbs-z-toast:    800;
+	--bbs-z-loading:  9999;
+
+	/* ============================================================
+	 *  兼容旧变量名 (历史代码继续可用)
+	 * ============================================================ */
+	--bbs-font-family-bold:   var(--bbs-font-family-display);
+	--bbs-font-family-medium: var(--bbs-font-family);
+
+	--bbs-font-size-b12:  var(--bbs-font-size-xs);
+	--bbs-font-size-b14:  var(--bbs-font-size-base);
+	--bbs-font-size-h16:  var(--bbs-font-size-lg);
+	--bbs-font-size-h20:  var(--bbs-font-size-2xl);
+	--bbs-font-size-h24:  var(--bbs-font-size-3xl);
+	--bbs-font-size-oh32: var(--bbs-font-size-4xl);
+	--bbs-font-size-oh40: var(--bbs-font-size-5xl);
+	--bbs-font-size-oh48: var(--bbs-font-size-6xl);
+
+	--bbs-font-weight-primary:  400;
 	--bbs-font-weight-selected: 700;
 
-	/* 菜单 */
-	--bbs-menu-hover-bg-color: #e6f0fe;
+	--bbs-radius-s:     var(--bbs-radius-xs);
+	--bbs-radius-m:     var(--bbs-radius-md);
+	--bbs-radius-l:     var(--bbs-radius-lg);
+	--bbs-radius-xl:    var(--bbs-radius-xl);
+	--bbs-radius-round: var(--bbs-radius-full);
+
+	--bbs-menu-hover-bg-color: var(--bbs-color-primary-light);
 }

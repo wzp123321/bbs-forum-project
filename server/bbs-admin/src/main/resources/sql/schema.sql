@@ -343,3 +343,8 @@ INSERT INTO `bbs_tag` (`name`, `description`) VALUES
 ('MySQL', '数据库'),
 ('求助', '提问求助'),
 ('分享', '经验分享');
+
+-- 默认管理员账号 (用户名: admin, 密码: 123456)
+-- ⚠️ 生产环境部署后请立即通过管理界面修改密码
+INSERT INTO `user_info` (`user_id`, `user_name`, `password`, `gender`, `email`, `create_time`) VALUES
+('b367c1d27d384bfeb435fb2e8e20072d', 'admin', '$2a$10$tBjrilmm5EjATR5kiq1.WOSVXMRM06rtcD9phjyUb1Nfzv.G7RBi6', '1', 'admin@bbs.local', NOW());
