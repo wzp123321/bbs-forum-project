@@ -10,13 +10,14 @@
  */
 export const wrapMedia = (html: string): string => {
   if (!html) return '';
+  // class 在包裹层 div 上，不在 iframe/video 自身；据此判断是否已处理过
+  const isWrapped = (offset: number, whole: string): boolean =>
+    /class\s*=\s*["']responsive-media["']\s*>\s*$/i.test(whole.slice(Math.max(0, offset - 64), offset));
   return html
     .replace(
       /<iframe\b([^>]*?)\/?>(?:<\/iframe>)?/gi,
-      (m, attrs: string) => {
-        // 跳过已包裹的
-        if (/class\s*=\s*["'][^"']*responsive-media/i.test(attrs)) return m;
-        // 强制 100% 宽
+      (m, attrs: string, offset: number, whole: string) => {
+        if (isWrapped(offset, whole)) return m;
         const cleaned = attrs
           .replace(/\swidth\s*=\s*["'][^"']*["']/i, '')
           .replace(/\sheight\s*=\s*["'][^"']*["']/i, '');
@@ -25,12 +26,13 @@ export const wrapMedia = (html: string): string => {
     )
     .replace(
       /<video\b([^>]*?)>([\s\S]*?)<\/video>/gi,
-      (m, attrs: string, inner: string) => {
-        if (/class\s*=\s*["'][^"']*responsive-media/i.test(attrs)) return m;
+      (m, attrs: string, inner: string, offset: number, whole: string) => {
+        if (isWrapped(offset, whole)) return m;
         const cleaned = attrs
           .replace(/\swidth\s*=\s*["'][^"']*["']/i, '')
           .replace(/\sheight\s*=\s*["'][^"']*["']/i, '');
-        return `<div class="responsive-media"><video${cleaned} controls>${inner}</video></div>`;
+        const controls = /\bcontrols\b/i.test(cleaned) ? '' : ' controls';
+        return `<div class="responsive-media"><video${cleaned}${controls}>${inner}</video></div>`;
       },
     );
 };

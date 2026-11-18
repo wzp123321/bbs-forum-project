@@ -1,7 +1,17 @@
 server:
-  port: 9999
-#配置数据源
+  port: ${SERVER_PORT:9999}
+  shutdown: graceful
+
 spring:
+  application:
+    name: ${APP_NAME:bbs-admin}
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: ${REDIS_TIMEOUT:2s}
+#配置数据源
   # 文件上传配置
   servlet:
     multipart:
@@ -14,9 +24,9 @@ spring:
       file-size-threshold: 1MB
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver # 驱动包名
-    url: jdbc:mysql://localhost:3306/bbs?useSSL=false&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-    username: root # mysql 账号
-    password: 123456 # mysql 密码
+    url: ${DB_URL:jdbc:mysql://localhost:3306/bbs?useSSL=false&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:123456}
     type: com.alibaba.druid.pool.DruidDataSource
     # druid 连接池管理
     druid:
@@ -69,14 +79,17 @@ spring:
         # 是否能够重置数据
         reset-enable: false
         # 需要账号密码才能访问控制台，默认为root
-        login-username: druid
-        login-password: druid
+        login-username: ${DRUID_USERNAME:druid}
+        login-password: ${DRUID_PASSWORD:druid}
         # IP白名单
         allow: 127.0.0.1
         # IP黑名单（共同存在时，deny优先于allow）
         deny:
 
 logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{requestId:-}] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{requestId:-}] %-5level %logger{36} - %msg%n"
   level:
     root: info
     com.bbs.bbsadmin: debug
@@ -95,29 +108,54 @@ mybatis-plus:
 
 knife4j:
   # 开启增强配置
-  enable: true
+  enable: ${KNIFE4J_ENABLED:true}
   # 开启生产环境屏蔽
-  production: false
+  production: ${KNIFE4J_PRODUCTION:false}
   # 开启Swagger的Basic认证功能,默认是false
   basic:
     enable: true
     # Basic认证用户名
-    username: admin
+    username: ${KNIFE4J_USERNAME:admin}
     # Basic认证密码
-    password: 123456
+    password: ${KNIFE4J_PASSWORD:123456}
 
 # 附件上传 自定义配置
 bbs:
+  jwt:
+    # 生产环境必须通过 BBS_JWT_SECRET 注入, 至少 32 字节
+    secret: ${BBS_JWT_SECRET:bbs-admin-default-secret-key-please-change-in-production-32+bytes}
+    expire-millis: ${BBS_JWT_EXPIRE_MILLIS:604800000}
+  # 缓存与搜索：默认保持原有 Caffeine + SQL LIKE，可按需切换
+  cache:
+    type: ${CACHE_TYPE:caffeine}
+    ttl-seconds: ${CACHE_TTL_SECONDS:600}
+  search:
+    engine: ${SEARCH_ENGINE:sql}
+    es:
+      url: ${ES_URL:http://localhost:9200}
+      index: ${ES_INDEX:bbs-post}
   auth:
-    # 管理员 userId 列表 (逗号分隔), 可执行后台管理操作
-    # 留空表示无内置管理员，由后续注册的账户配合角色/权限使用
-    admin-user-ids: b367c1d27d384bfeb435fb2e8e20072d
+    # 管理员 userId 列表 (逗号分隔), 可通过 BBS_ADMIN_USER_IDS 覆盖
+    admin-user-ids: ${BBS_ADMIN_USER_IDS:b367c1d27d384bfeb435fb2e8e20072d}
   upload:
     # 本地存储根目录 (相对于 jar 运行目录)
-    base-dir: ./uploads
+    base-dir: ${BBS_UPLOAD_DIR:./uploads}
     # 对外访问 URL 前缀
     url-prefix: /upload/
     # 允许的扩展名 (逗号分隔,小写), 空表示不限制
     allowed-extensions: jpg,jpeg,png,gif,webp,bmp,svg,ico,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar,7z,mp3,mp4
     # 允许的 MIME 类型前缀, 用于 content-type 校验
     allowed-content-types-prefix: image/,video/,audio/,application/pdf,application/zip,application/msword,application/vnd.openxmlformats-officedocument,text/plain,application/x-rar-compressed,application/x-7z-compressed
+
+# 可观测性: 健康检查 / 指标 / Prometheus 抓取
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${ACTUATOR_EXPOSURE:health,info,metrics,prometheus}
+  endpoint:
+    health:
+      show-details: ${ACTUATOR_HEALTH_DETAILS:when-authorized}
+  metrics:
+    tags:
+      application: ${APP_NAME:bbs-admin}

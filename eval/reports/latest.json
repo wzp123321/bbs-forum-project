@@ -1,0 +1,116 @@
+{
+  "summary": {
+    "generatedAt": "2026-11-18T14:12:54.287Z",
+    "dataset": "bbs-tag-smoke.jsonl",
+    "adapter": "mock.mjs",
+    "cases": 6,
+    "exactMatchRate": 0.833,
+    "containsAllRate": 1,
+    "meanRecallAtK": 1,
+    "meanSimilarity": 0.897,
+    "avgLatencyMs": 0,
+    "threshold": 0.7,
+    "passed": true
+  },
+  "results": [
+    {
+      "id": "tag-001",
+      "input": "帖子标题：Spring Boot 3 集成 Redis 缓存，附 docker-compose 配置",
+      "expected": [
+        "Java",
+        "Redis"
+      ],
+      "output": [
+        "Redis",
+        "Java",
+        "后端"
+      ],
+      "exact": false,
+      "containsAll": true,
+      "recallAtK": 1,
+      "similarity": 0.38095238095238093,
+      "latencyMs": 1
+    },
+    {
+      "id": "tag-002",
+      "input": "帖子标题：Vue3 + TypeScript 表单校验踩坑记录",
+      "expected": [
+        "Vue",
+        "TypeScript"
+      ],
+      "output": [
+        "Vue",
+        "TypeScript"
+      ],
+      "exact": true,
+      "containsAll": true,
+      "recallAtK": 1,
+      "similarity": 1,
+      "latencyMs": 0
+    },
+    {
+      "id": "tag-003",
+      "input": "帖子标题：Elasticsearch 中文分词器 IK 安装与索引重建",
+      "expected": [
+        "Elasticsearch",
+        "搜索"
+      ],
+      "output": [
+        "Elasticsearch",
+        "搜索"
+      ],
+      "exact": true,
+      "containsAll": true,
+      "recallAtK": 1,
+      "similarity": 1,
+      "latencyMs": 0
+    },
+    {
+      "id": "tag-004",
+      "input": "帖子标题：周末徒步路线分享，含装备清单",
+      "expected": [
+        "生活"
+      ],
+      "output": [
+        "生活"
+      ],
+      "exact": true,
+      "containsAll": true,
+      "recallAtK": 1,
+      "similarity": 1,
+      "latencyMs": 0
+    },
+    {
+      "id": "tag-005",
+      "input": "帖子标题：MySQL 慢查询 EXPLAIN 实战",
+      "expected": [
+        "MySQL",
+        "数据库"
+      ],
+      "output": [
+        "MySQL",
+        "数据库"
+      ],
+      "exact": true,
+      "containsAll": true,
+      "recallAtK": 1,
+      "similarity": 1,
+      "latencyMs": 1
+    },
+    {
+      "id": "tag-006",
+      "input": "帖子标题：Playwright E2E 测试入口与 CI 接入",
+      "expected": [
+        "测试"
+      ],
+      "output": [
+        "测试"
+      ],
+      "exact": true,
+      "containsAll": true,
+      "recallAtK": 1,
+      "similarity": 1,
+      "latencyMs": 0
+    }
+  ]
+}

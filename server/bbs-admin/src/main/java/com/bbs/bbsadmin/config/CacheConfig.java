@@ -5,6 +5,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
@@ -21,6 +22,7 @@ public class CacheConfig {
 
     @Bean
     @Primary
+    @ConditionalOnProperty(name = "bbs.cache.type", havingValue = "caffeine", matchIfMissing = true)
     public CacheManager cacheManager() {
         CaffeineCacheManager mgr = new CaffeineCacheManager();
         mgr.setCaffeine(Caffeine.newBuilder()

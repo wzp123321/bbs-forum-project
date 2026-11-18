@@ -1,0 +1,10 @@
+{
+  "name": "bbs-eval",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "eval": "node runner.mjs",
+    "eval:http": "node runner.mjs --adapter adapters/http.mjs"
+  }
+}

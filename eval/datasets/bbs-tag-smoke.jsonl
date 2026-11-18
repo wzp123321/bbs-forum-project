@@ -1,0 +1,6 @@
+{"id":"tag-001","input":"帖子标题：Spring Boot 3 集成 Redis 缓存，附 docker-compose 配置","expected":["Java","Redis"],"meta":{"type":"tag"}}
+{"id":"tag-002","input":"帖子标题：Vue3 + TypeScript 表单校验踩坑记录","expected":["Vue","TypeScript"],"meta":{"type":"tag"}}
+{"id":"tag-003","input":"帖子标题：Elasticsearch 中文分词器 IK 安装与索引重建","expected":["Elasticsearch","搜索"],"meta":{"type":"tag"}}
+{"id":"tag-004","input":"帖子标题：周末徒步路线分享，含装备清单","expected":["生活"],"meta":{"type":"tag"}}
+{"id":"tag-005","input":"帖子标题：MySQL 慢查询 EXPLAIN 实战","expected":["MySQL","数据库"],"meta":{"type":"tag"}}
+{"id":"tag-006","input":"帖子标题：Playwright E2E 测试入口与 CI 接入","expected":["测试"],"meta":{"type":"tag"}}

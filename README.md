@@ -283,3 +283,24 @@ openspec list                          # 查看进行中变更
 openspec validate <change> --strict    # 校验变更规格
 openspec archive <change> --yes        # 归档已完成变更
 ```
+
+## 十一、工程化能力
+
+| 方向 | 落地位置 | 运行方式 |
+| --- | --- | --- |
+| 自动化测试 | `server/bbs-admin/src/test/`（JUnit5 + Mockito）、`web/**/*.test.ts`（Vitest）、`web/e2e/`（Playwright） | `mvn -B test`；`pnpm test` / `pnpm test:coverage`；`pnpm test:e2e` |
+| CI 门禁 | `.github/workflows/ci.yml` | 后端测试、前端单测+覆盖率、E2E 冒烟、AI 评测、镜像构建全部串入流水线 |
+| 可观测性 | `RequestIdFilter` + Actuator `/actuator/{health,metrics,prometheus}` + 前端 `core/monitor.ts` | 请求头 `X-Request-Id` 贯穿日志；前端配置 `VITE_MONITOR_ENDPOINT` 后上报错误与性能 |
+| 配置外置 | `application.yml` 与 `.env.example` | DB / JWT / Druid / Knife4j / Redis / ES / Actuator 均可由环境变量覆盖 |
+| Redis 缓存 | `RedisCacheConfig`，`CACHE_TYPE=redis` 启用 | 默认仍为 Caffeine；切到 Redis 后 `bbs.cache.ttl-seconds` 控制 TTL |
+| ES 搜索 | `EsPostSearchClient`，`SEARCH_ENGINE=elasticsearch` 启用 | 默认 SQL LIKE；启用后 ES 无结果或不可用时自动回退。首次需调 `POST /admin/search/reindex`（管理员）建索引 |
+| AI 评测 | `eval/` | `cd eval && npm run eval`；真实模型用 `npm run eval:http` + `EVAL_TARGET_URL`。详见 `eval/README.md` |
+
+可选中间件通过 compose profile 启动，不影响默认一键部署：
+
+```bash
+docker compose --profile cache up -d   # 附带 Redis
+docker compose --profile search up -d  # 附带 Elasticsearch
+```
+
+需要本地 MySQL 的上下文冒烟测试默认跳过；设置 `RUN_DB_TESTS=true` 后执行 `mvn test` 才会运行。

@@ -30,8 +30,11 @@ import com.bbs.bbsadmin.security.XssSanitizer;
 import com.bbs.bbsadmin.service.AttachmentService;
 import com.bbs.bbsadmin.service.FollowRecordService;
 import com.bbs.bbsadmin.service.PostService;
+import com.bbs.bbsadmin.search.EsPostSearchClient;
 import com.bbs.bbsadmin.utils.RequestUtils;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -75,6 +78,12 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
     @Autowired
     private FollowRecordService followRecordService;
 
+    @Autowired
+    private ObjectProvider<EsPostSearchClient> esPostSearchClient;
+
+    @Value("${bbs.search.engine:sql}")
+    private String searchEngine;
+
     /** 同一访问者 5 分钟内重复访问同一帖子不重复计数 */
     private static final long VIEW_DEDUP_MINUTES = 5;
 
@@ -93,7 +102,19 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         String sort = normalizeSort(query.getSort());
         LambdaQueryWrapper<Post> wrapper = new LambdaQueryWrapper<>();
         if (StringUtils.hasText(query.getKeyword())) {
-            wrapper.like(Post::getTitle, query.getKeyword());
+            List<Long> esIds = null;
+            if ("elasticsearch".equals(searchEngine)) {
+                EsPostSearchClient client = esPostSearchClient.getIfAvailable();
+                if (client != null) {
+                    // 最多取 200 个候选；ES 不可用/索引为空时返回 null，自动回退 SQL LIKE
+                    esIds = client.searchIds(query.getKeyword(), 0, 200);
+                }
+            }
+            if (esIds != null && !esIds.isEmpty()) {
+                wrapper.in(Post::getId, esIds);
+            } else {
+                wrapper.like(Post::getTitle, query.getKeyword());
+            }
         }
         if (query.getCategoryId() != null) {
             wrapper.eq(Post::getCategoryId, query.getCategoryId());
@@ -261,6 +282,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         baseMapper.insert(p);
 
         saveTags(p.getId(), dto.getTagIds());
+        indexIfEnabled(p);
         return p.getId();
     }
 
@@ -293,8 +315,18 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         boolean ok = baseMapper.updateById(p) > 0;
         if (ok) {
             saveTags(id, dto.getTagIds());
+            indexIfEnabled(p);
         }
         return ok;
+    }
+
+    /** ES 启用时才同步索引；未启用时零开销。 */
+    private void indexIfEnabled(Post post) {
+        if (!"elasticsearch".equals(searchEngine)) return;
+        EsPostSearchClient client = esPostSearchClient.getIfAvailable();
+        if (client != null) {
+            client.indexPost(post);
+        }
     }
 
     @Override

@@ -50,16 +50,57 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
       # JWT / 上传等可在此覆盖
-      BSS_JWT_SECRET: ${BBS_JWT_SECRET:-please-change-me-in-prod-32bytes-min}
+      BBS_JWT_SECRET: ${BBS_JWT_SECRET:-please-change-me-in-prod-32bytes-min}
+      BBS_JWT_EXPIRE_MILLIS: ${BBS_JWT_EXPIRE_MILLIS:-604800000}
+      BBS_ADMIN_USER_IDS: ${BBS_ADMIN_USER_IDS:-b367c1d27d384bfeb435fb2e8e20072d}
       BBS_UPLOAD_DIR: /app/upload
+      KNIFE4J_PRODUCTION: ${KNIFE4J_PRODUCTION:-false}
+      KNIFE4J_USERNAME: ${KNIFE4J_USERNAME:-admin}
+      KNIFE4J_PASSWORD: ${KNIFE4J_PASSWORD:-123456}
+      DRUID_USERNAME: ${DRUID_USERNAME:-druid}
+      DRUID_PASSWORD: ${DRUID_PASSWORD:-druid}
+      ACTUATOR_EXPOSURE: ${ACTUATOR_EXPOSURE:-health,info,metrics,prometheus}
+      CACHE_TYPE: ${CACHE_TYPE:-caffeine}
+      CACHE_TTL_SECONDS: ${CACHE_TTL_SECONDS:-600}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      SEARCH_ENGINE: ${SEARCH_ENGINE:-sql}
+      ES_URL: ${ES_URL:-http://elasticsearch:9200}
+      ES_INDEX: ${ES_INDEX:-bbs-post}
     volumes:
       - upload_data:/app/upload
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8888/admin/auth/info"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:9999/actuator/health"]
       interval: 30s
       timeout: 5s
       retries: 5
       start_period: 40s
+
+  redis:
+    image: redis:7-alpine
+    container_name: bbs-redis
+    restart: unless-stopped
+    profiles: ["cache"]
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
+    container_name: bbs-elasticsearch
+    restart: unless-stopped
+    profiles: ["search"]
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - "${ES_PORT:-9200}:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
 
   bbs-web:
     build:
@@ -79,3 +120,5 @@ services:
 volumes:
   mysql_data:
   upload_data:
+  redis_data:
+  es_data:

@@ -8,6 +8,9 @@ import { registerInputFilter, lazyDirectiveRegister } from '@bbs/core';
 import { registerElementPlus } from '../../../public/core';
 // pinia
 import pinia from './pinia';
+import { initMonitoring } from './core/monitor';
+
+initMonitoring();
 
 const app = createApp(App);
 registerInputFilter(app);
