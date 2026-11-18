@@ -12,4 +12,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequireAuth {
+    /** 仅管理员可访问, 普通登录用户返回 403 */
+    boolean adminOnly() default false;
 }

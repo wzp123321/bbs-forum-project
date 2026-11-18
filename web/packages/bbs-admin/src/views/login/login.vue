@@ -17,7 +17,7 @@
       <ul class="bl-brand-list">
         <li><el-icon><DataAnalysis /></el-icon> 数据看板, 一目了然</li>
         <li><el-icon><SetUp /></el-icon> 内容审核, 高效处理</li>
-        <li><el-icon><Safe /></el-icon> 权限管控, 安全可靠</li>
+        <li><el-icon><Key /></el-icon> 权限管控, 安全可靠</li>
       </ul>
     </div>
 
@@ -77,7 +77,7 @@
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { User, Lock, DataAnalysis, SetUp, Safe } from '@element-plus/icons-vue';
+import { User, Lock, DataAnalysis, SetUp, Key } from '@element-plus/icons-vue';
 import { loginApi } from '@/apis/auth';
 import { tokenStore, USER_ID_KEY, USER_NAME_KEY } from '@/utils';
 

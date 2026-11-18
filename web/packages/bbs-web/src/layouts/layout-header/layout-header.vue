@@ -15,7 +15,7 @@
 
         <nav class="lh-nav">
           <router-link
-            v-for="item in headerLeftMenuList"
+            v-for="item in navItems"
             :key="item.path"
             :to="item.path"
             class="lh-nav-item"
@@ -46,9 +46,24 @@
           </span>
         </div>
 
-        <button class="lh-publish-btn" @click="goPublish">
-          <el-icon><EditPen /></el-icon>
-          <span>发帖</span>
+        <el-dropdown trigger="click" @command="goPublish">
+          <button class="lh-publish-btn">
+            <el-icon><EditPen /></el-icon>
+            <span>创作中心</span>
+          </button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item v-for="entry in creationEntries" :key="entry.title" :command="entry.path">
+                {{ entry.title }}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+
+        <button v-if="userName" class="lh-icon-btn" title="我的消息" @click="goMessages">
+          <el-badge :value="unread" :max="99" :hidden="unread === 0" :offset="[-4, 4]">
+            <el-icon :size="18"><Bell /></el-icon>
+          </el-badge>
         </button>
 
         <router-link to="/admin" target="_blank" class="lh-admin-link" title="进入管理后台">
@@ -61,9 +76,11 @@
         </template>
 
         <div v-else class="lh-user" @click="goUserCenter">
-          <el-avatar :size="36" :icon="UserFilled" class="lh-user-avatar" />
+          <el-avatar :size="36" :src="resolveFileUrl(avatar)" class="lh-user-avatar">
+            {{ (nickname || userName || '?').slice(0, 1) }}
+          </el-avatar>
           <div class="lh-user-info">
-            <div class="lh-user-name">{{ userName }}</div>
+            <div class="lh-user-name">{{ nickname || userName }}</div>
             <div class="lh-user-level">LV.3</div>
           </div>
         </div>
@@ -73,13 +90,16 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessageBox, ElMessage } from 'element-plus';
-import { Search, UserFilled, EditPen, Setting, CircleClose } from '@element-plus/icons-vue';
-import { headerLeftMenuList } from './model';
+import { Search, EditPen, Setting, CircleClose, Bell } from '@element-plus/icons-vue';
+import { creationEntries, headerLeftMenuList } from './model';
 import { useUserInfo } from '@/hooks';
 import { logoutApi } from '@/apis/auth';
+import { getUserApi } from '@/apis/user';
+import { unreadCountApi } from '@/apis/notification';
+import { resolveFileUrl } from '@/apis/attachment';
 import { tokenStore, userStore } from '@/utils';
 
 defineOptions({
@@ -87,6 +107,9 @@ defineOptions({
 });
 const route = useRoute();
 const router = useRouter();
+
+/** 只渲染能落到真实页面的菜单项: 空 path 视为未配置 */
+const navItems = computed(() => headerLeftMenuList.filter(item => !!item.path));
 
 const searchLabel = ref('');
 const searchFocused = ref(false);
@@ -101,13 +124,13 @@ const handleSearch = () => {
   searchLabel.value = '';
 };
 
-const goPublish = () => {
+const goPublish = (path: string) => {
   if (!userName.value) {
     ElMessage.warning('请先登录');
     navigateToLogin();
     return;
   }
-  router.push('/post/publish');
+  router.push(path);
 };
 
 const navigateToPage = (path: string) => router.push(path);
@@ -116,6 +139,45 @@ const navigateToRegister = () => router.push({ path: '/register', query: { redir
 const goUserCenter = () => router.push('/user-center');
 
 const { userName, initUserByStorage } = useUserInfo();
+const nickname = ref('');
+const avatar = ref('');
+const unread = ref(0);
+
+/** 未读数轮询间隔: 单机部署下不引长连接, 60 秒够用 */
+const UNREAD_POLL_MS = 60_000;
+let unreadTimer: ReturnType<typeof setInterval> | null = null;
+
+const loadProfile = async () => {
+  const uid = userStore.getUserId();
+  if (!uid) return;
+  try {
+    const u = await getUserApi(uid);
+    nickname.value = u.nickname || u.userName || '';
+    avatar.value = u.avatar || '';
+  } catch {
+    // 头像昵称拿不到不影响导航使用
+  }
+};
+
+const loadUnread = async () => {
+  if (!tokenStore.get()) {
+    unread.value = 0;
+    return;
+  }
+  try {
+    const res = await unreadCountApi();
+    unread.value = res.count;
+  } catch {
+    // ignore
+  }
+};
+
+const goMessages = () => router.push('/user-center/messages');
+
+/** 页面切回前台时立即刷新, 避免后台标签页定时器被节流导致角标陈旧 */
+const onVisibilityChange = () => {
+  if (document.visibilityState === 'visible') loadUnread();
+};
 
 const handleLogout = async () => {
   try {
@@ -143,6 +205,15 @@ const handleLogout = async () => {
 onMounted(() => {
   searchLabel.value = '';
   initUserByStorage();
+  loadProfile();
+  loadUnread();
+  unreadTimer = setInterval(loadUnread, UNREAD_POLL_MS);
+  document.addEventListener('visibilitychange', onVisibilityChange);
+});
+
+onUnmounted(() => {
+  if (unreadTimer) clearInterval(unreadTimer);
+  document.removeEventListener('visibilitychange', onVisibilityChange);
 });
 </script>
 
@@ -357,6 +428,26 @@ onMounted(() => {
 }
 
 /* 管理入口 */
+.lh-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: none;
+  border-radius: var(--bbs-radius-md);
+  background: transparent;
+  color: var(--bbs-text-color-secondary);
+  cursor: pointer;
+  transition: all var(--bbs-transition-fast);
+
+  &:hover {
+    background: var(--bbs-fill-color-light);
+    color: var(--bbs-text-color-primary);
+  }
+}
+
 .lh-admin-link {
   display: inline-flex;
   align-items: center;

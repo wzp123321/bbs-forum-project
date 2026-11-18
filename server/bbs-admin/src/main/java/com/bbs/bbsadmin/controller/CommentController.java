@@ -60,7 +60,7 @@ public class CommentController {
     }
 
     @Operation(summary = "编辑评论")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @AuditLog(action = "COMMENT_UPDATE", description = "编辑评论", targetType = "COMMENT", targetIdSpEl = "#id")
     @PostMapping("/{id}/update")
     public R<Void> update(@PathVariable Long id, @Valid @RequestBody CommentSaveDTO dto) {
@@ -79,7 +79,7 @@ public class CommentController {
     }
 
     @Operation(summary = "修改评论状态")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @PostMapping("/{id}/changeStatus")
     public R<Void> changeStatus(@PathVariable Long id, @RequestBody Map<String, Integer> body) {
         Integer status = body == null ? null : body.get("status");

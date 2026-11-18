@@ -1,147 +1,166 @@
 <template>
   <div class="dictionary-manage">
-    <el-form :inline="true" :model="searchForm" class="search-form">
-      <el-form-item label="字典名称：">
-        <el-input v-model="searchForm.name" placeholder="名称" clearable />
+    <el-form :inline="true" :model="searchForm" @submit.prevent="searchList">
+      <el-form-item>
+        <el-input
+          v-model="searchForm.keyword"
+          placeholder="展示名 / 存储值"
+          clearable
+          @keyup.enter="searchList"
+        />
       </el-form-item>
-      <el-form-item label="字典类型：">
-        <el-select v-model="searchForm.type" placeholder="类型" style="width: 220px">
-          <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+      <el-form-item>
+        <el-select v-model="searchForm.typeId" placeholder="全部类型" clearable style="width: 200px" @change="searchList">
+          <el-option v-for="t in typeOptions" :key="t.id" :label="t.name" :value="t.id" />
         </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="searchList">查询</el-button>
-        <el-button type="primary" @click="openAddEditDrawer">新增</el-button>
+        <el-button @click="resetSearch">重置</el-button>
+        <el-button type="success" @click="openAddDrawer">新增字典项</el-button>
       </el-form-item>
     </el-form>
-    <el-divider />
-    <el-table :data="tableData" :border="true" style="width: 100%">
-      <el-table-column prop="id" label="ID" width="120" />
-      <el-table-column prop="name" label="名称" />
-      <el-table-column prop="status" label="状态">
-        <template #default="scope">
-          <el-switch v-model="scope.row.status" disabled active-text="激活" inactive-text="未激活" />
+
+    <el-table v-loading="loading" :data="dataSource" border stripe style="width: 100%">
+      <el-table-column prop="id" label="ID" width="80" />
+      <el-table-column prop="typeName" label="所属类型" min-width="130" />
+      <el-table-column prop="label" label="展示名" min-width="140" />
+      <el-table-column prop="value" label="存储值" min-width="120" />
+      <el-table-column prop="sort" label="排序" width="80" align="center" />
+      <el-table-column label="状态" width="100">
+        <template #default="{ row }">
+          <el-switch
+            :model-value="row.status"
+            :active-value="1"
+            :inactive-value="0"
+            @change="(val: string | number | boolean) => toggleStatus(row, Number(val))"
+          />
         </template>
       </el-table-column>
-      <el-table-column prop="type" label="类型" />
-      <el-table-column prop="describe" label="描述" />
-      <el-table-column fixed="right" label="操作" min-width="120">
-        <template #default="scope">
-          <el-button link type="primary" size="small" @click="openAddEditDrawer(scope.row)">编辑</el-button>
-          <el-button link type="primary" size="small" @click="confirmDelete">删除</el-button>
+      <el-table-column prop="createTime" label="创建时间" width="170" />
+      <el-table-column label="操作" width="160" fixed="right">
+        <template #default="{ row }">
+          <el-button type="primary" link @click="openEditDrawer(row)">编辑</el-button>
+          <el-button type="danger" link @click="confirmDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
+
     <el-pagination
-      v-model:current-page="pageNum"
-      v-model:page-size="pageSize"
+      class="dm-pagination"
+      :current-page="pageNum"
+      :page-size="pageSize"
       :page-sizes="pageSizes"
-      background
-      layout="total, sizes, prev, pager, next, jumper"
       :total="total"
+      layout="total, sizes, prev, pager, next, jumper"
       @size-change="onPageSizeChange"
       @current-change="onPageNumChange"
     />
+
+    <UmAddEditDrawer ref="drawerRef" @saved="fetchList" />
   </div>
-  <!-- 新增/编辑弹窗 -->
-  <UmAddEditDrawer ref="addEditDrawerRef" />
 </template>
 
 <script lang="ts" setup>
 import { reactive, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
-import { RowFrom, SearchForm, TableData } from './constant/model';
+import {
+  changeDictionaryStatusApi,
+  deleteDictionaryApi,
+  listDictionaryTypesApi,
+  pageDictionariesApi,
+} from '@/apis';
+import type { DictionaryTypeVO, DictionaryVO } from '@/apis';
+import { SearchForm } from './constant/model';
 import { UmAddEditDrawer } from './components';
-defineOptions({
-  name: 'DictionaryManage',
-});
 
-const tableData = ref<TableData[]>([
-  {
-    id: '1',
-    name: 'Tom',
-    status: true,
-    describe: '1111',
-    type: '1',
-  },
-  {
-    id: '2',
-    name: 'Tom2',
-    status: true,
-    describe: '2222',
-    type: '2',
-  },
-]);
-const options = [
-  {
-    value: '1',
-    label: '1',
-  },
-  {
-    value: '2',
-    label: '2',
-  },
-];
+defineOptions({ name: 'DictionaryManage' });
 
-// 分页
 const { pageNum, pageSize, total, setPageNum, setPageSize } = usePagination();
-// 修改条数
+const dataSource = ref<DictionaryVO[]>([]);
+const typeOptions = ref<DictionaryTypeVO[]>([]);
+const loading = ref(false);
+const searchForm = reactive<SearchForm>({ keyword: '', typeId: undefined });
+const drawerRef = ref<InstanceType<typeof UmAddEditDrawer>>();
+
+const fetchList = async () => {
+  loading.value = true;
+  try {
+    const res = await pageDictionariesApi({
+      pageNum: pageNum.value,
+      pageSize: pageSize.value,
+      keyword: searchForm.keyword || undefined,
+      typeId: searchForm.typeId,
+    });
+    dataSource.value = res.list;
+    total.value = res.total;
+  } finally {
+    loading.value = false;
+  }
+};
+
+const fetchTypes = async () => {
+  try {
+    typeOptions.value = await listDictionaryTypesApi();
+  } catch {
+    typeOptions.value = [];
+  }
+};
+
 const onPageSizeChange = (value: number) => {
   setPageSize(value);
-  searchList();
+  fetchList();
 };
-// 修改页码
+
 const onPageNumChange = (value: number) => {
   setPageNum(value);
+  fetchList();
+};
+
+const searchList = () => {
+  setPageNum(1);
+  fetchList();
+};
+
+const resetSearch = () => {
+  searchForm.keyword = '';
+  searchForm.typeId = undefined;
   searchList();
 };
 
-// 查询表单
-const searchForm = reactive<SearchForm>({
-  type: '',
-  name: '',
-});
-// 查询
-const searchList = () => {};
+const openAddDrawer = () => drawerRef.value?.open();
 
-const addEditDrawerRef = ref<typeof UmAddEditDrawer>();
-// 打开抽屉
-const openAddEditDrawer = (row: RowFrom) => {
-  if (!addEditDrawerRef.value) return;
-  addEditDrawerRef.value.open(row);
+const openEditDrawer = (row: DictionaryVO) => drawerRef.value?.open(row);
+
+const toggleStatus = async (row: DictionaryVO, status: number) => {
+  await changeDictionaryStatusApi(row.id, status);
+  row.status = status;
+  ElMessage.success(status === 1 ? '已启用' : '已停用');
 };
-// 删除
-const confirmDelete = () => {
-  ElMessageBox.confirm('确定删除该数据?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning',
-  })
-    .then(() => {
-      ElMessage({
-        type: 'success',
-        message: '删除 completed',
-      });
-    })
-    .catch(() => {
-      ElMessage({
-        type: 'info',
-        message: '删除 canceled',
-      });
+
+const confirmDelete = async (row: DictionaryVO) => {
+  try {
+    await ElMessageBox.confirm(`确认删除字典项 ${row.label} ?`, '提示', {
+      type: 'warning',
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
     });
+  } catch {
+    return;
+  }
+  await deleteDictionaryApi(row.id);
+  ElMessage.success('删除成功');
+  fetchList();
 };
+
+fetchTypes();
+fetchList();
 </script>
 
 <style lang="less" scoped>
-.dictionary-manage {
-  height: 100%;
-  padding: 20px;
-  background: #fff;
-  border-radius: 10px;
-
-  .search-form .el-input {
-    --el-input-width: 220px;
-  }
+.dm-pagination {
+  margin-top: 16px;
+  justify-content: flex-end;
 }
 </style>

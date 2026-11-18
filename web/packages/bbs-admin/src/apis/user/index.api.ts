@@ -2,6 +2,10 @@
 export interface UserVO {
   userId: string;
   userName: string;
+  /** 展示名: 昵称, 为空时后端已回退为用户名 */
+  nickname?: string;
+  avatar?: string;
+  signature?: string;
   gender?: string;
   email?: string;
   phone?: string;

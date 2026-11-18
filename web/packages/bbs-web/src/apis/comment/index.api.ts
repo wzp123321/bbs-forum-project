@@ -5,9 +5,14 @@ export interface CommentVO {
   postTitle?: string;
   userId?: string;
   userName?: string;
+  /** 评论者昵称 (为空时后端已回退为 userName) */
+  nickname?: string;
+  /** 评论者头像 URL */
+  avatar?: string;
   parentId?: number;
   replyToUserId?: string;
   replyToUserName?: string;
+  replyToNickname?: string;
   content?: string;
   likeCount?: number;
   status?: number;

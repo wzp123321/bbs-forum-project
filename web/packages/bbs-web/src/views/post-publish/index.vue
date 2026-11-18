@@ -86,6 +86,7 @@
 
         <el-form-item>
           <el-button type="primary" :loading="submitting" @click="handleSubmit">发布</el-button>
+          <el-button :loading="savingDraft" @click="handleSaveDraft">存草稿</el-button>
           <el-button @click="onReset">重置</el-button>
         </el-form-item>
       </el-form>
@@ -121,12 +122,12 @@
 
 <script lang="ts" setup>
 import { onMounted, reactive, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox, FormInstance, FormRules } from 'element-plus';
 import { Coin, Delete, EditPen, Files, Link, Picture, VideoCameraFilled } from '@element-plus/icons-vue';
 import { listCategoriesApi } from '@/apis/category';
 import { listTagsApi } from '@/apis/tag';
-import { createPostApi } from '@/apis/post';
+import { createPostApi, getDraftApi, publishDraftApi, saveDraftApi } from '@/apis/post';
 import { uploadAttachment } from '@/apis/attachment';
 import { parseVideoEmbed } from '@/utils/media';
 import { READ_PERM_LABELS } from '@/apis/post';
@@ -136,9 +137,13 @@ import type { TagVO } from '@/apis/tag';
 defineOptions({ name: 'WebPostPublish' });
 
 const router = useRouter();
+const route = useRoute();
 const formRef = ref<FormInstance>();
 const contentRef = ref();
 const submitting = ref(false);
+/** 当前草稿 ID: 有值时发布走「先更新草稿再发布」, 避免重复建帖 */
+const draftId = ref<number | undefined>(undefined);
+const savingDraft = ref(false);
 const loadingCategory = ref(false);
 const categories = ref<CategoryVO[]>([]);
 const tags = ref<TagVO[]>([]);
@@ -314,6 +319,21 @@ const handleSubmit = async () => {
   }
   submitting.value = true;
   try {
+    // 从草稿进来: 先把当前内容写回草稿, 再发布, 避免同一篇内容建两条记录
+    if (draftId.value) {
+      await saveDraftApi({
+        id: draftId.value,
+        title: form.title.trim(),
+        content: form.content,
+        contentType: 1,
+        categoryId: form.categoryId,
+        tagIds: form.tagIds.length ? form.tagIds : undefined,
+      });
+      const res = await publishDraftApi(draftId.value);
+      ElMessage.success(res.needAudit ? '已提交审核' : '发布成功');
+      router.replace(`/post/${draftId.value}`);
+      return;
+    }
     const id = await createPostApi({
       title: form.title.trim(),
       content: form.content,
@@ -325,6 +345,42 @@ const handleSubmit = async () => {
     router.replace(`/post/${id}`);
   } finally {
     submitting.value = false;
+  }
+};
+
+/** 存草稿: 不校验必填项, 只要标题或正文有一项就算 */
+const handleSaveDraft = async () => {
+  if (!form.title.trim() && !form.content.trim()) {
+    ElMessage.warning('标题和正文至少填一项');
+    return;
+  }
+  savingDraft.value = true;
+  try {
+    draftId.value = await saveDraftApi({
+      id: draftId.value,
+      title: form.title.trim(),
+      content: form.content,
+      contentType: 1,
+      categoryId: form.categoryId,
+      tagIds: form.tagIds.length ? form.tagIds : undefined,
+    });
+    ElMessage.success('已存入草稿箱');
+  } finally {
+    savingDraft.value = false;
+  }
+};
+
+/** 带 draftId 进入时回填草稿内容 */
+const loadDraft = async (id: number) => {
+  try {
+    const draft = await getDraftApi(id);
+    draftId.value = draft.id;
+    form.title = draft.title || '';
+    form.content = draft.content || '';
+    if (draft.categoryId) form.categoryId = draft.categoryId;
+    form.tagIds = draft.tagIds || [];
+  } catch {
+    ElMessage.error('草稿不存在或无权访问');
   }
 };
 
@@ -358,7 +414,13 @@ const onPreviewVideo = () => {
   videoDialog.preview = parseVideoEmbed(videoDialog.url);
 };
 
-onMounted(loadOptions);
+onMounted(async () => {
+  await loadOptions();
+  const qid = Number(route.query.draftId);
+  if (qid) {
+    await loadDraft(qid);
+  }
+});
 </script>
 
 <style lang="less" scoped>

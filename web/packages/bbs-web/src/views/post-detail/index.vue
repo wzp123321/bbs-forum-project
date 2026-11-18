@@ -10,7 +10,7 @@
         <div class="wpd-meta">
           <span>
             <el-icon><User /></el-icon>
-            {{ post.userName || post.userId || '匿名' }}
+            {{ post.nickname || post.userName || post.userId || '匿名' }}
           </span>
           <span>
             <el-icon><Clock /></el-icon>
@@ -83,16 +83,18 @@
         <ul v-else class="wpd-comment-list">
           <li v-for="c in dataSource" :key="c.id" class="wpd-comment">
             <div class="wpd-comment-head">
-              <el-avatar :size="32" icon="UserFilled" />
+              <el-avatar :size="32" :src="resolveFileUrl(c.avatar)" class="wpd-comment-avatar">
+                {{ (c.nickname || c.userName || '?').slice(0, 1) }}
+              </el-avatar>
               <div class="wpd-comment-info">
-                <div class="wpd-comment-user">{{ c.userName || c.userId || '匿名' }}</div>
+                <div class="wpd-comment-user">{{ c.nickname || c.userName || c.userId || '匿名' }}</div>
                 <div class="wpd-comment-time">{{ c.createTime }}</div>
               </div>
             </div>
             <div class="wpd-comment-body">
               <template v-if="c.replyToUserName">
                 回复
-                <span class="wpd-comment-reply">@{{ c.replyToUserName }}</span>
+                <span class="wpd-comment-reply">@{{ c.replyToNickname || c.replyToUserName }}</span>
                 :
               </template>
               {{ c.content }}
@@ -602,6 +604,13 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.wpd-comment-avatar {
+  flex: none;
+  background: var(--el-color-primary-light-5);
+  color: #fff;
+  font-size: 14px;
 }
 
 .wpd-comment-info {

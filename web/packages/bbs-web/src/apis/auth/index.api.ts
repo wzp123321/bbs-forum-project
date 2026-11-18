@@ -24,3 +24,21 @@ export interface UserInfo {
   status?: number;
   createTime?: string;
 }
+
+/** 忘记密码入参: 用户名 + 账号绑定的邮箱或手机号 */
+export interface ForgotPasswordParams {
+  account: string;
+  contact: string;
+}
+
+/** 忘记密码出参 */
+export interface ForgotPasswordVO {
+  resetToken: string;
+  expireSeconds: number;
+}
+
+/** 重置密码入参 */
+export interface ResetPasswordParams {
+  resetToken: string;
+  newPassword: string;
+}

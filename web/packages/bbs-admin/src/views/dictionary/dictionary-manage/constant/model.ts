@@ -1,20 +1,15 @@
-// 查询表单
+/** 查询表单 */
 export interface SearchForm {
-    name: string
-    type:string
+  keyword: string;
+  typeId?: number;
 }
-// 字典表单
-export interface RowFrom{
-    name: string;
-    status: boolean;
-    type: string,
-    describe: string,
-  }
-// 表格
-export interface TableData {
-    id: string,
-    name: string;
-    status: boolean;
-    type: string,
-    describe: string,
+
+/** 字典项新增/编辑表单 */
+export interface DictForm {
+  id?: number;
+  typeId?: number;
+  label: string;
+  value: string;
+  sort: number;
+  status: number;
 }

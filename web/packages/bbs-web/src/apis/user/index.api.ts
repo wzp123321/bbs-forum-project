@@ -11,6 +11,12 @@ export interface RegisterParams {
 export interface UserInfoVO {
   userId: string;
   userName: string;
+  /** 展示名: 昵称, 为空时后端已回退为用户名 */
+  nickname?: string;
+  /** 头像 URL */
+  avatar?: string;
+  /** 个性签名 */
+  signature?: string;
   gender?: string;
   email?: string;
   phone?: string;
@@ -19,7 +25,9 @@ export interface UserInfoVO {
 
 /** 资料更新入参 */
 export interface UserUpdateParams {
-  userName?: string;
+  nickname?: string;
+  avatar?: string;
+  signature?: string;
   gender?: string;
   email?: string;
   phone?: string;

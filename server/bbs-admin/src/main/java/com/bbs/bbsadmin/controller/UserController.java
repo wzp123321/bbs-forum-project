@@ -46,7 +46,7 @@ public class UserController {
     }
 
     @Operation(summary = "分页查询用户")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @PostMapping("/page")
     public R<Map<String, Object>> page(@RequestBody PageQuery query) {
         IPage<UserInfo> page = userInfoService.pageQuery(query);
@@ -109,7 +109,7 @@ public class UserController {
     }
 
     @Operation(summary = "删除用户")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @PostMapping("/delete")
     public R<Void> delete(@RequestBody Map<String, String> body) {
         String userId = body.get("userId");

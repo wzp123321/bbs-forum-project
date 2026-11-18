@@ -9,10 +9,12 @@
         <!-- 头部信息卡 -->
         <el-card shadow="never" class="wup-header">
           <div class="wup-header-left">
-            <el-avatar :size="80" icon="UserFilled" />
+            <el-avatar :size="80" :src="resolveFileUrl(user.avatar)" class="wup-avatar">
+              {{ (user.nickname || user.userName || '?').slice(0, 1) }}
+            </el-avatar>
             <div class="wup-header-info">
               <div class="wup-name">
-                {{ user.userName || user.userId }}
+                {{ user.nickname || user.userName || user.userId }}
                 <el-tag v-if="user.gender === '1'" type="primary" size="small" effect="plain" class="wup-gender">
                   男
                 </el-tag>
@@ -20,6 +22,7 @@
                   女
                 </el-tag>
               </div>
+              <div v-if="user.signature" class="wup-sign">{{ user.signature }}</div>
               <div class="wup-id">ID: {{ user.userId }}</div>
               <div class="wup-time">注册于 {{ user.createTime || '-' }}</div>
             </div>
@@ -96,6 +99,7 @@ import { ElMessage } from 'element-plus';
 import { View, ChatDotRound, Star } from '@element-plus/icons-vue';
 import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
 import { getUserApi, followCountApi } from '@/apis/user';
+import { resolveFileUrl } from '@/apis/attachment';
 import { cancelFollowApi, followApi, followStatusApi } from '@/apis';
 import { pagePostsApi } from '@/apis/post';
 import { isLoggedIn, userStore } from '@/utils';
@@ -264,8 +268,23 @@ onMounted(() => {
   gap: 8px;
 }
 
+.wup-avatar {
+  flex: none;
+  background: var(--el-color-primary);
+  color: #fff;
+  font-size: 30px;
+}
+
 .wup-gender {
   font-weight: 400;
+}
+
+.wup-sign {
+  font-size: 13px;
+  color: var(--el-text-color-regular);
+  margin: 4px 0;
+  max-width: 520px;
+  line-height: 1.5;
 }
 
 .wup-id {

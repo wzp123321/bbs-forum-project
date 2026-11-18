@@ -16,7 +16,10 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- -------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `user_info` (
     `user_id`     VARCHAR(32)  NOT NULL                COMMENT '用户唯一标识(UUID32位)',
-    `user_name`   VARCHAR(50)  NOT NULL                COMMENT '用户名',
+    `user_name`   VARCHAR(50)  NOT NULL                COMMENT '用户名(登录账号,唯一)',
+    `nickname`    VARCHAR(50)  DEFAULT NULL            COMMENT '昵称(展示用,为空回退用户名)',
+    `avatar`      VARCHAR(255) DEFAULT NULL            COMMENT '头像URL(本站附件地址)',
+    `signature`   VARCHAR(100) DEFAULT NULL            COMMENT '个性签名',
     `password`    VARCHAR(100) NOT NULL                COMMENT 'BCrypt 密码',
     `gender`      VARCHAR(4)   DEFAULT '0'             COMMENT '0未知 1男 2女',
     `email`       VARCHAR(100) DEFAULT NULL,
@@ -81,7 +84,7 @@ CREATE TABLE `bbs_post` (
     `like_count`     INT           NOT NULL DEFAULT 0,
     `comment_count`  INT           NOT NULL DEFAULT 0,
     `collect_count`  INT           NOT NULL DEFAULT 0,
-    `status`         TINYINT       NOT NULL DEFAULT 1     COMMENT '1正常 0已删 2审核中 3审核不通过',
+    `status`         TINYINT       NOT NULL DEFAULT 1     COMMENT '1正常 0已删 2审核中 3审核不通过 4草稿',
     `is_top`         TINYINT      NOT NULL DEFAULT 0     COMMENT '是否置顶: 1是 0否',
     `is_essence`     TINYINT      NOT NULL DEFAULT 0     COMMENT '是否精华: 1是 0否',
     `read_perm`      TINYINT      NOT NULL DEFAULT 1     COMMENT '阅读权限: 1公开 2登录可见 3粉丝可见 4仅作者',
@@ -323,6 +326,27 @@ CREATE TABLE IF NOT EXISTS `bbs_operation_log` (
     KEY `idx_oplog_target`  (`target_type`, `target_id`),
     KEY `idx_oplog_time`    (`create_time`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='操作审计日志';
+
+-- -------------------------------------------------------------
+-- 15. 互动通知表
+--   撤销互动时物理删除, 不设 deleted 列
+--   post_id / comment_id 用 NOT NULL DEFAULT 0 占位:
+--   MySQL 唯一键对 NULL 不生效, 留 NULL 会导致去重失效
+-- -------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `bbs_notification` (
+    `id`          BIGINT       NOT NULL AUTO_INCREMENT,
+    `user_id`     VARCHAR(32)  NOT NULL                COMMENT '接收者 user_id',
+    `actor_id`    VARCHAR(32)  DEFAULT NULL            COMMENT '触发者 user_id, 系统公告为空',
+    `type`        TINYINT      NOT NULL                COMMENT '1赞帖子 2评论帖子 3回复评论 4关注 5系统',
+    `post_id`     BIGINT       NOT NULL DEFAULT 0      COMMENT '关联帖子ID, 无则 0',
+    `comment_id`  BIGINT       NOT NULL DEFAULT 0      COMMENT '关联评论ID, 无则 0',
+    `content`     VARCHAR(200) DEFAULT NULL            COMMENT '摘要文本',
+    `is_read`     TINYINT      NOT NULL DEFAULT 0      COMMENT '0未读 1已读',
+    `create_time` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_notify` (`user_id`, `actor_id`, `type`, `post_id`, `comment_id`),
+    KEY `idx_notify_user` (`user_id`, `is_read`, `create_time`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT ='互动通知';
 
 SET FOREIGN_KEY_CHECKS = 1;
 

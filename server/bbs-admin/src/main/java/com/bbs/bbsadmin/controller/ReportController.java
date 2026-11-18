@@ -32,7 +32,7 @@ public class ReportController {
     private ReportService reportService;
 
     @Operation(summary = "分页查询举报")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @PostMapping("/page")
     public R<Map<String, Object>> page(@RequestBody ReportPageQuery query) {
         IPage<ReportVO> page = reportService.pageQueryVO(query);
@@ -45,7 +45,7 @@ public class ReportController {
     }
 
     @Operation(summary = "举报详情")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @PostMapping("/detail")
     public R<ReportVO> detail(@RequestBody Map<String, Long> body) {
         Long id = body.get("id");
@@ -62,7 +62,7 @@ public class ReportController {
     }
 
     @Operation(summary = "处理举报(0驳回 1已处理)")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @AuditLog(action = "REPORT_HANDLE", description = "处理举报", targetType = "REPORT", targetIdSpEl = "#id")
     @PostMapping("/{id}/handle")
     public R<Void> handle(@PathVariable Long id, @Valid @RequestBody ReportHandleDTO dto) {
@@ -71,7 +71,7 @@ public class ReportController {
     }
 
     @Operation(summary = "删除举报")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @AuditLog(action = "REPORT_DELETE", description = "删除举报", targetType = "REPORT", targetIdSpEl = "#id")
     @PostMapping("/delete")
     public R<Void> delete(@RequestBody Map<String, Long> body) {

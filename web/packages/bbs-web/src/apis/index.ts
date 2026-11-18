@@ -9,4 +9,6 @@ export * from './follow';
 export * from './attachment';
 export * from './like';
 export * from './collect';
+export * from './stat';
+export * from './notification';
 export * from './types';

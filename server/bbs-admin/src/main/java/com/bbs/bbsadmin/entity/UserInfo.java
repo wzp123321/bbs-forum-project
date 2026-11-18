@@ -37,6 +37,24 @@ public class UserInfo implements Serializable {
     private String userName;
 
     /**
+     * 昵称 (展示用, 为空时回退 userName)
+     */
+    @TableField("nickname")
+    private String nickname;
+
+    /**
+     * 头像 URL (本站附件地址)
+     */
+    @TableField("avatar")
+    private String avatar;
+
+    /**
+     * 个性签名
+     */
+    @TableField("signature")
+    private String signature;
+
+    /**
      * 密码
      */
     @TableField("`password`")

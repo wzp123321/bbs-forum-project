@@ -10,4 +10,6 @@ export * from './like';
 export * from './collect';
 export * from './follow';
 export * from './report';
+export * from './dictionary';
+export * from './stat';
 export * from './types';

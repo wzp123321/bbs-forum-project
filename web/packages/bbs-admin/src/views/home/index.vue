@@ -100,11 +100,16 @@
             <h3 class="ah-section-title">最近活动</h3>
           </div>
           <div class="ah-activity">
-            <div v-for="item in activityList" :key="item.id" class="ah-activity-item">
-              <div class="ah-activity-dot" :style="{ background: item.color }" />
+            <div v-if="!activityList.length" class="ah-activity-empty">暂无动态</div>
+            <div
+              v-for="item in activityList"
+              :key="`${item.type}-${item.id}`"
+              class="ah-activity-item"
+            >
+              <div class="ah-activity-dot" :style="{ background: activityColor(item.type) }" />
               <div class="ah-activity-main">
-                <div class="ah-activity-text">{{ item.text }}</div>
-                <div class="ah-activity-time">{{ item.time }}</div>
+                <div class="ah-activity-text">{{ item.summary }}</div>
+                <div class="ah-activity-time">{{ formatActivityTime(item.time) }}</div>
               </div>
             </div>
           </div>
@@ -122,9 +127,8 @@ import {
   User, Document, ChatDotRound, Star, FolderOpened, PriceTag,
   EditPen, QuestionFilled, Warning, Bell, Setting, ArrowRight, CircleCheckFilled,
 } from '@element-plus/icons-vue';
-import { pagePostsApi } from '@/apis/post';
-import { pageUsersApi } from '@/apis/user';
-import { pageReportsApi } from '@/apis/report';
+import { getStatOverviewApi } from '@/apis/stat';
+import type { ActivityVO } from '@/apis/stat';
 
 defineOptions({ name: 'HomePage' });
 
@@ -140,7 +144,7 @@ const stats = ref({
 });
 
 const todoList = ref<Array<{ id: number; type: string; title: string; desc: string; icon: any; path: string }>>([]);
-const activityList = ref<Array<{ id: number; text: string; time: string; color: string }>>([]);
+const activityList = ref<ActivityVO[]>([]);
 
 const greeting = (() => {
   const h = new Date().getHours();
@@ -172,16 +176,15 @@ const goTo = (path: string) => router.push(path);
 
 const loadStats = async () => {
   try {
-    const [postRes, userRes, reportRes] = await Promise.allSettled([
-      pagePostsApi({ pageNum: 1, pageSize: 1, status: undefined as any }),
-      pageUsersApi({ pageNum: 1, pageSize: 1 }),
-      pageReportsApi({ pageNum: 1, pageSize: 1, status: 0 }),
-    ]);
-    stats.value.postCount = postRes.status === 'fulfilled' ? postRes.value.total : 0;
-    stats.value.userCount = userRes.status === 'fulfilled' ? userRes.value.total : 0;
-    stats.value.pendingReport = reportRes.status === 'fulfilled' ? reportRes.value.total : 0;
+    const data = await getStatOverviewApi();
+    stats.value.userCount = data.userCount ?? 0;
+    stats.value.postCount = data.postCount ?? 0;
+    stats.value.todayNew = data.todayPostCount ?? 0;
+    stats.value.pendingReport = data.pendingReportCount ?? 0;
+    activityList.value = data.recentActivities ?? [];
   } catch {
-    ElMessage.warning('部分数据加载失败, 请稍后重试');
+    activityList.value = [];
+    ElMessage.warning('统计数据加载失败, 请稍后重试');
   }
 };
 
@@ -193,19 +196,30 @@ const buildTodos = () => {
   ].filter(item => item.type !== 'danger' || stats.value.pendingReport > 0);
 };
 
-const buildActivities = () => {
-  activityList.value = [
-    { id: 1, text: '系统初始化完成', time: '刚刚', color: '#22C55E' },
-    { id: 2, text: '数据库已就绪', time: '1 分钟前', color: '#3B82F6' },
-    { id: 3, text: '管理员账号已创建', time: '5 分钟前', color: '#FF6B35' },
-    { id: 4, text: '示例数据已灌入', time: '10 分钟前', color: '#A855F7' },
-  ];
+const ACTIVITY_COLORS: Record<string, string> = {
+  post: '#FF6B35',
+  comment: '#3B82F6',
+  report: '#EF4444',
+};
+
+const activityColor = (type: string) => ACTIVITY_COLORS[type] || '#22C55E';
+
+/** 后端返回 ISO 本地时间, 这里只做粗粒度相对时间 */
+const formatActivityTime = (time?: string) => {
+  if (!time) return '';
+  const date = new Date(time);
+  if (Number.isNaN(date.getTime())) return time;
+  const diff = (Date.now() - date.getTime()) / 1000;
+  if (diff < 60) return '刚刚';
+  if (diff < 3600) return `${Math.floor(diff / 60)} 分钟前`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} 小时前`;
+  if (diff < 86400 * 7) return `${Math.floor(diff / 86400)} 天前`;
+  return date.toLocaleDateString('zh-CN');
 };
 
 onMounted(async () => {
   await loadStats();
   buildTodos();
-  buildActivities();
 });
 </script>
 
@@ -515,6 +529,13 @@ onMounted(async () => {
     width: 2px;
     background: var(--bbs-border-color);
   }
+}
+
+.ah-activity-empty {
+  padding: 24px 0;
+  text-align: center;
+  color: var(--el-text-color-secondary);
+  font-size: 13px;
 }
 
 .ah-activity-item {

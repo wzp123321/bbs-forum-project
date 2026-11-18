@@ -3,17 +3,24 @@
     <div class="wuc-layout">
       <aside class="wuc-side">
         <div class="wuc-user" @click="navigateToOverview">
-          <el-avatar :size="64" icon="UserFilled" />
+          <el-avatar :size="64" :src="resolveFileUrl(user?.avatar)" class="wuc-avatar">
+            {{ (user?.nickname || user?.userName || '?').slice(0, 1) }}
+          </el-avatar>
           <div class="wuc-user-info">
-            <div class="wuc-user-name">{{ user?.userName || userStore.getUserName() }}</div>
-            <div class="wuc-user-id">ID: {{ userStore.getUserId() }}</div>
+            <div class="wuc-user-name">{{ user?.nickname || user?.userName || userStore.getUserName() }}</div>
+            <div class="wuc-user-sign">{{ user?.signature || `ID: ${userStore.getUserId()}` }}</div>
           </div>
         </div>
         <el-menu :default-active="activeMenu" class="wuc-menu" @select="navigateToMenu">
           <el-menu-item index="overview">个人概览</el-menu-item>
           <el-menu-item index="posts">我的帖子</el-menu-item>
+          <el-menu-item index="drafts">我的草稿</el-menu-item>
           <el-menu-item index="collects">我的收藏</el-menu-item>
           <el-menu-item index="likes">我赞过的</el-menu-item>
+          <el-menu-item index="messages">
+            我的消息
+            <el-badge v-if="unread > 0" :value="unread" :max="99" class="wuc-badge" />
+          </el-menu-item>
           <el-menu-item index="followers">我的粉丝 ({{ counts.followers }})</el-menu-item>
           <el-menu-item index="following">我的关注 ({{ counts.following }})</el-menu-item>
           <el-menu-item index="edit">编辑资料</el-menu-item>
@@ -34,6 +41,8 @@ import { computed, onMounted, provide, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { getUserApi, followCountApi } from '@/apis/user';
+import { unreadCountApi } from '@/apis/notification';
+import { resolveFileUrl } from '@/apis/attachment';
 import { userStore } from '@/utils';
 import type { UserInfoVO, FollowCountVO } from '@/apis/user';
 
@@ -43,6 +52,7 @@ const route = useRoute();
 const router = useRouter();
 const user = ref<UserInfoVO | null>(null);
 const counts = ref<FollowCountVO>({ followers: 0, following: 0 });
+const unread = ref(0);
 
 const activeMenu = computed(() => {
   const p = route.path.replace('/user-center', '').replace(/^\//, '') || 'overview';
@@ -73,14 +83,25 @@ const navigateToMenu = (key: string) => {
   const map: Record<string, string> = {
     overview: '/user-center',
     posts: '/user-center/posts',
+    drafts: '/user-center/drafts',
     collects: '/user-center/collects',
     likes: '/user-center/likes',
+    messages: '/user-center/messages',
     followers: '/user-center/followers',
     following: '/user-center/following',
     edit: '/user-center/edit',
     password: '/user-center/password',
   };
   router.push(map[key] || '/user-center');
+};
+
+const loadUnread = async () => {
+  try {
+    const res = await unreadCountApi();
+    unread.value = res.count;
+  } catch {
+    // ignore
+  }
 };
 
 const navigateToOverview = () => router.push('/user-center');
@@ -90,8 +111,7 @@ provide('refreshUserCenter', loadUser);
 provide('refreshCounts', loadCounts);
 
 onMounted(async () => {
-  await loadUser();
-  await loadCounts();
+  await Promise.all([loadUser(), loadCounts(), loadUnread()]);
 });
 </script>
 
@@ -129,9 +149,26 @@ onMounted(async () => {
   font-weight: 600;
 }
 
-.wuc-user-id {
+.wuc-user-sign {
   color: var(--el-text-color-secondary);
   font-size: 12px;
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
+}
+
+.wuc-avatar {
+  flex: none;
+  background: var(--el-color-primary);
+  color: #fff;
+  font-size: 24px;
+}
+
+.wuc-badge {
+  margin-left: 8px;
+  line-height: 1;
 }
 
 .wuc-menu {

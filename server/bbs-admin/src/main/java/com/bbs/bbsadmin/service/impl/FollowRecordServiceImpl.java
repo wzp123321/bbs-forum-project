@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bbs.bbsadmin.entity.FollowRecord;
+import com.bbs.bbsadmin.entity.Notification;
 import com.bbs.bbsadmin.entity.UserInfo;
 import com.bbs.bbsadmin.entity.vo.UserVO;
 import com.bbs.bbsadmin.exception.BizException;
@@ -13,6 +14,7 @@ import com.bbs.bbsadmin.mapper.UserInfoMapper;
 import com.bbs.bbsadmin.response.ResponseCode;
 import com.bbs.bbsadmin.security.AuthContext;
 import com.bbs.bbsadmin.service.FollowRecordService;
+import com.bbs.bbsadmin.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,9 @@ public class FollowRecordServiceImpl extends ServiceImpl<FollowRecordMapper, Fol
 
     @Autowired
     private UserInfoMapper userInfoMapper;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Override
     @Transactional
@@ -54,6 +59,7 @@ public class FollowRecordServiceImpl extends ServiceImpl<FollowRecordMapper, Fol
         r.setFollowUserId(followUserId);
         r.setCreateTime(LocalDateTime.now());
         baseMapper.insert(r);
+        notificationService.push(followUserId, userId, Notification.TYPE_FOLLOW, 0, 0, "关注了你");
         return true;
     }
 
@@ -62,7 +68,11 @@ public class FollowRecordServiceImpl extends ServiceImpl<FollowRecordMapper, Fol
         if (followUserId == null) {
             return false;
         }
-        int n = baseMapper.softCancel(AuthContext.userId(), followUserId);
+        String userId = AuthContext.userId();
+        int n = baseMapper.softCancel(userId, followUserId);
+        if (n > 0) {
+            notificationService.revoke(followUserId, userId, Notification.TYPE_FOLLOW, 0, 0);
+        }
         return n > 0;
     }
 

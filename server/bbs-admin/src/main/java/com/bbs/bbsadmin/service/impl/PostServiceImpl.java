@@ -4,14 +4,18 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.bbs.bbsadmin.entity.Category;
 import com.bbs.bbsadmin.entity.Post;
 import com.bbs.bbsadmin.entity.PostTag;
 import com.bbs.bbsadmin.entity.Tag;
 import com.bbs.bbsadmin.entity.UserInfo;
+import com.bbs.bbsadmin.entity.dto.DraftSaveDTO;
 import com.bbs.bbsadmin.entity.dto.PostPageQuery;
 import com.bbs.bbsadmin.entity.dto.PostSaveDTO;
 import com.bbs.bbsadmin.entity.vo.PostVO;
+import com.bbs.bbsadmin.entity.vo.UserVO;
 import com.bbs.bbsadmin.exception.BizException;
 import com.bbs.bbsadmin.mapper.CategoryMapper;
 import com.bbs.bbsadmin.mapper.PostMapper;
@@ -26,6 +30,7 @@ import com.bbs.bbsadmin.security.XssSanitizer;
 import com.bbs.bbsadmin.service.AttachmentService;
 import com.bbs.bbsadmin.service.FollowRecordService;
 import com.bbs.bbsadmin.service.PostService;
+import com.bbs.bbsadmin.utils.RequestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +45,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -69,11 +75,22 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
     @Autowired
     private FollowRecordService followRecordService;
 
+    /** 同一访问者 5 分钟内重复访问同一帖子不重复计数 */
+    private static final long VIEW_DEDUP_MINUTES = 5;
+
+    /** 帖子状态: 草稿 */
+    private static final int STATUS_DRAFT = 4;
+
+    private final Cache<String, Boolean> viewDedup = Caffeine.newBuilder()
+            .expireAfterWrite(VIEW_DEDUP_MINUTES, TimeUnit.MINUTES)
+            .maximumSize(100_000)
+            .build();
+
     @Override
     public IPage<PostVO> pageQueryVO(PostPageQuery query) {
         int pageNum = query.getPageNum() == null || query.getPageNum() < 1 ? 1 : query.getPageNum();
         int pageSize = query.getPageSize() == null || query.getPageSize() < 1 ? 10 : query.getPageSize();
-        Page<Post> page = new Page<>(pageNum, pageSize);
+        String sort = normalizeSort(query.getSort());
         LambdaQueryWrapper<Post> wrapper = new LambdaQueryWrapper<>();
         if (StringUtils.hasText(query.getKeyword())) {
             wrapper.like(Post::getTitle, query.getKeyword());
@@ -87,19 +104,27 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         if (StringUtils.hasText(query.getUserId())) {
             wrapper.eq(Post::getUserId, query.getUserId());
         }
+        if ("essence".equals(sort)) {
+            wrapper.eq(Post::getIsEssence, 1);
+        }
         // 标签筛选: 子查询 postId 集合
         if (query.getTagId() != null) {
             List<PostTag> pts = postTagMapper.selectByTagId(query.getTagId());
+            Page<Post> emptyPage = new Page<>(pageNum, pageSize, false);
             if (CollectionUtils.isEmpty(pts)) {
-                return page.convert(PostVO::from);
+                return emptyPage.convert(PostVO::from);
             }
             Set<Long> postIds = pts.stream().map(PostTag::getPostId).collect(Collectors.toSet());
             wrapper.in(Post::getId, postIds);
         }
-        wrapper.orderByDesc(Post::getIsTop)
-               .orderByDesc(Post::getTopTime)
-               .orderByDesc(Post::getCreateTime);
-        IPage<Post> p = baseMapper.selectPage(page, wrapper);
+        // 排序含表达式(热门加权), 先单独 count 再查列表, 不让 MP 自动 count 去解析 ORDER BY
+        Long total = baseMapper.selectCount(wrapper);
+        Page<Post> page = new Page<>(pageNum, pageSize, false);
+        // searchCount=false 时 MP 不会回填 total, 必须手动写入, 否则前端分页总数恒为 0
+        page.setTotal(total == null ? 0 : total);
+        IPage<Post> p = (total == null || total == 0)
+                ? page
+                : baseMapper.selectPage(page, wrapper.last(orderBySql(sort)));
 
         // 转 VO 并填充关联信息
         IPage<PostVO> voPage = p.convert(this::toVO);
@@ -109,17 +134,61 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         return voPage;
     }
 
+    /** 非法排序值统一降级为最新 */
+    private String normalizeSort(String sort) {
+        if ("hot".equals(sort) || "essence".equals(sort)) {
+            return sort;
+        }
+        return "latest";
+    }
+
+    /**
+     * 排序片段
+     * 常量字符串, 不含外部输入, 可用 last() 拼接
+     */
+    private String orderBySql(String sort) {
+        if ("hot".equals(sort)) {
+            return "ORDER BY is_top DESC, (like_count * 3 + comment_count * 2 + view_count) DESC, create_time DESC";
+        }
+        if ("essence".equals(sort)) {
+            return "ORDER BY create_time DESC";
+        }
+        return "ORDER BY is_top DESC, top_time DESC, create_time DESC";
+    }
+
     @Override
     public PostVO detail(Long id) {
         Post p = baseMapper.selectById(id);
         if (p == null) {
             throw new BizException(ResponseCode.NOT_FOUND, "帖子不存在");
         }
-        // 阅读权限检查
+        // 阅读权限检查 (不通过时直接抛异常, 因此不会计数)
         assertReadable(p);
         PostVO vo = toVO(p);
         fillAssociations(Collections.singletonList(vo));
+        if (recordView(p.getId())) {
+            vo.setViewCount((p.getViewCount() == null ? 0 : p.getViewCount()) + 1);
+        }
         return vo;
+    }
+
+    /**
+     * 记录一次阅读
+     * 同一访问者(登录按 userId, 游客按 IP)在去重窗口内只计一次
+     *
+     * @return 本次是否真的累加
+     */
+    private boolean recordView(Long postId) {
+        String subject = AuthContext.userId();
+        if (!StringUtils.hasText(subject)) {
+            subject = "ip:" + RequestUtils.clientIp();
+        }
+        String key = "read:" + postId + ":" + subject;
+        if (viewDedup.getIfPresent(key) != null) {
+            return false;
+        }
+        viewDedup.put(key, Boolean.TRUE);
+        return baseMapper.incrViewCount(postId) > 0;
     }
 
     /**
@@ -325,11 +394,11 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         // 用户
         Set<String> userIds = vos.stream().map(PostVO::getUserId)
                 .filter(StringUtils::hasText).collect(Collectors.toSet());
-        Map<String, String> userNameMap = new HashMap<>();
+        Map<String, UserInfo> userMap = new HashMap<>();
         if (!userIds.isEmpty()) {
             List<UserInfo> users = userInfoMapper.selectBatchIds(userIds);
             for (UserInfo u : users) {
-                userNameMap.put(u.getUserId(), u.getUserName());
+                userMap.put(u.getUserId(), u);
             }
         }
         // 板块
@@ -370,7 +439,14 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         }
         for (PostVO v : vos) {
             if (v.getUserId() != null) {
-                v.setUserName(userNameMap.get(v.getUserId()));
+                UserInfo author = userMap.get(v.getUserId());
+                if (author != null) {
+                    // 展示口径统一由 UserVO.displayName 决定: 昵称优先, 为空回退用户名
+                    v.setNickname(UserVO.displayName(author));
+                    v.setAvatar(author.getAvatar());
+                }
+                v.setUserName(userMap.containsKey(v.getUserId())
+                        ? userMap.get(v.getUserId()).getUserName() : null);
             }
             if (v.getCategoryId() != null) {
                 v.setCategoryName(categoryNameMap.get(v.getCategoryId()));
@@ -378,5 +454,175 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
             v.setTagIds(postTagIds.getOrDefault(v.getId(), Collections.emptyList()));
             v.setTagNames(postTagNames.getOrDefault(v.getId(), Collections.emptyList()));
         }
+    }
+
+    // ==================== 关注动态流 ====================
+
+    @Override
+    public IPage<PostVO> followFeed(int pageNum, int pageSize) {
+        String me = AuthContext.userId();
+        if (!StringUtils.hasText(me)) {
+            throw new BizException(ResponseCode.UNAUTHORIZED);
+        }
+        int num = pageNum < 1 ? 1 : pageNum;
+        int size = pageSize < 1 ? 10 : pageSize;
+
+        LambdaQueryWrapper<Post> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Post::getStatus, 1)
+                // 自己发的帖子不进关注流
+                .ne(Post::getUserId, me)
+                // 关注关系用 EXISTS 子查询: 关注量大时不必拼超长 IN; {0} 由 MyBatis 参数绑定
+                .apply("EXISTS (SELECT 1 FROM bbs_follow f WHERE f.follow_user_id = bbs_post.user_id"
+                        + " AND f.user_id = {0} AND f.deleted = 0)", me);
+
+        Long total = baseMapper.selectCount(wrapper);
+        Page<Post> page = new Page<>(num, size, false);
+        page.setTotal(total == null ? 0 : total);
+        IPage<Post> p = (total == null || total == 0)
+                ? page
+                : baseMapper.selectPage(page, wrapper.last("ORDER BY create_time DESC"));
+        IPage<PostVO> voPage = p.convert(this::toVO);
+        if (!CollectionUtils.isEmpty(voPage.getRecords())) {
+            fillAssociations(voPage.getRecords());
+        }
+        return voPage;
+    }
+
+    // ==================== 草稿箱 ====================
+
+    @Override
+    @Transactional
+    public Long saveDraft(DraftSaveDTO dto) {
+        String me = AuthContext.userId();
+        if (!StringUtils.hasText(me)) {
+            throw new BizException(ResponseCode.UNAUTHORIZED);
+        }
+        String title = dto.getTitle() == null ? "" : dto.getTitle().trim();
+        String content = dto.getContent() == null ? "" : dto.getContent().trim();
+        if (title.isEmpty() && content.isEmpty()) {
+            throw new BizException(ResponseCode.PARAM_ERROR, "标题和正文至少填一项");
+        }
+        validateCategory(dto.getCategoryId());
+
+        if (dto.getId() == null) {
+            Post p = new Post();
+            p.setUserId(me);
+            p.setCategoryId(dto.getCategoryId());
+            p.setTitle(title.isEmpty() ? "" : xssSanitizer.clean(title));
+            p.setContent(content.isEmpty() ? "" : xssSanitizer.clean(content));
+            p.setContentType(dto.getContentType() == null ? 1 : dto.getContentType());
+            p.setReadPerm(1);
+            p.setStatus(STATUS_DRAFT);
+            p.setIsTop(0);
+            p.setIsEssence(0);
+            p.setViewCount(0);
+            p.setLikeCount(0);
+            p.setCommentCount(0);
+            p.setCollectCount(0);
+            p.setCreateBy(me);
+            p.setCreateTime(LocalDateTime.now());
+            baseMapper.insert(p);
+            saveTags(p.getId(), dto.getTagIds());
+            return p.getId();
+        }
+
+        Post exist = requireOwnDraft(dto.getId(), me);
+        Post p = new Post();
+        p.setId(exist.getId());
+        p.setTitle(title.isEmpty() ? "" : xssSanitizer.clean(title));
+        p.setContent(content.isEmpty() ? "" : xssSanitizer.clean(content));
+        p.setContentType(dto.getContentType());
+        p.setCategoryId(dto.getCategoryId());
+        p.setUpdateBy(me);
+        p.setUpdateTime(LocalDateTime.now());
+        baseMapper.updateById(p);
+        saveTags(exist.getId(), dto.getTagIds());
+        return exist.getId();
+    }
+
+    @Override
+    public IPage<PostVO> myDrafts(int pageNum, int pageSize) {
+        String me = AuthContext.userId();
+        if (!StringUtils.hasText(me)) {
+            throw new BizException(ResponseCode.UNAUTHORIZED);
+        }
+        int num = pageNum < 1 ? 1 : pageNum;
+        int size = pageSize < 1 ? 10 : pageSize;
+
+        LambdaQueryWrapper<Post> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Post::getUserId, me).eq(Post::getStatus, STATUS_DRAFT);
+
+        Long total = baseMapper.selectCount(wrapper);
+        Page<Post> page = new Page<>(num, size, false);
+        page.setTotal(total == null ? 0 : total);
+        IPage<Post> p = (total == null || total == 0)
+                ? page
+                : baseMapper.selectPage(page, wrapper.orderByDesc(Post::getUpdateTime));
+        IPage<PostVO> voPage = p.convert(this::toVO);
+        if (!CollectionUtils.isEmpty(voPage.getRecords())) {
+            fillAssociations(voPage.getRecords());
+        }
+        return voPage;
+    }
+
+    @Override
+    public PostVO draftDetail(Long id) {
+        String me = AuthContext.userId();
+        if (!StringUtils.hasText(me)) {
+            throw new BizException(ResponseCode.UNAUTHORIZED);
+        }
+        Post p = id == null ? null : baseMapper.selectById(id);
+        // 不是自己的草稿一律按不存在处理, 不暴露他人草稿是否存在
+        if (p == null || p.getStatus() == null || p.getStatus() != STATUS_DRAFT
+                || !me.equals(p.getUserId())) {
+            throw new BizException(ResponseCode.NOT_FOUND, "草稿不存在");
+        }
+        PostVO vo = toVO(p);
+        fillAssociations(Collections.singletonList(vo));
+        return vo;
+    }
+
+    @Override
+    @Transactional
+    public Integer publishDraft(Long id) {
+        String me = AuthContext.userId();
+        if (!StringUtils.hasText(me)) {
+            throw new BizException(ResponseCode.UNAUTHORIZED);
+        }
+        Post exist = requireOwnDraft(id, me);
+        String title = exist.getTitle() == null ? "" : exist.getTitle().trim();
+        String content = exist.getContent() == null ? "" : exist.getContent().trim();
+        if (title.isEmpty()) {
+            throw new BizException(ResponseCode.PARAM_ERROR, "请先填写标题");
+        }
+        if (content.isEmpty()) {
+            throw new BizException(ResponseCode.PARAM_ERROR, "请先填写正文");
+        }
+        if (exist.getCategoryId() == null) {
+            throw new BizException(ResponseCode.PARAM_ERROR, "请先选择板块");
+        }
+        validateCategory(exist.getCategoryId());
+
+        // 发布走与正常发帖一致的敏感词判定: 命中转审核中
+        int status = (sensitiveWordFilter.contains(title) || sensitiveWordFilter.contains(content)) ? 2 : 1;
+        Post p = new Post();
+        p.setId(id);
+        p.setStatus(status);
+        p.setUpdateBy(me);
+        p.setUpdateTime(LocalDateTime.now());
+        baseMapper.updateById(p);
+        return status;
+    }
+
+    /** 取草稿并校验归属 */
+    private Post requireOwnDraft(Long id, String me) {
+        Post exist = id == null ? null : baseMapper.selectById(id);
+        if (exist == null || exist.getStatus() == null || exist.getStatus() != STATUS_DRAFT) {
+            throw new BizException(ResponseCode.NOT_FOUND, "草稿不存在");
+        }
+        if (!me.equals(exist.getUserId())) {
+            throw new BizException(ResponseCode.FORBIDDEN, "无权操作他人草稿");
+        }
+        return exist;
     }
 }

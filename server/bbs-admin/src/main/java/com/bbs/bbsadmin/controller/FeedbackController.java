@@ -32,7 +32,7 @@ public class FeedbackController {
     private FeedbackService feedbackService;
 
     @Operation(summary = "分页查询反馈")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @PostMapping("/page")
     public R<Map<String, Object>> page(@RequestBody FeedbackPageQuery query) {
         IPage<FeedbackVO> page = feedbackService.pageQueryVO(query);
@@ -45,7 +45,7 @@ public class FeedbackController {
     }
 
     @Operation(summary = "反馈详情")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @PostMapping("/detail")
     public R<FeedbackVO> detail(@RequestBody Map<String, Long> body) {
         Long id = body.get("id");
@@ -62,7 +62,7 @@ public class FeedbackController {
     }
 
     @Operation(summary = "回复反馈")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @AuditLog(action = "FEEDBACK_REPLY", description = "回复反馈", targetType = "FEEDBACK", targetIdSpEl = "#id")
     @PostMapping("/{id}/reply")
     public R<Void> reply(@PathVariable Long id, @Valid @RequestBody FeedbackReplyDTO dto) {
@@ -71,7 +71,7 @@ public class FeedbackController {
     }
 
     @Operation(summary = "删除反馈")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @AuditLog(action = "FEEDBACK_DELETE", description = "删除反馈", targetType = "FEEDBACK", targetIdSpEl = "#id")
     @PostMapping("/delete")
     public R<Void> delete(@RequestBody Map<String, Long> body) {

@@ -32,7 +32,7 @@ public class TagController {
     private TagService tagService;
 
     @Operation(summary = "分页查询标签")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @PostMapping("/page")
     public R<Map<String, Object>> page(@RequestBody PageQuery query) {
         IPage<Tag> page = tagService.pageQuery(query);
@@ -57,7 +57,7 @@ public class TagController {
     }
 
     @Operation(summary = "标签详情")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @PostMapping("/detail")
     public R<TagVO> detail(@RequestBody Map<String, Long> body) {
         Long id = body.get("id");
@@ -66,14 +66,14 @@ public class TagController {
     }
 
     @Operation(summary = "新增标签")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @PostMapping("/create")
     public R<Long> create(@Valid @RequestBody TagSaveDTO dto) {
         return R.data(tagService.create(dto));
     }
 
     @Operation(summary = "编辑标签")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @PostMapping("/{id}/update")
     public R<Void> update(@PathVariable Long id, @Valid @RequestBody TagSaveDTO dto) {
         tagService.update(id, dto);
@@ -81,7 +81,7 @@ public class TagController {
     }
 
     @Operation(summary = "删除标签")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @PostMapping("/delete")
     public R<Void> delete(@RequestBody Map<String, Long> body) {
         Long id = body.get("id");

@@ -1,6 +1,7 @@
 package com.bbs.bbsadmin.controller;
 
 import com.bbs.bbsadmin.entity.UserInfo;
+import com.bbs.bbsadmin.entity.vo.UserVO;
 import com.bbs.bbsadmin.response.R;
 import com.bbs.bbsadmin.service.UserInfoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,11 +32,12 @@ public class UserInfoController {
 
     @Operation(summary = "查询用户信息")
     @PostMapping("/selectUserInfo")
-    public R selectUserInfo(@RequestBody Map<String, String> body) {
+    public R<UserVO> selectUserInfo(@RequestBody Map<String, String> body) {
         String userId = body.get("userId");
         UserInfo userInfo = userInfoService.findByUserId(userId);
         if (userInfo != null) {
-            return R.data(userInfo);
+            // 返回 VO 而非实体: 实体带 password 字段, 会把密码哈希暴露给任意登录用户
+            return R.data(UserVO.from(userInfo));
         } else {
             return R.fail("未查询到用户！");
         }

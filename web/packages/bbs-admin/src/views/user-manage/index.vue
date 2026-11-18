@@ -18,7 +18,19 @@
             {{ (pageNum - 1) * pageSize + $index + 1 }}
           </template>
         </el-table-column>
-        <el-table-column prop="userName" label="用户名" align="left" show-overflow-ellipsis />
+        <el-table-column label="用户" align="left" min-width="200">
+          <template #default="{ row }">
+            <div class="um-user">
+              <el-avatar :size="32" :src="row.avatar" class="um-avatar">
+                {{ (row.nickname || row.userName || '?').slice(0, 1) }}
+              </el-avatar>
+              <div class="um-user-info">
+                <div class="um-nickname">{{ row.nickname || row.userName }}</div>
+                <div class="um-username">{{ row.userName }}</div>
+              </div>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column prop="email" label="邮箱" align="left" show-overflow-ellipsis />
         <el-table-column prop="phone" label="手机" align="left" />
         <el-table-column label="性别" align="left" width="80">
@@ -164,6 +176,30 @@ fetchList();
     .el-table {
       flex: auto;
     }
+  }
+
+  .um-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .um-avatar {
+    flex: none;
+    background: var(--el-color-primary);
+    color: #fff;
+    font-size: 14px;
+  }
+
+  .um-nickname {
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .um-username {
+    font-size: 12px;
+    color: var(--el-text-color-secondary);
+    line-height: 1.3;
   }
 }
 </style>

@@ -27,6 +27,9 @@ public class AuthInterceptor implements HandlerInterceptor {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private Authz authz;
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         // 跳过非 Controller 方法 (静态资源等)
@@ -34,7 +37,11 @@ public class AuthInterceptor implements HandlerInterceptor {
             return true;
         }
         HandlerMethod hm = (HandlerMethod) handler;
-        boolean require = hm.hasMethodAnnotation(RequireAuth.class) || hm.getBeanType().isAnnotationPresent(RequireAuth.class);
+        RequireAuth auth = hm.getMethodAnnotation(RequireAuth.class);
+        if (auth == null) {
+            auth = hm.getBeanType().getAnnotation(RequireAuth.class);
+        }
+        boolean require = auth != null;
         // 没有 @RequireAuth 也允许带 token (便于 /info /logout 等可选登录)
         String header = request.getHeader(HEADER);
         if (header == null || header.isBlank()) {
@@ -54,6 +61,9 @@ public class AuthInterceptor implements HandlerInterceptor {
             AuthContext.set(userId, userName);
         } catch (JwtException e) {
             throw new BizException(ResponseCode.UNAUTHORIZED, "token 无效或已过期");
+        }
+        if (require && auth.adminOnly() && !authz.isAdmin()) {
+            throw new BizException(ResponseCode.FORBIDDEN, "需要管理员权限");
         }
         return true;
     }

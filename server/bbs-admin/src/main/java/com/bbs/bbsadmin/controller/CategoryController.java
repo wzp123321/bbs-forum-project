@@ -33,7 +33,7 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @Operation(summary = "分页查询板块")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @PostMapping("/page")
     public R<Map<String, Object>> page(@RequestBody PageQuery query) {
         IPage<Category> page = categoryService.pageQuery(query);
@@ -58,7 +58,7 @@ public class CategoryController {
     }
 
     @Operation(summary = "板块详情")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @PostMapping("/detail")
     public R<CategoryVO> detail(@RequestBody Map<String, Long> body) {
         Long id = body.get("id");
@@ -67,14 +67,14 @@ public class CategoryController {
     }
 
     @Operation(summary = "新增板块")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @PostMapping("/create")
     public R<Long> create(@Valid @RequestBody CategorySaveDTO dto) {
         return R.data(categoryService.create(dto));
     }
 
     @Operation(summary = "编辑板块")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @PostMapping("/{id}/update")
     public R<Void> update(@PathVariable Long id, @Valid @RequestBody CategorySaveDTO dto) {
         categoryService.update(id, dto);
@@ -82,7 +82,7 @@ public class CategoryController {
     }
 
     @Operation(summary = "删除板块")
-    @RequireAuth
+    @RequireAuth(adminOnly = true)
     @CacheEvict(cacheNames = "category:listEnabled", allEntries = true)
     @PostMapping("/delete")
     public R<Void> delete(@RequestBody Map<String, Long> body) {

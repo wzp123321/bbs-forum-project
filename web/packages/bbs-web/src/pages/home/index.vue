@@ -32,17 +32,17 @@
         </div>
         <div class="wh-hero-stats">
           <div class="wh-hero-stat">
-            <div class="wh-hero-stat-num">{{ total }}</div>
+            <div class="wh-hero-stat-num">{{ statText(statSummary.postCount) }}</div>
             <div class="wh-hero-stat-label">帖子</div>
           </div>
           <div class="wh-hero-stat-divider" />
           <div class="wh-hero-stat">
-            <div class="wh-hero-stat-num">8</div>
+            <div class="wh-hero-stat-num">{{ statText(statSummary.userCount) }}</div>
             <div class="wh-hero-stat-label">用户</div>
           </div>
           <div class="wh-hero-stat-divider" />
           <div class="wh-hero-stat">
-            <div class="wh-hero-stat-num">6</div>
+            <div class="wh-hero-stat-num">{{ statText(statSummary.categoryCount) }}</div>
             <div class="wh-hero-stat-label">板块</div>
           </div>
         </div>
@@ -52,9 +52,15 @@
     <!-- 工具栏 -->
     <div class="wh-toolbar">
       <div class="wh-toolbar-tabs">
-        <span class="wh-toolbar-tab is-active">最新</span>
-        <span class="wh-toolbar-tab">热门</span>
-        <span class="wh-toolbar-tab">精华</span>
+        <span
+          v-for="tab in sortTabs"
+          :key="tab.value"
+          class="wh-toolbar-tab"
+          :class="{ 'is-active': activeSort === tab.value }"
+          @click="switchSort(tab.value)"
+        >
+          {{ tab.label }}
+        </span>
       </div>
       <el-button round @click="handleReset">
         <el-icon><Refresh /></el-icon>
@@ -67,8 +73,16 @@
 
     <template v-else>
       <div v-if="!dataSource.length" class="wh-empty">
-        <el-empty description="还没有帖子, 来发布第一个吧~">
-          <el-button type="primary" round @click="$router.push('/post/publish')">发布帖子</el-button>
+        <el-empty :description="emptyText">
+          <el-button
+            v-if="activeSort !== 'follow'"
+            type="primary"
+            round
+            @click="$router.push('/post/publish')"
+          >
+            发布帖子
+          </el-button>
+          <el-button v-else round @click="switchSort('latest')">去看看最新帖子</el-button>
         </el-empty>
       </div>
 
@@ -82,7 +96,7 @@
         >
           <!-- 头像 -->
           <div class="wh-item-avatar" @click.stop="goUser(item.userId)">
-            <el-avatar :size="44" :icon="UserFilled" />
+            <el-avatar :size="44" :src="resolveFileUrl(item.avatar)">{{ initialOf(item) }}</el-avatar>
           </div>
 
           <!-- 主体 -->
@@ -108,7 +122,7 @@
             <div class="wh-item-foot">
               <div class="wh-item-user" @click.stop="goUser(item.userId)">
                 <el-icon><User /></el-icon>
-                <span>{{ item.userName || '匿名' }}</span>
+                <span>{{ item.nickname || item.userName || '匿名' }}</span>
                 <span class="wh-item-cat">{{ item.categoryName || '未分类' }}</span>
               </div>
               <div class="wh-item-stats">
@@ -147,12 +161,16 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { Search, User, UserFilled, View, ChatDotRound, Star, Lock, Refresh } from '@element-plus/icons-vue';
+import { resolveFileUrl } from '@/apis/attachment';
 import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
-import { pagePostsApi, readPermLabel } from '@/apis/post';
-import type { PostVO } from '@/apis/post';
+import { followFeedApi, pagePostsApi, readPermLabel } from '@/apis/post';
+import type { PostSort, PostVO } from '@/apis/post';
+import { getStatSummaryApi } from '@/apis/stat';
+import type { StatSummaryVO } from '@/apis/stat';
+import { tokenStore } from '@/utils';
 
 defineOptions({ name: 'WebHome' });
 
@@ -161,15 +179,40 @@ const { pageNum, pageSize, total, setPageNum } = usePagination();
 const dataSource = ref<PostVO[]>([]);
 const loading = ref(false);
 const keyword = ref('');
+const activeSort = ref<HomeTab>('latest');
+const statSummary = ref<StatSummaryVO>({});
+
+/** 首页 tab: 关注流只在登录后出现, 其余为公开列表的排序维度 */
+type HomeTab = PostSort | 'follow';
+
+const sortTabs = computed<Array<{ label: string; value: HomeTab }>>(() => {
+  const tabs: Array<{ label: string; value: HomeTab }> = [];
+  if (tokenStore.get()) {
+    tabs.push({ label: '关注', value: 'follow' });
+  }
+  tabs.push(
+    { label: '最新', value: 'latest' },
+    { label: '热门', value: 'hot' },
+    { label: '精华', value: 'essence' },
+  );
+  return tabs;
+});
 
 const fetchList = async () => {
   loading.value = true;
   try {
+    if (activeSort.value === 'follow') {
+      const res = await followFeedApi({ pageNum: pageNum.value, pageSize: pageSize.value });
+      dataSource.value = res.list;
+      total.value = res.total;
+      return;
+    }
     const res = await pagePostsApi({
       pageNum: pageNum.value,
       pageSize: pageSize.value,
       status: 1,
       keyword: keyword.value || undefined,
+      sort: activeSort.value,
     });
     dataSource.value = res.list;
     total.value = res.total;
@@ -177,6 +220,33 @@ const fetchList = async () => {
     loading.value = false;
   }
 };
+
+/** 统计取数失败时保持占位符, 不回退成 0 */
+const fetchStat = async () => {
+  try {
+    statSummary.value = await getStatSummaryApi();
+  } catch {
+    statSummary.value = {};
+  }
+};
+
+const switchSort = (sort: HomeTab) => {
+  if (activeSort.value === sort) return;
+  activeSort.value = sort;
+  setPageNum(1);
+  fetchList();
+};
+
+const statText = (n?: number) => {
+  if (n === undefined || n === null) return '-';
+  return formatNum(n);
+};
+
+const emptyText = computed(() =>
+  activeSort.value === 'follow'
+    ? '你关注的人还没发新帖, 去发现一些有趣的人和话题吧'
+    : '还没有帖子, 来发布第一个吧~',
+);
 
 const handleSearch = () => {
   setPageNum(1);
@@ -192,6 +262,9 @@ const goDetail = (id: number) => router.push(`/post/${id}`);
 const goUser = (userId?: string) => {
   if (userId) router.push(`/user/${userId}`);
 };
+
+/** 无头像时用昵称首字符占位, 避免出现裂图 */
+const initialOf = (item: PostVO) => (item.nickname || item.userName || '?').slice(0, 1);
 
 const formatNum = (n?: number) => {
   if (!n) return '0';
@@ -212,7 +285,10 @@ const formatTime = (time?: string) => {
   return date.toLocaleDateString('zh-CN');
 };
 
-onMounted(fetchList);
+onMounted(() => {
+  fetchList();
+  fetchStat();
+});
 </script>
 
 <style lang="less" scoped>

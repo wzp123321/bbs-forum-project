@@ -23,7 +23,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authInterceptor)
                 .addPathPatterns("/**")
-                // 登录接口、Knife4j 文档、Druid 监控、错误页、附件 放行
+                // 登录接口、Knife4j 文档、Druid 监控、错误页 放行
                 .excludePathPatterns(
                         "/admin/auth/login",
                         "/admin/auth/captcha",
@@ -33,9 +33,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/v3/api-docs/**",
                         "/druid/**",
                         "/error",
-                        // 附件上传路径 (包括上传接口和静态资源)
-                        "/admin/attachment/**",
-                        // 静态资源 (按 urlPrefix 动态放行)
+                        // 上传后的静态资源放行; 上传接口 /admin/attachment/upload 必须走鉴权,
+                        // 否则拦截器不解析 token, AuthContext 为空, 登录用户也传不上去
                         uploadProperties.getUrlPrefix() + "**"
                 );
     }

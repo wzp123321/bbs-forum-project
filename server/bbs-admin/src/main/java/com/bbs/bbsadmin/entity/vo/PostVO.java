@@ -16,6 +16,10 @@ public class PostVO {
     private Long id;
     private String userId;
     private String userName;
+    /** 作者昵称 (为空时已回退为 userName) */
+    private String nickname;
+    /** 作者头像 URL */
+    private String avatar;
     private Long categoryId;
     private String categoryName;
     private String title;

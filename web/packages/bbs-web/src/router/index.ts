@@ -85,6 +85,14 @@ const routes: RouteRecordRaw[] = [
             path: 'password',
             component: () => import('../views/user-center/pages/change-password.vue'),
           },
+          {
+            path: 'messages',
+            component: () => import('../views/user-center/pages/messages.vue'),
+          },
+          {
+            path: 'drafts',
+            component: () => import('../views/user-center/pages/drafts.vue'),
+          },
         ],
       },
     ],

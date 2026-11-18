@@ -21,4 +21,7 @@ public class PostPageQuery extends PageQuery {
 
     /** 发帖人ID */
     private String userId;
+
+    /** 排序: latest 最新(默认) / hot 热门 / essence 精华 */
+    private String sort;
 }

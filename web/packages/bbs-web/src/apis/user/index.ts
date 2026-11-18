@@ -8,7 +8,8 @@ export * from './index.api';
 export const registerApi = (params: RegisterParams) => http.post<string>('/admin/user/register', params);
 
 /** 获取用户公开信息 */
-export const getUserApi = (userId: string) => http.post<UserInfoVO>('/admin/user/detail', { userId });
+// 后端路由是 /admin/user/{userId} (路径参数), 之前写成 /admin/user/detail 会命中 {userId}="detail" 而查不到人
+export const getUserApi = (userId: string) => http.post<UserInfoVO>(`/admin/user/${userId}`, {});
 
 /** 修改自己的资料 */
 export const updateProfileApi = (userId: string, params: UserUpdateParams) =>

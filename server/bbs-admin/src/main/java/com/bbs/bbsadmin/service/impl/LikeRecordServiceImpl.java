@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bbs.bbsadmin.entity.CollectRecord;
 import com.bbs.bbsadmin.entity.Comment;
 import com.bbs.bbsadmin.entity.LikeRecord;
+import com.bbs.bbsadmin.entity.Notification;
 import com.bbs.bbsadmin.entity.Post;
 import com.bbs.bbsadmin.entity.vo.PostVO;
 import com.bbs.bbsadmin.exception.BizException;
@@ -18,6 +19,7 @@ import com.bbs.bbsadmin.response.ResponseCode;
 import com.bbs.bbsadmin.security.AuthContext;
 import com.bbs.bbsadmin.service.CollectRecordService;
 import com.bbs.bbsadmin.service.LikeRecordService;
+import com.bbs.bbsadmin.service.NotificationService;
 import com.bbs.bbsadmin.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,6 +42,9 @@ public class LikeRecordServiceImpl extends ServiceImpl<LikeRecordMapper, LikeRec
 
     @Autowired
     private CommentMapper commentMapper;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Override
     @Transactional
@@ -65,13 +70,20 @@ public class LikeRecordServiceImpl extends ServiceImpl<LikeRecordMapper, LikeRec
 
         // 目标 +1
         if (targetType == 1) {
-            Post p = new Post();
-            p.setId(targetId);
-            Post exist2 = postMapper.selectById(targetId);
-            p.setLikeCount(exist2.getLikeCount() == null ? 1 : exist2.getLikeCount() + 1);
-            postMapper.updateById(p);
+            postMapper.incrLikeCount(targetId, 1);
+            Post post = postMapper.selectById(targetId);
+            if (post != null) {
+                notificationService.push(post.getUserId(), userId,
+                        Notification.TYPE_LIKE, targetId, 0, "赞了你的帖子");
+            }
         } else if (targetType == 2) {
             commentMapper.incrLikeCount(targetId, 1);
+            Comment comment = commentMapper.selectById(targetId);
+            if (comment != null) {
+                notificationService.push(comment.getUserId(), userId,
+                        Notification.TYPE_LIKE, comment.getPostId() == null ? 0 : comment.getPostId(),
+                        targetId, "赞了你的评论");
+            }
         }
         return true;
     }
@@ -87,18 +99,23 @@ public class LikeRecordServiceImpl extends ServiceImpl<LikeRecordMapper, LikeRec
         if (exist == null) {
             return false;
         }
-        baseMapper.softCancel(userId, targetType, targetId);
+        baseMapper.cancelLike(userId, targetType, targetId);
 
         if (targetType == 1) {
-            Post p = postMapper.selectById(targetId);
-            if (p != null) {
-                Post upd = new Post();
-                upd.setId(targetId);
-                upd.setLikeCount(Math.max(0, (p.getLikeCount() == null ? 0 : p.getLikeCount()) - 1));
-                postMapper.updateById(upd);
+            postMapper.incrLikeCount(targetId, -1);
+            Post post = postMapper.selectById(targetId);
+            if (post != null) {
+                notificationService.revoke(post.getUserId(), userId,
+                        Notification.TYPE_LIKE, targetId, 0);
             }
         } else if (targetType == 2) {
             commentMapper.incrLikeCount(targetId, -1);
+            Comment comment = commentMapper.selectById(targetId);
+            if (comment != null) {
+                notificationService.revoke(comment.getUserId(), userId,
+                        Notification.TYPE_LIKE, comment.getPostId() == null ? 0 : comment.getPostId(),
+                        targetId);
+            }
         }
         return true;
     }

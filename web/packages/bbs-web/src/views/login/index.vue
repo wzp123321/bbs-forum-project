@@ -77,6 +77,10 @@
           </el-button>
         </el-form>
 
+        <div class="login-forgot">
+          <el-link type="info" :underline="false" @click="openForgot">忘记密码?</el-link>
+        </div>
+
         <div class="login-divider">
           <span>其他登录方式</span>
         </div>
@@ -98,6 +102,64 @@
         </div>
       </div>
     </div>
+
+    <!-- 找回密码: 校验身份 → 设置新密码 -->
+    <el-dialog v-model="forgot.visible" title="找回密码" width="440px" append-to-body>
+      <p class="login-forgot-tip">
+        填写用户名与账号绑定的邮箱或手机号, 校验通过后可设置新密码。
+      </p>
+      <el-form v-if="forgot.step === 1" label-position="top" size="large">
+        <el-form-item label="用户名">
+          <el-input v-model="forgot.account" placeholder="请输入用户名" clearable />
+        </el-form-item>
+        <el-form-item label="绑定的邮箱或手机号">
+          <el-input
+            v-model="forgot.contact"
+            placeholder="邮箱或手机号"
+            clearable
+            @keyup.enter="handleForgotNext"
+          />
+        </el-form-item>
+      </el-form>
+      <el-form v-else label-position="top" size="large">
+        <el-form-item label="新密码">
+          <el-input
+            v-model="forgot.newPassword"
+            type="password"
+            show-password
+            placeholder="6-32 位"
+          />
+        </el-form-item>
+        <el-form-item label="确认新密码">
+          <el-input
+            v-model="forgot.confirmPassword"
+            type="password"
+            show-password
+            placeholder="再输入一次"
+            @keyup.enter="handleResetPassword"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="forgot.visible = false">取消</el-button>
+        <el-button
+          v-if="forgot.step === 1"
+          type="primary"
+          :loading="forgot.submitting"
+          @click="handleForgotNext"
+        >
+          下一步
+        </el-button>
+        <el-button
+          v-else
+          type="primary"
+          :loading="forgot.submitting"
+          @click="handleResetPassword"
+        >
+          重置密码
+        </el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -106,7 +168,7 @@ import { reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, FormInstance, FormRules } from 'element-plus';
 import { User, Lock, ChatDotRound, Collection, Link, Iphone } from '@element-plus/icons-vue';
-import { loginApi } from '@/apis/auth';
+import { forgotPasswordApi, loginApi, resetPasswordApi } from '@/apis/auth';
 import { tokenStore, userStore } from '@/utils';
 
 defineOptions({ name: 'Login' });
@@ -120,6 +182,71 @@ const form = reactive({ account: '', password: '' });
 const rules: FormRules = {
   account: [{ required: true, message: '请输入账号', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+};
+
+/** 找回密码弹窗: 第 1 步校验身份换令牌, 第 2 步设置新密码 */
+const forgot = reactive({
+  visible: false,
+  step: 1 as 1 | 2,
+  account: '',
+  contact: '',
+  newPassword: '',
+  confirmPassword: '',
+  resetToken: '',
+  submitting: false,
+});
+
+const openForgot = () => {
+  forgot.visible = true;
+  forgot.step = 1;
+  forgot.account = form.account;
+  forgot.contact = '';
+  forgot.newPassword = '';
+  forgot.confirmPassword = '';
+  forgot.resetToken = '';
+};
+
+const handleForgotNext = async () => {
+  if (!forgot.account.trim() || !forgot.contact.trim()) {
+    ElMessage.warning('请填写用户名和绑定的邮箱或手机号');
+    return;
+  }
+  forgot.submitting = true;
+  try {
+    const res = await forgotPasswordApi({
+      account: forgot.account.trim(),
+      contact: forgot.contact.trim(),
+    });
+    forgot.resetToken = res.resetToken;
+    forgot.step = 2;
+    ElMessage.success('身份校验通过, 请设置新密码');
+  } finally {
+    forgot.submitting = false;
+  }
+};
+
+const handleResetPassword = async () => {
+  if (forgot.newPassword.length < 6 || forgot.newPassword.length > 32) {
+    ElMessage.warning('密码长度 6-32 位');
+    return;
+  }
+  if (forgot.newPassword !== forgot.confirmPassword) {
+    ElMessage.warning('两次输入的密码不一致');
+    return;
+  }
+  forgot.submitting = true;
+  try {
+    await resetPasswordApi({
+      resetToken: forgot.resetToken,
+      newPassword: forgot.newPassword,
+    });
+    ElMessage.success('密码已重置, 请用新密码登录');
+    form.account = forgot.account.trim();
+    form.password = '';
+    forgot.visible = false;
+  } finally {
+    forgot.submitting = false;
+  }
 };
 
 const navigateToRedirect = () => {
@@ -373,6 +500,20 @@ const navigateToRegister = () => router.push({ path: '/register', query: route.q
 
 .login-footer :deep(.el-link) {
   font-weight: var(--bbs-font-weight-semibold);
+}
+
+.login-forgot {
+  margin-top: -4px;
+  margin-bottom: 12px;
+  text-align: right;
+  font-size: var(--bbs-font-size-sm);
+}
+
+.login-forgot-tip {
+  margin: 0 0 12px;
+  color: var(--bbs-text-color-secondary);
+  font-size: var(--bbs-font-size-sm);
+  line-height: 1.6;
 }
 
 /* 响应式: 窄屏隐藏左侧 */

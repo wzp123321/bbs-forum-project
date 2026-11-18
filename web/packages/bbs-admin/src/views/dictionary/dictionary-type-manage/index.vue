@@ -1,122 +1,134 @@
 <template>
   <div class="dictionary-type-manage">
-    <el-form :inline="true" :model="searchForm" class="search-form">
-      <el-form-item label="字典类型：">
-        <el-input v-model="searchForm.name" placeholder="字典类型" clearable />
+    <el-form :inline="true" :model="searchForm" @submit.prevent="searchList">
+      <el-form-item>
+        <el-input
+          v-model="searchForm.keyword"
+          placeholder="类型名称 / 编码"
+          clearable
+          @keyup.enter="searchList"
+        />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="searchList">查询</el-button>
-        <el-button type="primary" @click="openAddEditDrawer">新增</el-button>
+        <el-button @click="resetSearch">重置</el-button>
+        <el-button type="success" @click="openAddDrawer">新增类型</el-button>
       </el-form-item>
     </el-form>
-    <el-divider />
-    <el-table :data="tableData" :border="true" style="width: 100%">
-      <el-table-column prop="id" label="ID" width="120" />
-      <el-table-column prop="name" label="字典类型" />
-      <el-table-column fixed="right" label="操作" min-width="120">
-        <template #default="scope">
-          <el-button link type="primary" size="small" @click="openAddEditDrawer(scope.row)">编辑</el-button>
-          <el-button link type="primary" size="small" @click="confirmDelete">删除</el-button>
+
+    <el-table v-loading="loading" :data="dataSource" border stripe style="width: 100%">
+      <el-table-column prop="id" label="ID" width="80" />
+      <el-table-column prop="name" label="类型名称" min-width="150" />
+      <el-table-column prop="code" label="编码" min-width="150" />
+      <el-table-column prop="description" label="描述" min-width="220" show-overflow-tooltip />
+      <el-table-column label="状态" width="100">
+        <template #default="{ row }">
+          <el-tag :type="row.status === 1 ? 'success' : 'info'">
+            {{ row.status === 1 ? '启用' : '停用' }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="createTime" label="创建时间" width="170" />
+      <el-table-column label="操作" width="160" fixed="right">
+        <template #default="{ row }">
+          <el-button type="primary" link @click="openEditDrawer(row)">编辑</el-button>
+          <el-button type="danger" link @click="confirmDelete(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
+
     <el-pagination
-      v-model:current-page="pageNum"
-      v-model:page-size="pageSize"
+      class="dtm-pagination"
+      :current-page="pageNum"
+      :page-size="pageSize"
       :page-sizes="pageSizes"
-      background
-      layout="total, sizes, prev, pager, next, jumper"
       :total="total"
+      layout="total, sizes, prev, pager, next, jumper"
       @size-change="onPageSizeChange"
       @current-change="onPageNumChange"
     />
+
+    <UmAddEditDrawer ref="drawerRef" @saved="fetchList" />
   </div>
-  <!-- 新增/编辑弹窗 -->
-  <UmAddEditDrawer ref="addEditDrawerRef" />
 </template>
 
 <script lang="ts" setup>
 import { reactive, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { usePagination, COMMON_PAGE_SIZES as pageSizes } from '@bbs/core';
+import { deleteDictionaryTypeApi, pageDictionaryTypesApi } from '@/apis';
+import type { DictionaryTypeVO } from '@/apis';
+import { SearchForm } from './constant/model';
 import { UmAddEditDrawer } from './components';
-import { TypeFrom, SearchForm, TableData } from './constant/model';
-defineOptions({
-  name: 'DictionaryTypeManage',
-});
 
-// 表格数据
-const tableData = ref<TableData[]>([
-  {
-    id: '1',
-    name: 'Tom',
-  },
-  {
-    id: '2',
-    name: 'Tom',
-  },
-  {
-    id: '3',
-    name: 'Tom',
-  },
-]);
-// 分页
+defineOptions({ name: 'DictionaryTypeManage' });
+
 const { pageNum, pageSize, total, setPageNum, setPageSize } = usePagination();
-// 修改条数
+const dataSource = ref<DictionaryTypeVO[]>([]);
+const loading = ref(false);
+const searchForm = reactive<SearchForm>({ keyword: '' });
+const drawerRef = ref<InstanceType<typeof UmAddEditDrawer>>();
+
+const fetchList = async () => {
+  loading.value = true;
+  try {
+    const res = await pageDictionaryTypesApi({
+      pageNum: pageNum.value,
+      pageSize: pageSize.value,
+      keyword: searchForm.keyword || undefined,
+    });
+    dataSource.value = res.list;
+    total.value = res.total;
+  } finally {
+    loading.value = false;
+  }
+};
+
 const onPageSizeChange = (value: number) => {
   setPageSize(value);
-  searchList();
+  fetchList();
 };
-// 修改页码
+
 const onPageNumChange = (value: number) => {
   setPageNum(value);
+  fetchList();
+};
+
+const searchList = () => {
+  setPageNum(1);
+  fetchList();
+};
+
+const resetSearch = () => {
+  searchForm.keyword = '';
   searchList();
 };
 
-// 查询表单
-const searchForm = reactive<SearchForm>({
-  name: '',
-});
-// 查询
-const searchList = () => {};
+const openAddDrawer = () => drawerRef.value?.open();
 
-const addEditDrawerRef = ref<typeof UmAddEditDrawer>();
-// 打开抽屉
-const openAddEditDrawer = (row: TypeFrom) => {
-  if (!addEditDrawerRef.value) return;
-  addEditDrawerRef.value.open(row);
-};
-// 删除
-const confirmDelete = () => {
-  ElMessageBox.confirm('确定删除该数据?', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning',
-  })
-    .then(() => {
-      ElMessage({
-        type: 'success',
-        message: '删除 completed',
-      });
-    })
-    .catch(() => {
-      ElMessage({
-        type: 'info',
-        message: '删除 canceled',
-      });
+const openEditDrawer = (row: DictionaryTypeVO) => drawerRef.value?.open(row);
+
+const confirmDelete = async (row: DictionaryTypeVO) => {
+  try {
+    await ElMessageBox.confirm(`确认删除类型 ${row.name} ?`, '提示', {
+      type: 'warning',
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
     });
+  } catch {
+    return;
+  }
+  await deleteDictionaryTypeApi(row.id);
+  ElMessage.success('删除成功');
+  fetchList();
 };
+
+fetchList();
 </script>
 
 <style lang="less" scoped>
-.dictionary-type-manage {
-  height: 100%;
-  padding: 20px;
-  background: #fff;
-  border-radius: 10px;
-
-  .search-form .el-input {
-    --el-input-width: 220px;
-  }
+.dtm-pagination {
+  margin-top: 16px;
+  justify-content: flex-end;
 }
 </style>

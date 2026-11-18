@@ -5,11 +5,13 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bbs.bbsadmin.entity.Comment;
+import com.bbs.bbsadmin.entity.Notification;
 import com.bbs.bbsadmin.entity.Post;
 import com.bbs.bbsadmin.entity.UserInfo;
 import com.bbs.bbsadmin.entity.dto.CommentPageQuery;
 import com.bbs.bbsadmin.entity.dto.CommentSaveDTO;
 import com.bbs.bbsadmin.entity.vo.CommentVO;
+import com.bbs.bbsadmin.entity.vo.UserVO;
 import com.bbs.bbsadmin.exception.BizException;
 import com.bbs.bbsadmin.mapper.CommentMapper;
 import com.bbs.bbsadmin.mapper.PostMapper;
@@ -20,6 +22,7 @@ import com.bbs.bbsadmin.security.Authz;
 import com.bbs.bbsadmin.security.SensitiveWordFilter;
 import com.bbs.bbsadmin.security.XssSanitizer;
 import com.bbs.bbsadmin.service.CommentService;
+import com.bbs.bbsadmin.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,6 +55,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
 
     @Autowired
     private Authz authz;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Override
     public IPage<CommentVO> pageQueryVO(CommentPageQuery query) {
@@ -128,6 +134,17 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         post.setUpdateTime(LocalDateTime.now());
         postMapper.updateById(post);
 
+        // 通知: 回复评论通知被回复者, 普通评论通知帖子作者
+        // 一条评论只产生一条通知, 回复时不再额外通知帖子作者
+        String commenterId = AuthContext.userId();
+        if (StringUtils.hasText(c.getReplyToUserId())) {
+            notificationService.push(c.getReplyToUserId(), commenterId,
+                    Notification.TYPE_REPLY, c.getPostId(), c.getId(), c.getContent());
+        } else {
+            notificationService.push(post.getUserId(), commenterId,
+                    Notification.TYPE_COMMENT, c.getPostId(), c.getId(), c.getContent());
+        }
+
         return c.getId();
     }
 
@@ -198,11 +215,11 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
             if (StringUtils.hasText(v.getReplyToUserId())) userIds.add(v.getReplyToUserId());
             if (v.getPostId() != null) postIds.add(v.getPostId());
         }
-        Map<String, String> userNameMap = new HashMap<>();
+        Map<String, UserInfo> userMap = new HashMap<>();
         if (!userIds.isEmpty()) {
             List<UserInfo> users = userInfoMapper.selectBatchIds(userIds);
             for (UserInfo u : users) {
-                userNameMap.put(u.getUserId(), u.getUserName());
+                userMap.put(u.getUserId(), u);
             }
         }
         Map<Long, String> postTitleMap = new HashMap<>();
@@ -214,10 +231,19 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         }
         for (CommentVO v : vos) {
             if (StringUtils.hasText(v.getUserId())) {
-                v.setUserName(userNameMap.get(v.getUserId()));
+                UserInfo u = userMap.get(v.getUserId());
+                if (u != null) {
+                    v.setUserName(u.getUserName());
+                    v.setNickname(UserVO.displayName(u));
+                    v.setAvatar(u.getAvatar());
+                }
             }
             if (StringUtils.hasText(v.getReplyToUserId())) {
-                v.setReplyToUserName(userNameMap.get(v.getReplyToUserId()));
+                UserInfo r = userMap.get(v.getReplyToUserId());
+                if (r != null) {
+                    v.setReplyToUserName(r.getUserName());
+                    v.setReplyToNickname(UserVO.displayName(r));
+                }
             }
             if (v.getPostId() != null) {
                 v.setPostTitle(postTitleMap.get(v.getPostId()));

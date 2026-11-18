@@ -1,7 +1,9 @@
 package com.bbs.bbsadmin.controller;
 
 import com.bbs.bbsadmin.entity.UserInfo;
+import com.bbs.bbsadmin.entity.dto.ForgotPasswordDTO;
 import com.bbs.bbsadmin.entity.dto.LoginDTO;
+import com.bbs.bbsadmin.entity.dto.PasswordResetDTO;
 import com.bbs.bbsadmin.entity.vo.LoginVO;
 import com.bbs.bbsadmin.exception.BizException;
 import com.bbs.bbsadmin.response.R;
@@ -9,6 +11,7 @@ import com.bbs.bbsadmin.response.ResponseCode;
 import com.bbs.bbsadmin.security.AuthContext;
 import com.bbs.bbsadmin.security.JwtUtil;
 import com.bbs.bbsadmin.security.LoginLock;
+import com.bbs.bbsadmin.security.PasswordResetStore;
 import com.bbs.bbsadmin.security.annotation.AuditLog;
 import com.bbs.bbsadmin.security.annotation.RateLimit;
 import com.bbs.bbsadmin.security.annotation.RequireAuth;
@@ -39,6 +42,9 @@ public class AuthController {
 
     @Autowired
     private LoginLock loginLock;
+
+    @Autowired
+    private PasswordResetStore passwordResetStore;
 
     @Operation(summary = "登录")
     @RateLimit(key = "login", capacity = 10, refillTokens = 10, refillSeconds = 60, message = "登录尝试过于频繁")
@@ -104,5 +110,54 @@ public class AuthController {
     public R<Void> logout() {
         // 纯 JWT 无需服务端失效,如需黑名单可在 Redis 存 token
         return R.success();
+    }
+
+    @Operation(summary = "忘记密码: 校验身份并签发重置令牌")
+    @RateLimit(key = "auth:forgot", capacity = 5, refillSeconds = 60, message = "操作过于频繁,请稍后再试")
+    @PostMapping("/forgotPassword")
+    public R<Map<String, Object>> forgotPassword(@Valid @RequestBody ForgotPasswordDTO dto) {
+        String account = dto.getAccount() == null ? "" : dto.getAccount().trim();
+        UserInfo user = userInfoService.findByAccount(account);
+        // 账号不存在与联系方式不匹配返回同一文案, 避免账号枚举
+        if (user == null || !matchesContact(user, dto.getContact())) {
+            throw new BizException(ResponseCode.BAD_CREDENTIALS, "账号或绑定信息不匹配");
+        }
+        String token = passwordResetStore.issue(account, user.getUserId());
+        Map<String, Object> data = new HashMap<>();
+        data.put("resetToken", token);
+        data.put("expireSeconds", passwordResetStore.expireSeconds());
+        return R.data(data);
+    }
+
+    @Operation(summary = "重置密码")
+    @RateLimit(key = "auth:reset", capacity = 10, refillSeconds = 60, message = "操作过于频繁,请稍后再试")
+    @PostMapping("/resetPassword")
+    public R<Void> resetPassword(@Valid @RequestBody PasswordResetDTO dto) {
+        String newPassword = dto.getNewPassword();
+        String userId = passwordResetStore.consume(dto.getResetToken());
+        if (userId == null) {
+            throw new BizException(ResponseCode.PARAM_ERROR, "重置链接已失效,请重新申请");
+        }
+        userInfoService.updatePassword(userId, BCrypt.hashpw(newPassword, BCrypt.gensalt()));
+        // 重置成功后解除登录失败锁定, 否则用户拿着新密码仍然登不进去
+        UserInfo user = userInfoService.findByUserId(userId);
+        if (user != null && user.getUserName() != null) {
+            loginLock.clear(user.getUserName());
+        }
+        return R.success();
+    }
+
+    /** 联系方式比对: 邮箱忽略大小写, 手机去掉空格 */
+    private boolean matchesContact(UserInfo user, String contact) {
+        String input = contact == null ? "" : contact.trim();
+        if (input.isEmpty()) {
+            return false;
+        }
+        String email = user.getEmail() == null ? "" : user.getEmail().trim();
+        String phone = user.getPhone() == null ? "" : user.getPhone().trim();
+        if (!email.isEmpty() && email.equalsIgnoreCase(input)) {
+            return true;
+        }
+        return !phone.isEmpty() && phone.equals(input.replace(" ", ""));
     }
 }
